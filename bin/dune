@@ -1,0 +1,5 @@
+(executable
+ (public_name revpn-ccsk)
+ (name main)
+ (libraries revpn_ccsk)
+ (modes byte))

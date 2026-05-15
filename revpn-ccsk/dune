@@ -1,0 +1,9 @@
+(library
+ (name revpn_ccsk)
+ (modules lts))
+
+(env
+ (dev
+  (flags 
+    (:standard -w -32 -w -33))))
+

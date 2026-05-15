@@ -1,0 +1,8 @@
+lib: [
+  "_build/install/default/lib/revpn-ccsk/META"
+  "_build/install/default/lib/revpn-ccsk/dune-package"
+  "_build/install/default/lib/revpn-ccsk/opam"
+]
+bin: [
+  "_build/install/default/bin/revpn-ccsk"
+]
