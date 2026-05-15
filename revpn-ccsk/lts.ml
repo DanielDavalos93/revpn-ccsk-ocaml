@@ -1,50 +1,3 @@
-(** Utils *)
-(** range from i to j *)
-
-let rec (--) i j = if i > j then [] else i :: i + 1 -- j
-  (* let rec aux n acc = *)
-  (*     if n < i then acc else aux (n-1) (n :: acc) *)
-  (*   in aux j [] ;; *)
-
-let (|>>) x f = 
-  match x with
-  | None -> None
-  | Some y -> f y
-
-let rec zip ls ts = 
-  match ls, ts with
-  | [], _ -> []
-  | _, [] -> []
-  |x :: xs, y :: ys -> (x,y) :: (zip xs ys)
-
-(* Append disjoint union *)
-let append_disj f xs = List.filter f xs, List.filter (function x -> f x |> not) xs
-
-(* Get the n-th element of a list *)
-let rec ( !! ) xs n = 
-  match xs, n with
-    | [], _ -> raise (Failure "get_nth")
-    | _, n when (n > List.length xs) -> raise (Invalid_argument "get_nth")
-    | x ::_, 0 -> x
-    | x :: xs, n -> !! xs (n-1)
-
-let init : 'a list -> 'a list = fun xs -> List.rev xs |> List.tl |> List.rev
-
-let last : 'a list -> 'a = fun xs -> !! xs (List.length xs - 1)
-
-(** Concat lists *)
-(* let rec ( ++ ) xs ys = *)
-(*   match xs with  *)
-(*   | [] -> ys  *)
-(*   | xs -> (init xs) ++ ((last xs) :: ys) *)
-
-
-(* Lists to set *)
-
-let rec set_of_list xs = match xs with 
-  | [] -> []
-  | x :: xs -> if List.mem x xs then set_of_list xs else x :: set_of_list xs
-
 
   (***********************************************)
 
@@ -62,6 +15,7 @@ type 'a transition = 'a transition_label list (** transition relation type for L
 module LTS = struct 
   
   let mk_label q n : state list = List.map (fun x -> q ^ string_of_int x) ( 0-- (n-1) ) (* the number of states generes automatically the set of states *) 
+
   let mk_actions a ls : 'a action list =
     zip (mk_label a (List.length ls)) ls
 
@@ -86,13 +40,29 @@ module LTS = struct
 
   let extract_states (tr : (label * ('a * direction) * label) list) = set_of_list (List.fold_left (@) [] (List.map (fun (x,(_,_),z) -> [x;z]) tr))
 
-  (* Strong forward and reverse bisimulation between two LTS's *)
-  (* let rec bisimulationFR (lts1 : transition) (lts2 : transition) : bool = *)
-  (*   let  *)
+  let extract_actions (tr : (label * ('a * direction) * label) list) = set_of_list (List.fold_left (@) [] (List.map (fun (_,(a,_),_) -> [a]) tr))
+
+
+  (* Strong forward and reverse bisimulation between two LTS's (Q1,A1,->1) and (Q2,A2,->2) *)
+  let rec bisimulationFR (lts1 : 'a transition) (lts2 : 'a transition) (r : state list)  =
+    let q1 = extract_states lts1 in           (* Q1 *)
+    let q2 = extract_states lts2 in           (* Q2 *)
+    let q = bin_prod q1 q2 in                 (* Q = Q1 x Q2 *)
+    let partition_q1 = disj_Fwd_Bwd lts1 in   (* ->1 = ->1^f U ->1^b *)
+    let partition_q2 = disj_Fwd_Bwd lts2 in   (* ->2 = ->2^f U ->2^b *)
+    let pair1f = fst partition_q1 in          (* [(q,q') | q ->1^f q'] *)
+    let pair1b = snd partition_q1 in          (* [(q,q') | q ->1^b q'] *)
+    let pair2f = fst partition_q2 in          (* [(q,q') | q ->2^f q'] *)
+    let pair2b = snd partition_q2 in          (* [(q,q') | q ->2^b q'] *)
+    let cond1 = List.forall () 
+    r1f
+    (* let cond1 = List.for_all  *)
+
 
 end
 
-
+let lts1 = [("q0",(1,Fwd),"q1"); ("q0",(2,Fwd),"q2"); ("q1",(1,Bwd),"q0")]
+let lts2 = [("r0",(1,Bwd),"r1"); ("r1",(1,Bwd),"r0")]
 
 
 (* type 'a state = Q of 'a  *)
