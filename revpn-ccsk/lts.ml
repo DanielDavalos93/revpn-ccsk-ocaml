@@ -44,25 +44,33 @@ module LTS = struct
 
 
   (* Strong forward and reverse bisimulation between two LTS's (Q1,A1,->1) and (Q2,A2,->2) *)
-  let rec bisimulationFR (lts1 : 'a transition) (lts2 : 'a transition) (r : state list)  =
+  let cond_bisimulationFR (lts1 : 'a transition) (lts2 : 'a transition) (r : state list) (q1, q2) =
     let q1 = extract_states lts1 in           (* Q1 *)
     let q2 = extract_states lts2 in           (* Q2 *)
     let q = bin_prod q1 q2 in                 (* Q = Q1 x Q2 *)
-    let partition_q1 = disj_Fwd_Bwd lts1 in   (* ->1 = ->1^f U ->1^b *)
-    let partition_q2 = disj_Fwd_Bwd lts2 in   (* ->2 = ->2^f U ->2^b *)
-    let pair1f = fst partition_q1 in          (* [(q,q') | q ->1^f q'] *)
-    let pair1b = snd partition_q1 in          (* [(q,q') | q ->1^b q'] *)
-    let pair2f = fst partition_q2 in          (* [(q,q') | q ->2^f q'] *)
-    let pair2b = snd partition_q2 in          (* [(q,q') | q ->2^b q'] *)
-    let cond1 = List.forall () 
-    r1f
-    (* let cond1 = List.for_all  *)
+    let partition_q1 = disj_Fwd_Bwd lts1 in   (* ->1 = ->1^f U ->1^b : is the disjoint union between forward and backward for ->1 *)
+    let partition_q2 = disj_Fwd_Bwd lts2 in   (* ->2 = ->2^f U ->2^b : is the disjoint union between forward and backward for ->2 *)
+    let rel1f = fst partition_q1 in          (* [(q,q') | q ->1^f q'] *)
+    let rel1b = snd partition_q1 in          (* [(q,q') | q ->1^b q'] *)
+    let rel2f = fst partition_q2 in          (* [(q,q') | q ->2^f q'] *)
+    let rel2b = snd partition_q2 in          (* [(q,q') | q ->2^b q'] *)
+    let cond1 = List.for_all ( not ((fun x -> List.mem (q1, x)) rel1f) || List.exists (fun y -> List.mem (q2,y) rel2f && List.mem (x,y) r)) q
+    let cond2 = List.for_all ( not ((fun x -> List.mem (q1, x)) rel1b) || List.exists (fun y -> List.mem (q2,y) rel2b && List.mem (x,y) r)) q
+    let cond3 = List.for_all ( not ((fun x -> List.mem (q2, x)) rel2f) || List.exists (fun y -> List.mem (q1,y) rel1f && List.mem (x,y) r)) q
+    let cond4 = List.for_all ( not ((fun x -> List.mem (q2, x)) rel2b) || List.exists (fun y -> List.mem (q1,y) rel1b && List.mem (x,y) r)) q
+    [cond1; cond2; cond3; cond4]
 
+  let bisimulationFR (lts1 : 'a transition) (lts2 : 'a transition) (r : state list) =
+    let fq = cond_bisimulationFR lts1 lts2 r
+    List.for_all (fun x -> List.mem x r && (!! (fq x) 0) && (!! (fq x) 1) && (!! (fq x) 2) && (!! (fq x) 3)) r
 
-end
-
-let lts1 = [("q0",(1,Fwd),"q1"); ("q0",(2,Fwd),"q2"); ("q1",(1,Bwd),"q0")]
-let lts2 = [("r0",(1,Bwd),"r1"); ("r1",(1,Bwd),"r0")]
+(*   let strong_bisimulationFR (lts1 : 'a transition) (lts2 : 'a transition) (r : state list) = *)
+(*     let fq = cond_bisimulationFR lts1 lts2 r *)
+(*     List.for_all (fun x -> List.mem x r && (!! (fq x) 0) && (!! (fq x) 2)) r *)
+(* end *)
+(**)
+(* let lts1 = [("q0",(1,Fwd),"q1"); ("q0",(2,Fwd),"q2"); ("q1",(1,Bwd),"q0")] *)
+(* let lts2 = [("r0",(1,Bwd),"r1"); ("r1",(1,Bwd),"r0")] *)
 
 
 (* type 'a state = Q of 'a  *)
