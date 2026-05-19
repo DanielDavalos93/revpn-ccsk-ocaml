@@ -20,12 +20,10 @@ type transition_id = string
 
 type place = {
   p_id: place_id;
-  p_name: string;
 }
 
 type transition = {
   t_id: transition_id;
-  t_name: string;
 }
 
 type arc = PT of (place_id * transition_id * int) | TP of (transition_id * place_id * int)
@@ -44,10 +42,10 @@ let make_label_net places transitions arcs set label : labelled_net =
   { places; transitions; arcs; set; label }
 
 let make_place id name : place =
-  { p_id = id; p_name = name }
+  { p_id = id }
  
 let make_transition id name : transition =
-  { t_id = id; t_name = name }
+  { t_id = id }
 
 type marked_net = {
   net : labelled_net;
@@ -63,21 +61,19 @@ let set_tokens marking p n =
   let rest = List.filter (fun (k, _) -> k <> p) marking in
   if n = 0 then rest else (p, n) :: rest
 
-(** Arcos de entrada (place → trans) para una transición. *)
 let input_arcs net tid =
   List.filter_map (function
     | PT (pid, t, w) when t = tid -> Some (pid, w)
     | _ -> None
   ) net.arcs
  
-(** Arcos de salida (trans → place) para una transición. *)
 let output_arcs net tid =
   List.filter_map (function
     | TP (t, pid, w) when t = tid -> Some (pid, w)
     | _ -> None
   ) net.arcs
 
-(* ---- Preset y Postset -------- *)
+(* ---- Preset and Postset -------- *)
  
 let preset_of_transition net tid =
   List.filter_map (function
@@ -110,18 +106,18 @@ let postset_of_place net pid =
 let is_enabled net tid =
   List.for_all
     (fun (pid, w) -> tokens net pid >= w)
-    (input_arcs net tid)
+    (input_arcs net.net tid)
  
 (** Fire a transition if it is enabled; return the net with
     the new marking on [Some] of [None] if it isn't enabled.*)
 let fire net tid =
-  if not (is_enabled net tid) then None
+  if not (is_enabled net tid) then None (*Error "Transition is not enabled"*)
   else
     let m1 =
       List.fold_left
         (fun m (pid, w) -> set_tokens m pid (List.assoc pid m - w))
         net.marking
-        (input_arcs net tid)
+        (input_arcs net.net tid)
     in
     let m2 =
       List.fold_left
@@ -129,7 +125,7 @@ let fire net tid =
           let cur = match List.assoc_opt pid m with Some n -> n | None -> 0 in
           set_tokens m pid (cur + w))
         m1
-        (output_arcs net tid)
+        (output_arcs net.net tid)
     in
     Some { net with marking = m2 }
  
@@ -137,31 +133,31 @@ let fire net tid =
 let enabled_transitions net =
   List.filter_map (fun t ->
     if is_enabled net t.t_id then Some t else None
-  ) net.transitions
+  ) net.net.transitions
 
 (* ------- Pretty-print ----------------- *)
  
 let print_preset_postset net =
   print_endline "Preset and Postset of transitions";
   List.iter (fun t ->
-    let pre  = preset_of_transition  net t.t_id |> List.map (fun p -> p.p_name) in
-    let post = postset_of_transition net t.t_id |> List.map (fun p -> p.p_name) in
-    Printf.printf "  •%s = { %s }\n"  t.t_name (String.concat ", " pre);
-    Printf.printf "   %s• = { %s }\n" t.t_name (String.concat ", " post)
+    let pre  = preset_of_transition  net t.t_id |> List.map (fun p -> p.p_id) in
+    let post = postset_of_transition net t.t_id |> List.map (fun p -> p.p_id) in
+    Printf.printf "  •%s = { %s }\n"  t.t_id (String.concat ", " pre);
+    Printf.printf "   %s• = { %s }\n" t.t_id (String.concat ", " post)
   ) net.transitions;
   print_endline "Preset and Postset of places";
   List.iter (fun p ->
-    let pre  = preset_of_place  net p.p_id |> List.map (fun t -> t.t_name) in
-    let post = postset_of_place net p.p_id |> List.map (fun t -> t.t_name) in
-    Printf.printf "  •%s = { %s }\n"  p.p_name (String.concat ", " pre);
-    Printf.printf "   %s• = { %s }\n" p.p_name (String.concat ", " post)
+    let pre  = preset_of_place  net p.p_id |> List.map (fun t -> t.t_id) in
+    let post = postset_of_place net p.p_id |> List.map (fun t -> t.t_id) in
+    Printf.printf "  •%s = { %s }\n"  p.p_id (String.concat ", " pre);
+    Printf.printf "   %s• = { %s }\n" p.p_id (String.concat ", " post)
   ) net.places
  
 let print_marking net =
   print_endline "Current marking:";
   List.iter (fun p ->
-    Printf.printf "  %-15s : %d token(s)\n" p.p_name (tokens net p.p_id)
-  ) net.places
+    Printf.printf "  %-15s : %d token(s)\n" p.p_id (tokens net p.p_id)
+  ) net.net.places
  
 let print_enabled net =
   let ts = enabled_transitions net in
@@ -169,7 +165,7 @@ let print_enabled net =
     print_endline "  (without enabled transitions)"
   else
     List.iter (fun t ->
-      Printf.printf "  [%s] %s\n" t.t_id t.t_name
+      Printf.printf "  [%s] %s\n" t.t_id t.t_id
     ) ts
  
 
