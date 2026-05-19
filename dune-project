@@ -5,9 +5,9 @@
 (generate_opam_files true)
 
 (source
- (github username/reponame))
+ (github danieldavalos93/revpn-ccsk-ocaml))
 
-(authors "Author Name <author@example.com>")
+(authors "Daniel Dávalos <author@example.com>")
 
 (maintainers "Maintainer Name <maintainer@example.com>")
 

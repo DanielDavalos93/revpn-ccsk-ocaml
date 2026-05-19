@@ -1,5 +1,5 @@
 (library
  (name revpn_ccsk)
- (modules lts utils ccsk))
+ (modules lts utils ccsk net))
 
 
