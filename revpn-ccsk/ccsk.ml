@@ -106,8 +106,9 @@ let rec key (p : process)  =
 let std (q : process) : bool =
   key q == []
 
+(* Build LTS from CCS types (?) *)
 type lts_state  = process
-type lts_edge   = { from_state : int; label : act; to_state : int }
+type lts_edge   = { inp_state : int; label : act; out_state : int }
 type lts = {
   states : (int * process) list;
   edges  : lts_edge list;

@@ -24,9 +24,14 @@ type place = {
 
 type transition = {
   t_id: transition_id;
+  t_label: string
 }
 
-type arc = PT of (place_id * transition_id * int) | TP of (transition_id * place_id * int)
+(** [arc] is the immediate relation between places and transitions.
+ Here the type [int] plays the rol of the number of tokens. *)
+type arc = 
+  | PT of (place_id * transition_id * int) 
+  | TP of (transition_id * place_id * int)
 
 type marking = (place_id * int) list
 
@@ -35,17 +40,23 @@ type labelled_net = {
   transitions : transition list;
   arcs : arc list;
   set : string list;
-  label : transition list -> string list;
+  label : (transition -> transition_id) -> transition_id list;
 }
 
 let make_label_net places transitions arcs set label : labelled_net =
   { places; transitions; arcs; set; label }
 
-let make_place id name : place =
+let make_place id : place =
   { p_id = id }
- 
-let make_transition id name : transition =
-  { t_id = id }
+
+let generate_place n =
+  List.map (fun x -> "s" ^ string_of_int x |> make_place) (1--n)
+
+let make_transition id : transition =
+  { t_id = id; t_label = "" }
+
+let generate_transition n  =
+  List.map (fun x -> "t" ^ string_of_int x |> make_transition) (1--n)
 
 type marked_net = {
   net : labelled_net;
