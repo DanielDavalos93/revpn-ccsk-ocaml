@@ -1,6 +1,4 @@
-
-let states1 = LTS.mk_label "q" 2
-
-let () = print_endline states1 
-
+open Revpn_ccsk
+let states1 = Net.generate_place 3;;
+states1;;
 

@@ -1,6 +1,6 @@
-
+open Util
 (* Multisets *)
-type 'a multiset = ('a * int) list
+(* type 'a multiset = ('a * int) list *)
 
 (* let supp (f : 'a multiset) = fun x -> if f x > 0 then 1 else 0 *)
 
@@ -40,7 +40,7 @@ type labelled_net = {
   transitions : transition list;
   arcs : arc list;
   set : string list;
-  label : (transition -> transition_id) -> transition_id list;
+  label :  transition list;
 }
 
 let make_label_net places transitions arcs set label : labelled_net =
@@ -58,10 +58,16 @@ let make_transition id : transition =
 let generate_transition n  =
   List.map (fun x -> "t" ^ string_of_int x |> make_transition) (1--n)
 
+let make_label f t =
+  List.map (f) t
+
 type marked_net = {
   net : labelled_net;
   marking : marking;
 }
+
+let make_marked_net net marking : marked_net =
+  {net; marking}
 
 let tokens net p =
   match List.assoc_opt p net.marking with
@@ -180,6 +186,8 @@ let print_enabled net =
     ) ts
  
 
+
+    
 (* module Net = struct *)
 (**)
 (*   let places name : place list = name *)

@@ -1,3 +1,4 @@
-let states1 = LTS.mk_states 2
+open Revpn_ccsk
+let states1 = Net.generate_place 3;;
+states1;;
 
-let () = Printf states1 

@@ -1,7 +1,29 @@
 lib: [
   "_build/install/default/lib/revpn-ccsk/META"
+  "_build/install/default/lib/revpn-ccsk/ccsk.ml"
   "_build/install/default/lib/revpn-ccsk/dune-package"
+  "_build/install/default/lib/revpn-ccsk/net.ml"
   "_build/install/default/lib/revpn-ccsk/opam"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk.a"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk.cma"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk.cmi"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk.cmt"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk.cmx"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk.cmxa"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk.ml"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk__Ccsk.cmi"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk__Ccsk.cmt"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk__Ccsk.cmx"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk__Net.cmi"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk__Net.cmt"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk__Net.cmx"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk__Util.cmi"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk__Util.cmt"
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk__Util.cmx"
+  "_build/install/default/lib/revpn-ccsk/util.ml"
+]
+libexec: [
+  "_build/install/default/lib/revpn-ccsk/revpn_ccsk.cmxs"
 ]
 bin: [
   "_build/install/default/bin/revpn-ccsk"

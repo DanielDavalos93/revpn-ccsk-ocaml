@@ -1,3 +1,4 @@
 (test
  (name test_revpn_ccsk)
- (libraries revpn_ccsk))
+ (libraries revpn-ccsk)
+ )

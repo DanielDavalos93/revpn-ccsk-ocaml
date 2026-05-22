@@ -1,5 +1,5 @@
 (executable
  (public_name revpn-ccsk)
  (name main)
- (libraries revpn_ccsk lts ccsk net utils)
+ (libraries revpn-ccsk)
  )

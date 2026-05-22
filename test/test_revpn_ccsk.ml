@@ -1,10 +1,10 @@
 (* Net *)
-
+open Revpn_ccsk.Net
 (* Define a net *)
 
-let places = generate_place 4
+let pl = generate_place 4
 
-let transitions = generate_transition 4
+let tr = generate_transition 4
 
 let arcs = [
   PT ("s1", "t1", 1); PT ("s1", "t2", 1);
@@ -23,6 +23,13 @@ let lambda t  =
   | "t4" -> {t_id = t.t_id; t_label = "tau"}
   | _ -> {t_id = t.t_id; t_label = t.t_label}
 
-let label = List.map (fun x -> lambda x) transitions 
+let label_trans = List.map (fun x -> lambda x) tr 
+
+let net_lab = make_label_net pl tr arcs set label_trans
 
 let init_marking = [("s1", 1)]
+
+let marked_net = make_marked_net net_lab init_marking
+
+(* Firing *)
+

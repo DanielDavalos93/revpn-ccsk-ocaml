@@ -1,0 +1,6 @@
+description = ""
+requires = ""
+archive(byte) = "revpn_ccsk.cma"
+archive(native) = "revpn_ccsk.cmxa"
+plugin(byte) = "revpn_ccsk.cma"
+plugin(native) = "revpn_ccsk.cmxs"
