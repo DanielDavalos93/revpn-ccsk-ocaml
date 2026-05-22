@@ -16,7 +16,7 @@
 *.cmti
 
 # ocamlbuild and Dune default working directory
-_build/
+# _build/
 
 # ocamlbuild targets
 *.byte
