@@ -1,4 +1,5 @@
-open Revpn_ccsk
-let states1 = Net.generate_place 3;;
+open Revpn_ccsk.Util
+open Revpn_ccsk.Net
+let states1 = generate_place 3;;
 states1;;
 

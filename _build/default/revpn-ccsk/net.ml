@@ -1,4 +1,4 @@
-open Util
+(* open Revpn_ccsk.Util *)
 (* Multisets *)
 (* type 'a multiset = ('a * int) list *)
 
@@ -74,7 +74,7 @@ let tokens net p =
   | Some n -> n
   | None   -> 0
  
-let set_tokens marking p n =
+let set_tokens (marking:marking) (p:transition_id) (n:int) =
   let rest = List.filter (fun (k, _) -> k <> p) marking in
   if n = 0 then rest else (p, n) :: rest
 
