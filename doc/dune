@@ -1,0 +1,4 @@
+(documentation
+  (package revpn-ccsk)
+  (mld_files :standard)
+  )
