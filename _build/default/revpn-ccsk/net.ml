@@ -1,4 +1,4 @@
-(* open Revpn_ccsk.Util *)
+open Util
 (* Multisets *)
 (* type 'a multiset = ('a * int) list *)
 

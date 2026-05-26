@@ -1,6 +1,16 @@
 (** Petri nets definitions *)
 
 module Net : sig
+(**
+The formal structure of a {b Petri net} {m N = (S, T, F, \lambda, A)}, where:
+
+{ul
+ {li {m S} is the set of {i places},}
+ {li {m T} is the set of {i transitions},}
+ {li {m F \subseteq (S \times T) \cup (T \times S)} is a set of {i acs}, and}
+ {li {m \lambda : T \to A} is a {i labelling map} for a set {m A}.}
+}
+*)
 
   type place_id = string
 

@@ -1,7 +1,10 @@
+(* Act_τ = Act U {τ} *)
 type act =
   | Input of string 
   | Output of string 
   | Silent
+
+module CCS = struct
 
 let co_action = function
   | Input a   -> Output a
@@ -21,7 +24,7 @@ type relabel = string -> string
 
 type process =
   | Zero                          (* 0 *)
-  | Prefix_i of act * int * process (* alpha[i].Q *)
+  | Prefix of act * process       (* alpha.Q *)
   | Choice of process * process   (* P + P' *)
   | Parallel of process * process  (* P | Q *)
   | Restriction of process * string list (* (va)Q *)
@@ -42,7 +45,7 @@ let opt_equations (e : equations) (x : string) : process =
 let rec subst (x : string) (s : process) (p : process) : process =
   match p with
   | Zero        -> Zero
-  | Prefix_i (a, i, p1) -> Prefix_i (a, i, subst x s p1)
+  | Prefix (a, p1) -> Prefix (a, subst x s p1)
   | Choice (p1, p2) -> Choice (subst x s p1, subst x s p2)
   | Parallel (p1, p2) -> Parallel (subst x s p1, subst x s p2)
   | Restriction (p1, l) -> Restriction (subst x s p1, l)
@@ -59,7 +62,7 @@ let relabel_act (f : relabel) (a : act) : act =
 let rec transitions (e : equations) (p : process) : (act * process) list =
   match p with
   | Zero -> []
-  | Prefix_i (a, _, p1) -> [(a, p1)]
+  | Prefix (a, p1) -> [(a,p1)]
   | Choice (p1, p2) -> transitions e p1 @ transitions e p2
   | Parallel (p1, p2) ->
       let transition1 = transitions e p1 in
@@ -89,19 +92,5 @@ let rec transitions (e : equations) (p : process) : (act * process) list =
       ) (transitions e p1)
   | Var x -> transitions e (opt_equations e x)
 
-
-(** CCS with Communication Keys *)
-
-let rec key (p : process)  =
-  match p with
-  | Zero -> []
-  | Var _ -> []
-  | Prefix_i (a, i, q) -> [i] @ key q
-  | Restriction (q, _) -> key q
-  | Choice (q1, q2) -> key q1 @ key q2
-  | Parallel (q1, q2) -> key q1 @ key q2
-  | Relabel (q, _) -> key q
-
-let std (q : process) : bool =
-  key q == []
+end
 

@@ -7,13 +7,13 @@
 (source
  (github danieldavalos93/revpn-ccsk-ocaml))
 
-(authors "Daniel Dávalos <author@example.com>")
+(authors "Daniel Dávalos <davalos@uba.ar>")
 
-(maintainers "Maintainer Name <maintainer@example.com>")
+(maintainers "Daniel Dávalos <davalos@uba.ar>")
 
 (license LICENSE)
 
-(documentation https://url/to/documentation)
+(documentation https://danieldavalos93.github.io/revpn-ccsk-ocaml)
 
 (package
  (name revpn-ccsk)
@@ -21,6 +21,6 @@
  (description "A longer description")
  (depends ocaml)
  (tags
-  ("add topics" "to describe" your project)))
+  ("Petri nets" "CCSK" "algorithm")))
 
 ; See the complete stanza docs at https://dune.readthedocs.io/en/stable/reference/dune-project/index.html

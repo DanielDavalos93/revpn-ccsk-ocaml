@@ -1,6 +1,6 @@
-(** Utils *)
+(* Util *)
 
-(** range from i to j *)
+(** range from i to j: [i--j] generes the list [[i;i+1;..;j]] *)
 
 let rec (--) i j = if i > j then [] else i :: i + 1 -- j
 
@@ -8,6 +8,8 @@ let rec (--) i j = if i > j then [] else i :: i + 1 -- j
 (*   match x with *)
 (*   | None -> None *)
 (*   | Some y -> f y *)
+
+(** [zip [l1,l2,..] [t1,t2,..]] returns the list of pairs [[(l1,t1), (l2,t2), ..]]. *)
 
 let rec zip ls ts = 
   match ls, ts with

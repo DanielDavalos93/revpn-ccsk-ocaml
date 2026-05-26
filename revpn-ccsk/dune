@@ -1,6 +1,6 @@
 (library
  (name revpn_ccsk)
  (public_name revpn-ccsk)
- (modules net ccsk util)
+ (modules net ccs ccsk util lts)
  )
 
