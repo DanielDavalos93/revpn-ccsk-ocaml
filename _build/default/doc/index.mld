@@ -6,10 +6,8 @@ Using mainly this {{:https://iris.unica.it/handle/11584/456965} paper}.
 
 {0 Modules}
 
-{!modules: Revpn_ccsk}
+{1 {{!page: ccs}} CCS and CCSK}
 
-{2 {!modules: Revpn_ccsk.Ccs} CCS}
-
-{2 {!modules: Revpn_ccsk.Ccsk} CCSK}
+{1 {{!page: lts}} Labelled Transition Systems}
 
 {0 {{!page: Start} Quick start}}
