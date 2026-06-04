@@ -1,1 +1,1 @@
-revpn-ccsk/ccsk.ml: List
+revpn-ccsk/ccsk.ml: List String
