@@ -13,18 +13,31 @@ type state = {
   init : int;
 }
 
+type transition = (int * label * int) list
+
 type lts = {
     states : state;                     (* States s*)
-    actions : label list;               (* Action *)
-    trans : (int * label * int) list    (* Transition relation *)
+    trans : transition    (* Transition relation *)
   }
 
 module LTS = struct
 
-  let preset (p : lts) (n : int) (a : label) : int list =
-    List.filter_map (fun (src, lbl, dst) ->
-      if src = n && lbl = a then
-        Some dst
+  let make : state -> transition -> lts = fun s t -> {
+    states = s;
+    trans = t;
+  }
+
+  let succ (p : lts) (n : int) (a : label) : int list =
+    List.filter_map (fun (s1, lbl, s2) ->
+      if s1 = n && lbl = a then
+        Some s2
+      else 
+        None) p.trans
+
+  let pred (p : lts) (n : int) (a : label) : int list =
+    List.filter_map (fun (s1, lbl, s2) ->
+      if s2 = n && lbl = a then
+        Some s1
       else 
         None) p.trans
 
@@ -34,7 +47,7 @@ module LTS = struct
   
   let postset (p : lts) (s : int list) (a : label) : int list =
     List.sort_uniq compare
-      (List.concat_map (fun s -> preset p s a) s)
+      (List.concat_map (fun s -> succ p s a) s)
 
 end
 
@@ -69,15 +82,15 @@ let refine_step (lts : lts) (labels : label list) (r : PairSet.t) : PairSet.t =
       let ok_left =
         List.for_all (fun s' ->
           List.exists (fun t' -> PairSet.mem (s', t') r)
-            (LTS.preset lts t a)
-        ) (LTS.preset lts s a)
+            (LTS.succ lts t a)
+        ) (LTS.succ lts s a)
       in
       (* ∀ t' : t --a--> t'  →  ∃ s' : s --a--> s' ∧ (s',t') ∈ R *)
       let ok_right =
         List.for_all (fun t' ->
           List.exists (fun s' -> PairSet.mem (s', t') r)
-            (LTS.preset lts s a)
-        ) (LTS.preset lts t a)
+            (LTS.succ lts s a)
+        ) (LTS.succ lts t a)
       in
       ok_left && ok_right
     ) labels
@@ -88,7 +101,7 @@ let refine_step (lts : lts) (labels : label list) (r : PairSet.t) : PairSet.t =
 let bisim_naive (lts : lts) : PairSet.t =
   let labels = LTS.all_labels lts in
   let n      = lts.states.n_states in
-  let r0 = List.fold_left (fun acc s ->
+  let r0 = List.fold_left (fun acc s -> (* r0 = [(i,j) | i,j ∈ [n-1]] *)
     List.fold_left (fun acc t -> PairSet.add (s,t) acc) acc
       (List.init n (fun i -> i))
   ) PairSet.empty (List.init n (fun i -> i)) in
@@ -107,9 +120,8 @@ let pre_a (lts : lts) (block_of : int array) (b_id : int) (a : label) : int list
  
 (* Splits the block `c_id` if their states are in `splitter_set` *)
 
-let split_block (block_of : int array) (n : int)
-                (c_id : int) (splitter_set : int list)
-                (next_id : int ref) : bool =
+let split_block (block_of : int array) (n : int) (c_id : int) 
+                (splitter_set : int list) (next_id : int ref) : bool =
   let in_splitter = Hashtbl.create 16 in
   List.iter (fun s -> Hashtbl.add in_splitter s true) splitter_set;
   let inside  = ref [] in
@@ -122,12 +134,12 @@ let split_block (block_of : int array) (n : int)
   done;
   if !inside = [] || !outside = [] then false else 
     begin
-    let new_id = !next_id in
-    incr next_id;
-    List.iter (fun s -> block_of.(s) <- new_id) !inside;
-    ignore new_id;
-    true
-  end
+      let new_id = !next_id in
+      incr next_id;
+      List.iter (fun s -> block_of.(s) <- new_id) !inside;
+      ignore new_id;
+      true
+    end
  
 (* Result of the algorithm *)
 type partition_result = {
@@ -177,6 +189,7 @@ let bisim_partition (lts : lts) : partition_result =
        (y simétricamente para t)
  
     Implementation for closure of [τ] by [BFS/DFS], then fix point.
+
    --------------------------------------------------------------- *)
  
 let tau_closure (lts : lts) (s : int) : int list =
@@ -191,14 +204,14 @@ let tau_closure (lts : lts) (s : int) : int list =
         Hashtbl.add visited t true;
         Queue.push t queue
       end
-    ) (LTS.preset lts curr "tau")
+    ) (LTS.succ lts curr "tau")
   done;
   Hashtbl.fold (fun k _ acc -> k :: acc) visited []
  
-(* Weak LTS.preset: (tau-star to tau-star) *)
-let weak_LTS_preset (lts : lts) (s : int) (a : label) : int list =
+(* Weak LTS.succ: (tau-star to tau-star) *)
+let weak_LTS_succ (lts : lts) (s : int) (a : label) : int list =
   let pre_tau = tau_closure lts s in
-  let after_a = List.concat_map (fun s' -> LTS.preset lts s' a) pre_tau in
+  let after_a = List.concat_map (fun s' -> LTS.succ lts s' a) pre_tau in
   let after_a_tau = List.concat_map (tau_closure lts) after_a in
   List.sort_uniq compare after_a_tau
  
@@ -219,13 +232,13 @@ let bisim_weak (lts : lts) : PairSet.t =
         List.for_all (fun a ->
           List.for_all (fun s' ->
             List.exists (fun t' -> PairSet.mem (s',t') r)
-              (weak_LTS_preset lts t a)
-          ) (weak_LTS_preset lts s a)
+              (weak_LTS_succ lts t a)
+          ) (weak_LTS_succ lts s a)
           &&
           List.for_all (fun t' ->
             List.exists (fun s' -> PairSet.mem (s',t') r)
-              (weak_LTS_preset lts s a)
-          ) (weak_LTS_preset lts t a)
+              (weak_LTS_succ lts s a)
+          ) (weak_LTS_succ lts t a)
         ) visible_labels in
       let ok_tau =
         List.for_all (fun s' ->
@@ -252,16 +265,21 @@ let bisim_weak (lts : lts) : PairSet.t =
    Given a LTS and a partition, returns the minimal LTS 
    --------------------------------------------------------------- *)
  
-(* let minimize_lts (lts : lts) (pr : partition_result) : lts =
-  let _ =
+let minimize_lts (lts : lts) (pr : partition_result) : lts =
+  let q_trans =
     List.map (fun (s, a, t) ->
       (pr.block_of.(s), a, pr.block_of.(t))
     ) lts.trans
     |> List.sort_uniq compare
   in
-  { states = pr.n_blocks;
+  let state_min : state = {
+    n_states = pr.n_blocks;
+    init = pr.block_of.(lts.states.init)
+  }
+  in
+  { states = state_min;
     trans    = q_trans;
-    actions  = pr.block_of.(lts.initial) } *)
+  }
  
 (** ---------------------------------------------------------------
    PRETTY-PRINTERS
