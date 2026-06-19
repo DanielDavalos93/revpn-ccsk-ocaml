@@ -4,7 +4,7 @@
 
 This repository contains the OCaml implementation of theoretical framework apperead in [1]. 
 The work is part of the [QCOMICAL](https://wdi.centralesupelec.fr/qcomical/) MSCA-SE secondments of Daniel Dávalos at
-* [University of Urbino](https://www.uniurb.it/) (period ..) under the supervision of Claudio Antares Mezzina;
+* [University of Urbino](https://www.uniurb.it/) (period 19/4/26-18/6/26) under the supervision of Claudio Antares Mezzina;
 * [University of Cagliari](https://www.unica.it/it) (period 18/6/26-17/7/26) under the supervision of G. Michele Pinna
 
 
@@ -35,11 +35,41 @@ The implementation follows the idea that every executed event records enough cau
 
 ## Installation
 
+### Installation with opam (recommended)
+
+```bash
+# Install opam
+sudo apt-get install -y opam
+opam init -y
+eval $(opam env)
+
+# Install dune
+opam install -y dune
+
+```
+
+### Installation with Ubuntu/Debian
+
+```bash
+sudo apt-get update
+sudo apt-get install -y ocaml ocaml-nox ocaml-dune
+
+```
+
 Clone the repository:
 
 ```bash
 git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git
 cd revpn-ccsk-ocaml
+```
+
+## Execution
+
+```bash
+cd revpn-ccsk-ocaml
+dune build
+cd _build/default/bin
+./main.exe
 ```
 
 ## Rerefences
