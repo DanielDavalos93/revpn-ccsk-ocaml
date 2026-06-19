@@ -1,6 +1,6 @@
 ## Overview
 
-This repository contains the OCAML implementation of theoretical framewokr apperead in [1]. 
+This repository contains the OCAML implementation of theoretical framework apperead in [1]. 
 The work is part of the [QCOMICAL](https://wdi.centralesupelec.fr/qcomical/) MSCA-SE secondments of Daniel Dávalos at
 * [University of Urbino](https://www.uniurb.it/) (period ..) under the supervision of Claudio Antares Mezzina;
 * University of Cagliari (period 19/7/26-19/8/26) under the supervision of G. Michele Pinna
