@@ -41,7 +41,7 @@ git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git
 cd revpn-ccsk-ocaml
 ```
 
-##Rerefences
+## Rerefences
 
 [1] Hernán C. Melgratti, Claudio Antares Mezzina, G. Michele Pinna:
 Encoding Reversible Petri Nets into CCSK. Components Operationally: Reversibility and System Engineering: Essays Dedicated to Jean-Bernard Stefani on the Occasion of His 65th Birthday 2026: 3-23
