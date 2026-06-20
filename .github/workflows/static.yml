@@ -35,6 +35,7 @@ jobs:
         with:
           ocaml-compiler: 5.2
           opam-version: 2.1
+          opam-depext: false
       - name: Build documentation
         run: dune build @doc
       - name: Setup Pages
