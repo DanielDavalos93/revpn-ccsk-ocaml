@@ -33,7 +33,8 @@ jobs:
       - name: Setup OCaml
         uses: ocaml/setup-ocaml@v2
         with:
-          ocaml-compiler: default
+          ocaml-compiler: 5.2
+          opam-version: 2.1
       - name: Build documentation
         run: dune build @doc
       - name: Setup Pages
@@ -45,4 +46,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v5
-
