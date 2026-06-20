@@ -286,7 +286,7 @@ let minimize_lts (lts : lts) (pr : partition_result) : lts =
    --------------------------------------------------------------- *)
  
 let print_partition (pr : partition_result) =
-  Printf.printf "  Partición (%d bloques):\n" pr.n_blocks;
+  Printf.printf "  Partition (%d blocks):\n" pr.n_blocks;
   Array.iteri (fun b states ->
     let sorted = List.sort compare states in
     Printf.printf "    B%d = { %s }\n" b
@@ -294,14 +294,14 @@ let print_partition (pr : partition_result) =
   ) pr.blocks
  
 let print_lts_explicit (name : string) (lts : lts) =
-  Printf.printf "  LTS '%s': %d estados, %d transiciones, inicial=%d\n"
+  Printf.printf "  LTS '%s': %d states, %d transitions, init=%d\n"
     name lts.states.n_states (List.length lts.trans) lts.states.n_states;
   List.iter (fun (s, a, t) ->
     Printf.printf "    %d --[%s]--> %d\n" s a t
   ) lts.trans
  
 let print_bisim_relation (r : PairSet.t) (n : int) =
-  Printf.printf "  Bisimulación (pares s~t, s<n=%d):\n" n;
+  Printf.printf "  Bisimulation (pairs s~t, s<n=%d):\n" n;
   PairSet.iter (fun (s, t) ->
     if s <= t then Printf.printf "    %d ~ %d\n" s t
   ) r

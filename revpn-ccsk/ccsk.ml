@@ -200,7 +200,7 @@ let rec key (p : process)  =
   match p with
   | Zero -> []
   | Var _ -> []
-  | Prefix_i (a, i, q) -> [i] @ key q
+  | Prefix_i (_, i, q) -> [i] @ key q
   | Restriction (q, _) -> key q
   | Choice (q1, q2) -> key q1 @ key q2
   | Parallel (q1, q2) -> key q1 @ key q2

@@ -56,14 +56,14 @@ sudo apt-get install -y ocaml ocaml-nox ocaml-dune
 
 ```
 
-Clone the repository:
+After the ocaml installation, clone the repository:
 
 ```bash
 git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git
 cd revpn-ccsk-ocaml
 ```
 
-## Execution
+## Compile
 
 ```bash
 cd revpn-ccsk-ocaml

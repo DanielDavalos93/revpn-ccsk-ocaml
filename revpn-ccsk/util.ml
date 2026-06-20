@@ -21,11 +21,11 @@ let unzip (xs: ('a * 'b) list) : ('a list * 'b list) =
   let rec list_left xs =
     match xs with
     | [] -> []
-    | (x, y) :: ys -> x :: list_left ys in
+    | (x, _) :: ys -> x :: list_left ys in
   let rec list_right xs =
     match xs with
     | [] -> []
-    | (x, y) :: ys -> y :: list_right ys in
+    | (_, y) :: ys -> y :: list_right ys in
   (list_left xs, list_right xs)
 
 
@@ -38,7 +38,7 @@ let rec ( !! ) xs n =
     | [], _ -> raise (Failure "get_nth")
     | _, n when (n > List.length xs) -> raise (Invalid_argument "get_nth")
     | x ::_, 0 -> x
-    | x :: xs, n -> !! xs (n-1)
+    | _ :: xs, n -> !! xs (n-1)
 
 let init : 'a list -> 'a list = fun xs -> List.rev xs |> List.tl |> List.rev
 

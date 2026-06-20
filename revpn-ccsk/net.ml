@@ -1,19 +1,4 @@
-open Util
-(* Multisets *)
-(* type 'a multiset = ('a * int) list *)
-
-(* let supp (f : 'a multiset) = fun x -> if f x > 0 then 1 else 0 *)
-
-(* Operations for multisets *)
-(* let fun_mult (f : int -> int -> int) (m1:string multiset) (m2:string multiset) : string multiset = *)
-(*   let sortedm1 = sort_increasing_pair_left m1 in *)
-(*   let sortedm2 = sort_increasing_pair_left m2 in *)
-(*   let z = zip sortedm1 sortedm2 in *)
-(*   List.map (fun ((x1,x2), (y1,y2)) -> (x1, f x2 y2)) z *)
-(**)
-(* let sum_mul = fun_mult (+) *)
-(**)
-(* let diff_mul = fun_mult (fun x y -> max (x-y) 0) *)
+(* open Util *)
 
 type place_id = string
 type transition_id = string
@@ -187,23 +172,4 @@ let print_enabled net =
  
 
 
-    
-(* module Net = struct *)
-(**)
-(*   let places name : place list = name *)
-(**)
-(*   let transitions name : transition list = name *)
-(**)
-(*   let flow name : immed_rel list = name *)
-(**)
-(*   let labelling_map lam  = fun x -> lam x *)
-(**)
-(*   let mk_state q n : place list = List.map (fun x -> q ^ string_of_int x) ( 0--(n-1) ) *)
-(**)
-(*   let mk_trans t n : transition list = List.map (fun x -> t ^ string_of_int x) ( 0--(n-1) ) *)
-(**)
-(**)
-(*   let preset (t : transition) = List.filter (fun p -> List.mem (PT (p,t)) flow) places *)
-(**)
-(*   let postset (t : transition) = List.filter (fun p -> List.mem (t,p) flow) places *)
-(* end *)
+

@@ -32,7 +32,8 @@
  (libexec (revpn_ccsk.cmxs))
  (bin (revpn_ccsk))
  (doc
-  (odoc-pages/Start.mld
+  (README.md
+   odoc-pages/Start.mld
    odoc-pages/ccs.mld
    odoc-pages/index.mld
    odoc-pages/lts.mld)))
