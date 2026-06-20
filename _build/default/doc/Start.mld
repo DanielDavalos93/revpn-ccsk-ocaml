@@ -1,0 +1,7 @@
+{0 Quick start}
+
+{[
+  let net = Revpn_ccsk.make_net places transitions arcs marking in
+  let pre = Revpn_ccsk.preset_of_transition net "t0" in
+  ...
+]}
