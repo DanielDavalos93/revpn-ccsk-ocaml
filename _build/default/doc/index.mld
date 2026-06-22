@@ -9,10 +9,20 @@ University of Cagliari (period 18/6/26-17/7/26) under the supervision of G. Mich
 
 {0 Modules}
 
-{1 {!page: ccs}}
+{1 CCSK}
 
-{1 {!page: lts}}
+{!modules: Revpn_ccsk.Ccsk}
 
-{1 {!page: encoding}}
+{1 Labelled Transition System}
+
+{!modules: Revpn_ccsk.Lts}
+
+{1 Petri nets}
+
+{!modules: Revpn_ccsk.Net} 
+
+{1 Encoding}
+
+{!modules: Revpn_ccsk.Encoding} 
 
 {0 {{!page: Start} Quick start}}
