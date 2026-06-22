@@ -9,10 +9,10 @@ University of Cagliari (period 18/6/26-17/7/26) under the supervision of G. Mich
 
 {0 Modules}
 
-{1 {!modules: Revpn_ccsk.Ccs}}
+{1 {!page: ccs}}
 
-{1 {!modules: Revpn_ccsk.Lts}}
+{1 {!page: lts}}
 
-{1 {!modules: Revpn_ccsk.Encoding}}
+{1 {!page: encoding}}
 
 {0 {{!page: Start} Quick start}}
