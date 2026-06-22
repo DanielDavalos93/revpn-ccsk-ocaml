@@ -57,11 +57,11 @@ let act_of_label (lbl : string) : Ccsk.act =
     Ccsk.Output (String.sub lbl 1 (String.length lbl - 1))
   else Ccsk.Input lbl
 
-(* ------------------------------------------------------------------ *)
-(* Step 1-3: defining equations for places, substituting the equation  *)
-(* of each non-synchronising transition into the defining equation of  *)
-(* its (unique) input place.                                           *)
-(* ------------------------------------------------------------------ *)
+(* ------------------------------------------------------------------
+ Step 1-3: defining equations for places, substituting the equation  
+ of each non-synchronising transition into the defining equation of  
+ its (unique) input place.                                           
+ ------------------------------------------------------------------ *)
 
 (** [is_sync net t] holds when [|•t| = 2], i.e. [t] is a synchronising
     transition in the sense of [Net.Definition 7] (CCS nets). *)
@@ -134,9 +134,9 @@ let encode_simple_transitions (net : labelled_net) (d : equations) : equations
              ^ " is not a CCS-net transition (|.t| > 1 but label <> tau)"))
     d net.transitions
 
-(* ------------------------------------------------------------------ *)
-(* Step 4-9: synchronising transitions (|•t| = 2, labelled tau).       *)
-(* ------------------------------------------------------------------ *)
+(* ------------------------------------------------------------------
+ Step 4-9: synchronising transitions (|•t| = 2, labelled tau).       
+ ------------------------------------------------------------------ *)
 
 (** [subst_var_in_one_equation x repl x_eq d] substitutes [x] by [repl] only
     in the right-hand side of the equation for variable [x_eq], leaving

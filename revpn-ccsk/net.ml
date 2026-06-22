@@ -112,7 +112,7 @@ let is_enabled net tid =
  
 (** Fire a transition if it is enabled; return the net with
     the new marking on [Some] of [None] if it isn't enabled.*)
-let fire net tid =
+let fire (net : marked_net) (tid :transition_id) : marked_net option =
   if not (is_enabled net tid) then None (*Error "Transition is not enabled"*)
   else
     let m1 =
@@ -130,7 +130,18 @@ let fire net tid =
         (output_arcs net.net tid)
     in
     Some { net with marking = m2 }
- 
+
+(* let firing_sequence (net : marked_net) (s : transition_id list) (m : marking) = *)
+(*   match s with *)
+(*   | [] -> true *)
+(*   | t :: ts ->  *)
+(*       let m1 = fire net tid in *)
+(*       let net1 = { *)
+(*         labelled_net = net.labelled_net; *)
+(*         marking = m1 *)
+(*       } in *)
+(*       (fire net t = m1) && (firing_sequence net1 m1 ts m) *)
+
 (** List of enabled transitions *)
 let enabled_transitions net =
   List.filter_map (fun t ->

@@ -1,0 +1,82 @@
+(lang dune 3.22)
+(name revpn-ccsk)
+(sections (lib .) (libexec .) (bin ../../bin) (doc ../../doc/revpn-ccsk))
+(files
+ (lib
+  (META
+   ccsk.ml
+   dune-package
+   encoding.ml
+   lts.ml
+   net.ml
+   opam
+   revpn_ccsk.a
+   revpn_ccsk.cma
+   revpn_ccsk.cmi
+   revpn_ccsk.cmt
+   revpn_ccsk.cmx
+   revpn_ccsk.cmxa
+   revpn_ccsk.ml
+   revpn_ccsk__Ccsk.cmi
+   revpn_ccsk__Ccsk.cmt
+   revpn_ccsk__Ccsk.cmx
+   revpn_ccsk__Encoding.cmi
+   revpn_ccsk__Encoding.cmt
+   revpn_ccsk__Encoding.cmx
+   revpn_ccsk__Lts.cmi
+   revpn_ccsk__Lts.cmt
+   revpn_ccsk__Lts.cmx
+   revpn_ccsk__Net.cmi
+   revpn_ccsk__Net.cmt
+   revpn_ccsk__Net.cmx
+   revpn_ccsk__Util.cmi
+   revpn_ccsk__Util.cmt
+   revpn_ccsk__Util.cmx
+   util.ml))
+ (libexec (revpn_ccsk.cmxs))
+ (bin (revpn_ccsk))
+ (doc
+  (README.md
+   odoc-pages/Start.mld
+   odoc-pages/ccs.mld
+   odoc-pages/index.mld
+   odoc-pages/lts.mld)))
+(library
+ (name revpn-ccsk)
+ (kind normal)
+ (archives (byte revpn_ccsk.cma) (native revpn_ccsk.cmxa))
+ (plugins (byte revpn_ccsk.cma) (native revpn_ccsk.cmxs))
+ (native_archives revpn_ccsk.a)
+ (main_module_name Revpn_ccsk)
+ (modes byte native)
+ (modules
+  (wrapped
+   (group
+    (alias
+     (obj_name revpn_ccsk)
+     (visibility public)
+     (kind alias)
+     (source (path Revpn_ccsk) (impl (path revpn_ccsk.ml-gen))))
+    (name Revpn_ccsk)
+    (modules
+     (module
+      (obj_name revpn_ccsk__Ccsk)
+      (visibility public)
+      (source (path Ccsk) (impl (path ccsk.ml))))
+     (module
+      (obj_name revpn_ccsk__Encoding)
+      (visibility public)
+      (source (path Encoding) (impl (path encoding.ml))))
+     (module
+      (obj_name revpn_ccsk__Lts)
+      (visibility public)
+      (source (path Lts) (impl (path lts.ml))))
+     (module
+      (obj_name revpn_ccsk__Net)
+      (visibility public)
+      (source (path Net) (impl (path net.ml))))
+     (module
+      (obj_name revpn_ccsk__Util)
+      (visibility public)
+      (source (path Util) (impl (path util.ml))))))
+   (wrapped true))))

@@ -46,7 +46,9 @@ let label_trans4 = List.map lambda4 transition4
 
 let net4 = make_label_net place4 transition4 arcs4 set3 label_trans4
 
-let marked_net_fig3 : make_marked_net net4 [("s1", 1)]
+let marking0 : marking = [("s1",1)]
+
+let marked_net1 = make_marked_net net4 marking0
 
 let label_of_trans4 net tid = 
   match List.find_opt (fun t -> t.t_id = tid) net.label with
@@ -59,3 +61,37 @@ let () =
     assert (p_size <= 2);
     if p_size = 2 then assert (label_of_trans4 net4 t.t_id = "tau")
   ) transition4
+
+let result1 = Encoding.encode marked_net1
+
+let () = 
+  print_endline "Algorithm 1 on the synchronising CCS net";
+  Encoding.print_result result1;
+  print_newline ()
+
+let () =
+  assert (List.length result1.equations = List.length place4);
+  List.iter(fun (_, p) ->
+    let rec no_yt = function
+      | Zero -> true
+      | Var x -> not (String.length x > 0 && x.[0] = 'Y')
+      | Prefix (_, q) -> no_yt q
+      | Choice (q1, q2) | Parallel (q1, q2) -> no_yt q1 && no_yt q2
+      | Restriction (q, _) -> no_yt q
+      | Rec (_, q) -> no_yt q
+      | _ -> false
+    in
+    assert (no_yt p)
+  ) result1.equations
+
+
+let () =
+  match result1.process with
+  | Restriction (Var x, [a]) ->
+      assert (x = Encoding.var_of_place "s1");
+      assert (a = Encoding.action_of_sync "t4")
+  | Var x ->
+      assert (x = Encoding.var_of_place "s1")
+  | _ -> assert false
+
+let () = print_endline "All Algorithm 1 checks passed"
