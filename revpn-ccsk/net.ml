@@ -51,6 +51,13 @@ type marked_net = {
   marking : marking;
 }
 
+let empty_marked_net : marked_net = 
+  let empty_label_net = make_label_net [] [] [] [] [] in
+  {
+    net = empty_label_net;
+    marking = [];
+  }
+
 let make_marked_net net marking : marked_net =
   {net; marking}
 
@@ -131,16 +138,23 @@ let fire (net : marked_net) (tid :transition_id) : marked_net option =
     in
     Some { net with marking = m2 }
 
-(* let firing_sequence (net : marked_net) (s : transition_id list) (m : marking) = *)
-(*   match s with *)
-(*   | [] -> true *)
-(*   | t :: ts ->  *)
-(*       let m1 = fire net tid in *)
-(*       let net1 = { *)
-(*         labelled_net = net.labelled_net; *)
-(*         marking = m1 *)
-(*       } in *)
-(*       (fire net t = m1) && (firing_sequence net1 m1 ts m) *)
+(* Auxiliar function: [a option] -> [a] *)
+let un_opt (x : marked_net option) : marked_net =
+  match x with
+  | None -> empty_marked_net
+  | Some ls -> ls
+
+let rec firing_sequence (net : marked_net) (s : transition_id list) : marked_net option =
+  match s with
+  | [] -> None
+  | [t] -> fire net t
+  | t :: ts ->
+      let m1 = (fire net t |> un_opt).marking in
+      let net1 = {
+        net = net.net;
+        marking = m1
+      } in
+      firing_sequence net1 ts
 
 (** List of enabled transitions *)
 let enabled_transitions net =
