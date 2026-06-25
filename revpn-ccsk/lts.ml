@@ -51,9 +51,9 @@ module LTS = struct
 
 end
 
-(** ---------------------------------------------------------------
+(** ----------------------------------------
    NAIVE ALGORITHM
-   ---------------------------------------------------------------
+
 
      [R₀ = S × S]
 
@@ -64,7 +64,7 @@ end
  
    Stops when Rₖ₊₁ = Rₖ (find a fix point).
 
-   --------------------------------------------------------------- *)
+   *)
  
 
 (** Set of pairs as a ordered list *)
@@ -177,9 +177,8 @@ let bisim_partition (lts : lts) : partition_result =
   done;
   { block_of; n_blocks = nb; blocks }
  
-(** ---------------------------------------------------------------
+(** ----------------------------------------------
    WEAK BISIMULATION
-   ---------------------------------------------------------------
 
   [s ≈ t] if there is [R] shuch that every [(s,t) ∈ R] satisfies:
        - if [s --a--> s'  (a ≠ τ)] then [∃ t'. t ==a==> t' y (s',t') ∈ R]
@@ -190,7 +189,7 @@ let bisim_partition (lts : lts) : partition_result =
  
     Implementation for closure of [τ] by [BFS/DFS], then fix point.
 
-   --------------------------------------------------------------- *)
+   *)
  
 let tau_closure (lts : lts) (s : int) : int list =
   let visited = Hashtbl.create 8 in
@@ -258,12 +257,11 @@ let bisim_weak (lts : lts) : PairSet.t =
   in
   iterate r0
  
-(** ---------------------------------------------------------------
+(** --------------------------------------
    MINIMIZATION
-   ---------------------------------------------------------------
 
    Given a LTS and a partition, returns the minimal LTS 
-   --------------------------------------------------------------- *)
+  *)
  
 let minimize_lts (lts : lts) (pr : partition_result) : lts =
   let q_trans =
@@ -281,9 +279,9 @@ let minimize_lts (lts : lts) (pr : partition_result) : lts =
     trans    = q_trans;
   }
  
-(** ---------------------------------------------------------------
+(** --------------------
    PRETTY-PRINTERS
-   --------------------------------------------------------------- *)
+   --------------------- *)
  
 let print_partition (pr : partition_result) =
   Printf.printf "  Partition (%d blocks):\n" pr.n_blocks;
@@ -306,6 +304,4 @@ let print_bisim_relation (r : PairSet.t) (n : int) =
     if s <= t then Printf.printf "    %d ~ %d\n" s t
   ) r
 
- 
-  (* let lts_from_ccsk (q : equations) (p : process) : lts = *)
-  (*   {} *)
+
