@@ -39,6 +39,7 @@
   (README.md
    odoc-pages/Start.mld
    odoc-pages/ccs.mld
+   odoc-pages/encoding.mld
    odoc-pages/index.mld
    odoc-pages/lts.mld)))
 (library

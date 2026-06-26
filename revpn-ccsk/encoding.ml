@@ -1,10 +1,5 @@
 (** Encoding from CCS nets into CCS processes.
 
-    This module implements Algorithm 1 of:
-
-      Hernán C. Melgratti, Claudio Antares Mezzina, G. Michele Pinna.
-      "Encoding Reversible Petri nets into CCSK."
-
     Given a {b CCS net} (a [Net.labelled_net] in which every transition has
     at most two places in its preset, and exactly two only when its label is
     [tau]) together with a marking, the algorithm produces:
@@ -223,9 +218,9 @@ let assemble_marking (net : labelled_net) (m : marked_net) : process =
 let restrict_all (actions : string list) (q : process) : process =
   match actions with [] -> q | actions -> Restriction (q, actions)
 
-(* ------------------------------------------------------------------ *)
-(* Algorithm 1.                                                       *)
-(* ------------------------------------------------------------------ *)
+(* ------------------------------------------------------------------
+ Algorithm 1.                                                       
+ ------------------------------------------------------------------ *)
 
 type result = { process : process; equations : equations }
 

@@ -69,7 +69,7 @@ cd revpn-ccsk-ocaml
 cd revpn-ccsk-ocaml
 dune build
 cd _build/default/bin
-./main.exe
+./algorithm1.exe
 ```
 
 ## Rerefences
