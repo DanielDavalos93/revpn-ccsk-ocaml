@@ -1,4 +1,4 @@
-open Util
+(*open Util*)
 
 type place_id = string
 type transition_id = string
@@ -25,7 +25,7 @@ type labelled_net = {
   transitions : transition list;
   arcs : arc list;
   set : string list;
-  label :  transition list;
+  label : transition -> transition;
 }
 
 let make_label_net places transitions arcs set label : labelled_net =
@@ -51,8 +51,13 @@ type marked_net = {
   marking : marking;
 }
 
-let empty_marked_net : marked_net = 
-  let empty_label_net = make_label_net [] [] [] [] [] in
+let empty_transition : transition = {
+    t_id = "";
+    t_label = "";
+  }
+
+let empty_marked_net : marked_net =
+  let empty_label_net = make_label_net [] [] [] [] (fun x -> empty_transition) in
   {
     net = empty_label_net;
     marking = [];
@@ -161,6 +166,9 @@ let enabled_transitions net =
   List.filter_map (fun t ->
     if is_enabled net t.t_id then Some t else None
   ) net.net.transitions
+
+
+
 
 (* ------- Pretty-print ----------------- *)
  

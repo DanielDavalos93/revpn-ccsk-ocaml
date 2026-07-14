@@ -1,4 +1,4 @@
-(* open Ccsk *)
+open Ccsk
 (* Labelled Transition Systems (LTS) *)
 
 (* Build LTS from CCS types (?) *)
@@ -16,7 +16,7 @@ type state = {
 type transition = (int * label * int) list
 
 type lts = {
-    states : state;                     (* States s*)
+    states : state;       (* States s*)
     trans : transition    (* Transition relation *)
   }
 
@@ -51,16 +51,21 @@ module LTS = struct
 
 end
 
-(** ----------------------------------------
+(** 
    NAIVE ALGORITHM
 
 
      [R₀ = S × S]
 
      [Rₖ₊₁ = {! (s,t) ∈ Rₖ |
-               ∀a. ∀s'. s --a--> s'  →  ∃t'. t --a--> t' ∧ (s',t') ∈ Rₖ
+               ∀a, ∀s', s --a--> s'  →  
+
+               ∃t', t --a--> t' ∧ (s',t') ∈ Rₖ
                     ∧
-               ∀a. ∀t'. t --a--> t'  →  ∃s'. s --a--> s' ∧ (s',t') ∈ Rₖ }]
+              
+              ∀a, ∀t', t --a--> t'  →  
+
+              ∃s', s --a--> s' ∧ (s',t') ∈ Rₖ }]
  
    Stops when Rₖ₊₁ = Rₖ (find a fix point).
 
@@ -118,7 +123,7 @@ let pre_a (lts : lts) (block_of : int array) (b_id : int) (a : label) : int list
   ) lts.trans
   |> List.sort_uniq compare
  
-(* Splits the block `c_id` if their states are in `splitter_set` *)
+(** Splits the block `c_id` if their states are in `splitter_set` *)
 
 let split_block (block_of : int array) (n : int) (c_id : int) 
                 (splitter_set : int list) (next_id : int ref) : bool =
@@ -177,7 +182,7 @@ let bisim_partition (lts : lts) : partition_result =
   done;
   { block_of; n_blocks = nb; blocks }
  
-(** ----------------------------------------------
+(** 
    WEAK BISIMULATION
 
   [s ≈ t] if there is [R] shuch that every [(s,t) ∈ R] satisfies:
@@ -257,7 +262,7 @@ let bisim_weak (lts : lts) : PairSet.t =
   in
   iterate r0
  
-(** --------------------------------------
+(**
    MINIMIZATION
 
    Given a LTS and a partition, returns the minimal LTS 
