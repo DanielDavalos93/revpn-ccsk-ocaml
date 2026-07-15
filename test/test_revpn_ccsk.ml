@@ -23,16 +23,16 @@ let lambda t  =
   | "t4" -> {t_id = t.t_id; t_label = "tau"}
   | _ -> {t_id = t.t_id; t_label = t.t_label}
 
-let label_trans = List.map (fun x -> lambda x) tr 
+let label_trans = fun x -> lambda x
 
 let net1 = make_label_net pl tr arcs set label_trans
 
 let init_marking = [("s1", 1)]
 
-let marked_net1 = make_marked_net net1 init_marking
+let mnet1 = make_marked_net net1 init_marking
 
 (** Verifies that [t1] is enabled at [s1] *)
-let en_t1 = is_enabled marked_net1 "t1" (* return true *)
+let en_t1 = is_enabled mnet1 "t1" (* return true *)
 
 (* Firing *)
-
+let fs = firing_sequence mnet1 ["t1";"t2"]

@@ -44,14 +44,14 @@ let lambda4 (t : transition) : transition = match t.t_id with
 
 let label_trans4 = List.map lambda4 transition4
 
-let net4 = make_label_net place4 transition4 arcs4 set3 label_trans4
+let net4 = make_label_net place4 transition4 arcs4 set3 lambda4
 
 let marking0 : marking = [("s1",1)]
 
 let marked_net1 = make_marked_net net4 marking0
 
 let label_of_trans4 net tid = 
-  match List.find_opt (fun t -> t.t_id = tid) net.label with
+  match List.find_opt (fun t -> (net.label t).t_id = tid) net.transitions with
   | Some t -> t.t_label
   | None -> "?"
 

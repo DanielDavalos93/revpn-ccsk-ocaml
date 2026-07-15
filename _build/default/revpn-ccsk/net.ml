@@ -1,4 +1,5 @@
-(*open Util*)
+(* open Util *)
+open List
 
 type place_id = string
 type transition_id = string
@@ -66,6 +67,12 @@ let empty_marked_net : marked_net =
 let make_marked_net net marking : marked_net =
   {net; marking}
 
+let get_transition (n : labelled_net)  =
+  List.map (fun x -> x.t_id) n.transitions
+
+let get_place (n : labelled_net)  =
+  List.map (fun x -> x.p_id) n.places
+
 let tokens net p =
   match List.assoc_opt p net.marking with
   | Some n -> n
@@ -117,10 +124,10 @@ let postset_of_place net pid =
     | _ -> None
   ) net.arcs
  
-let is_enabled net tid =
+let is_enabled (mn : marked_net) (tid : transition_id) =
   List.for_all
-    (fun (pid, w) -> tokens net pid >= w)
-    (input_arcs net.net tid)
+    (fun (pid, w) -> tokens mn pid >= w)
+    (input_arcs mn.net tid)
  
 (** Fire a transition if it is enabled; return the net with
     the new marking on [Some] of [None] if it isn't enabled.*)
@@ -149,14 +156,14 @@ let un_opt (x : marked_net option) : marked_net =
   | None -> empty_marked_net
   | Some ls -> ls
 
-let rec firing_sequence (net : marked_net) (s : transition_id list) : marked_net option =
+let rec firing_sequence (mn : marked_net) (s : transition_id list) : marked_net option =
   match s with
   | [] -> None
-  | [t] -> fire net t
+  | [t] -> fire mn t
   | t :: ts ->
-      let m1 = (fire net t |> un_opt).marking in
+      let m1 = (fire mn t |> un_opt).marking in
       let net1 = {
-        net = net.net;
+        net = mn.net;
         marking = m1
       } in
       firing_sequence net1 ts
@@ -167,8 +174,26 @@ let enabled_transitions net =
     if is_enabled net t.t_id then Some t else None
   ) net.net.transitions
 
+let find_reachable (mn : marked_net) (m : marking) =
+  let ls = (all_comb (List.map (fun x -> x.t_id) mn.net.transitions)) in
+  find_opt (fun x ->
+    ((firing_sequence mn x |> un_opt).marking = m)) ls
 
+(** [is_reachable M m] return true if there is a sequence of
+  transitions [s = t1;...;tn] such that the firing sequence 
+  from the initial marking [M.marking] with the sequence [s]
+  produces the marking [m].
+*)
+let is_reachable (mn : marked_net) (m : marking) : bool =
+  not (find_reachable mn m = None)
 
+(* let reachable_markings (mn : marked_net) =
+  let all_places = get_place mn.net in
+  let marks = bin_prod all_places [1] in
+  let all_marks = all_places mn.net |> all_comb in
+   *)
+  
+  
 
 (* ------- Pretty-print ----------------- *)
  
@@ -204,5 +229,33 @@ let print_enabled net =
     ) ts
  
 
+(** example *)
 
+let pl = generate_place 4
 
+let tr = generate_transition 4
+
+let arcs = [
+  PT ("s1", "t1", 1); PT ("s1", "t2", 1);
+  TP ("t1", "s2", 1); TP ("t2", "s3", 1);
+  PT ("s3", "t4", 1); PT ("s2", "t4", 1); PT ("s2", "t3", 1);
+  TP ("t3", "s4", 1); TP ("t4", "s4", 1)
+]
+
+let set : transition_id list = ["a"; "b"; "tau"]
+
+let lambda t  =
+  match t.t_id with
+  | "t1" -> {t_id = t.t_id; t_label = "a"}
+  | "t2" -> {t_id = t.t_id; t_label = "b"}
+  | "t3" -> {t_id = t.t_id; t_label = "b"}
+  | "t4" -> {t_id = t.t_id; t_label = "tau"}
+  | _ -> {t_id = t.t_id; t_label = t.t_label}
+
+let label_trans = fun x -> lambda x
+
+let net1 = make_label_net pl tr arcs set label_trans
+
+let init_marking = [("s1", 1)]
+
+let mnet1 = make_marked_net net1 init_marking

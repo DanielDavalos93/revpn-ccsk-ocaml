@@ -1,1 +1,1 @@
-test/test_revpn_ccsk.ml: List Revpn_ccsk
+test/test_revpn_ccsk.ml: Revpn_ccsk

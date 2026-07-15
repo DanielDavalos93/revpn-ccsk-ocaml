@@ -38,13 +38,10 @@ let action_of_sync (tid : transition_id) : string = "s" ^ tid
     the label ["tau"] (or the empty label) denotes the silent action, any
     other string [a] denotes the input action [a], and a label of the form
     ["!a"] denotes the output (co-)action [a]. *)
-let label_of_transition (net : labelled_net) (tid : transition_id) : string =
-  match List.find_opt (fun t -> t.t_id = tid) net.label with
+let label_of_transition (net : labelled_net) (trans : transition_id) : string =
+  match List.find_opt (fun t -> (net.label t).t_id = trans) net.transitions with
   | Some t -> t.t_label
-  | None ->
-      (match List.find_opt (fun t -> t.t_id = tid) net.transitions with
-       | Some t -> t.t_label
-       | None -> failwith ("label_of_transition: unknown transition " ^ tid))
+  | None -> failwith ("label_of_transition: unknown transition ")
 
 let act_of_label (lbl : string) : Ccsk.act =
   if lbl = "tau" || lbl = "" then Ccsk.Silent

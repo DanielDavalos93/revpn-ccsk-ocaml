@@ -49,7 +49,23 @@ let last : 'a list -> 'a = fun xs -> !! xs (List.length xs - 1)
 (*   match xs with  *)
 (*   | [] -> ys  *)
 (*   | xs -> (init xs) ++ ((last xs) :: ys) *)
+let rec insert x ls =
+  match ls with
+  | [] -> [[x]]
+  | h::t -> 
+    (x::ls) :: (List.map (fun el -> h::el) (insert x t));;
 
+let rec perm ls =
+  match ls with
+  | [] -> [ls]
+  | x :: xs -> 
+    List.concat (List.map (insert x) (perm xs));;
+
+let rec all_comb ls =
+  match ls with
+  | [] -> [[]]
+  | x :: xs -> 
+    (all_comb xs) @ List.map (fun y -> [x] @ y) (all_comb xs)
 
 (* Lists to set *)
 let rec set_of_list xs = match xs with 

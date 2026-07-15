@@ -23,7 +23,7 @@ let lambda t  =
   | "t4" -> {t_id = t.t_id; t_label = "tau"}
   | _ -> {t_id = t.t_id; t_label = t.t_label}
 
-let label_trans = List.map (fun x -> lambda x) tr 
+let label_trans = fun x -> lambda x
 
 let net1 = make_label_net pl tr arcs set label_trans
 
