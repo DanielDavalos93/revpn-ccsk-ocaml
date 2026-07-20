@@ -39,7 +39,7 @@ let action_of_sync (tid : transition_id) : string = "s" ^ tid
     other string [a] denotes the input action [a], and a label of the form
     ["!a"] denotes the output (co-)action [a]. *)
 let label_of_transition (net : labelled_net) (trans : transition_id) : string =
-  match List.find_opt (fun t -> (net.label t).t_id = trans) net.transitions with
+  match List.find_opt (fun t -> (net.label_map t).t_id = trans) net.transitions with
   | Some t -> t.t_label
   | None -> failwith ("label_of_transition: unknown transition ")
 
@@ -215,9 +215,7 @@ let assemble_marking (net : labelled_net) (m : marked_net) : process =
 let restrict_all (actions : string list) (q : process) : process =
   match actions with [] -> q | actions -> Restriction (q, actions)
 
-(* ------------------------------------------------------------------
- Algorithm 1.                                                       
- ------------------------------------------------------------------ *)
+(* Algorithm 1. *)
 
 type result = { process : process; equations : equations }
 

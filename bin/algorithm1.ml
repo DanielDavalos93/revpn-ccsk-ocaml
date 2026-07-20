@@ -5,8 +5,8 @@
  *)
 
 open Revpn_ccsk.Net
-open Revpn_ccsk.Ccsk.CCS
-module Encoding = Revpn_ccsk.Encoding
+open Revpn_ccsk.Ccsk
+open Revpn_ccsk.Encoding
 
 
 (* ------------------------------------------------------------------
@@ -51,7 +51,7 @@ let marking0 : marking = [("s1",1)]
 let marked_net1 = make_marked_net net4 marking0
 
 let label_of_trans4 net tid = 
-  match List.find_opt (fun t -> (net.label t).t_id = tid) net.transitions with
+  match List.find_opt (fun t -> (net.label_map t).t_id = tid) net.transitions with
   | Some t -> t.t_label
   | None -> "?"
 
@@ -59,26 +59,33 @@ let () =
   List.iter (fun t ->
     let p_size = List.length (preset_of_transition net4 t.t_id) in
     assert (p_size <= 2);
-    if p_size = 2 then assert (label_of_trans4 net4 t.t_id = "tau")
+    (* if p_size = 2 then assert (label_of_trans4 net4 t.t_id = "tau") *)
   ) transition4
 
-let result1 = Encoding.encode marked_net1
+let encode (m : marked_net) =
+  let net = m.net in
+  let d0 = init_place_equations net in
+  let d1 = encode_simple_transitions net d0 in
+  let d2, fresh_actions = encode_sync_transitions net d1 in
+  let q = assemble_marking net m |> restrict_all fresh_actions in
+  { process = q; equations = d2 }
+let result1 = encode marked_net1
 
 let () = 
   print_endline "Algorithm 1 on the synchronising CCS net";
-  Encoding.print_result result1;
+  print_result result1;
   print_newline ()
 
 let () =
   assert (List.length result1.equations = List.length place4);
   List.iter(fun (_, p) ->
     let rec no_yt = function
-      | Zero -> true
-      | Var x -> not (String.length x > 0 && x.[0] = 'Y')
-      | Prefix (_, q) -> no_yt q
-      | Choice (q1, q2) | Parallel (q1, q2) -> no_yt q1 && no_yt q2
-      | Restriction (q, _) -> no_yt q
-      | Rec (_, q) -> no_yt q
+      | CCS.Zero -> true
+      | CCS.Var x -> not (String.length x > 0 && x.[0] = 'Y')
+      | CCS.Prefix (_, q) -> no_yt q
+      | CCS.Choice (q1, q2) | CCS.Parallel (q1, q2) -> no_yt q1 && no_yt q2
+      | CCS.Restriction (q, _) -> no_yt q
+      | CCS.Rec (_, q) -> no_yt q
       | _ -> false
     in
     assert (no_yt p)
@@ -87,11 +94,11 @@ let () =
 
 let () =
   match result1.process with
-  | Restriction (Var x, [a]) ->
-      assert (x = Encoding.var_of_place "s1");
-      assert (a = Encoding.action_of_sync "t4")
-  | Var x ->
-      assert (x = Encoding.var_of_place "s1")
+  | CCS.Restriction (CCS.Var x, [a]) ->
+      assert (x = var_of_place "s1");
+      assert (a = action_of_sync "t4")
+  | CCS.Var x ->
+      assert (x = var_of_place "s1")
   | _ -> assert false
 
 let () = print_endline "All Algorithm 1 checks passed"

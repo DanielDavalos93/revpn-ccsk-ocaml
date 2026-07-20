@@ -13,7 +13,7 @@ let co_action = function
 let notation_act = function
   | Input a   -> a
   | Output a  -> "!" ^ a
-  | Silent    -> "τ"
+  | Silent    -> "tau"
 
 type relabel = string -> string
 

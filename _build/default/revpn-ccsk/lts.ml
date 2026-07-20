@@ -8,44 +8,44 @@ type label = string
 The current state [init] should be less or equal than [n_states].
 *)
 
-type state = {
-  n_states : int;
-  init : int;
+type 'a state = {
+  n_states : 'a;
+  init : 'a;
 }
 
-type transition = (int * label * int) list
+type 'a transition = ('a * label * 'a) list
 
-type lts = {
-    states : state;       (* States s*)
-    trans : transition    (* Transition relation *)
+type 'a lts = {
+    states : 'a state;       (* States s*)
+    trans : 'a transition    (* Transition relation *)
   }
 
 module LTS = struct
 
-  let make : state -> transition -> lts = fun s t -> {
+  let make : 'a state -> 'a transition -> 'a lts = fun s t -> {
     states = s;
     trans = t;
   }
 
-  let succ (p : lts) (n : int) (a : label) : int list =
+  let succ (p : 'a lts) (n : int) (a : label) : int list =
     List.filter_map (fun (s1, lbl, s2) ->
       if s1 = n && lbl = a then
         Some s2
       else 
         None) p.trans
 
-  let pred (p : lts) (n : int) (a : label) : int list =
+  let pred (p : 'a lts) (n : int) (a : label) : int list =
     List.filter_map (fun (s1, lbl, s2) ->
       if s2 = n && lbl = a then
         Some s1
       else 
         None) p.trans
 
-  let all_labels (lts : lts) : label list =
+  let all_labels (lts : 'a lts) : label list =
     List.sort_uniq String.compare
       (List.map (fun (_, l, _) -> l) lts.trans)
   
-  let postset (p : lts) (s : int list) (a : label) : int list =
+  let postset (p : 'a lts) (s : int list) (a : label) : int list =
     List.sort_uniq compare
       (List.concat_map (fun s -> succ p s a) s)
 
@@ -80,7 +80,7 @@ module PairSet = Set.Make(struct
 end)
  
 
-let refine_step (lts : lts) (labels : label list) (r : PairSet.t) : PairSet.t =
+let refine_step (lts : 'a lts) (labels : label list) (r : PairSet.t) : PairSet.t =
   PairSet.filter (fun (s, t) ->
     List.for_all (fun a ->
       (* ∀ s' : s --a--> s'  →  ∃ t' : t --a--> t' ∧ (s',t') ∈ R *)
@@ -103,7 +103,7 @@ let refine_step (lts : lts) (labels : label list) (r : PairSet.t) : PairSet.t =
  
 (** The complete algorithm. Iteration till the fix point *)
 
-let bisim_naive (lts : lts) : PairSet.t =
+let bisim_naive (lts : 'a lts) : PairSet.t =
   let labels = LTS.all_labels lts in
   let n      = lts.states.n_states in
   let r0 = List.fold_left (fun acc s -> (* r0 = [(i,j) | i,j ∈ [n-1]] *)
@@ -117,7 +117,7 @@ let bisim_naive (lts : lts) : PairSet.t =
  
   (** [pre_a(B)]: states with some succ. [a] in the block [B]. *)
 
-let pre_a (lts : lts) (block_of : int array) (b_id : int) (a : label) : int list =
+let pre_a (lts : 'a lts) (block_of : int array) (b_id : int) (a : label) : int list =
   List.filter_map (fun (src, lbl, dst) ->
     if lbl = a && block_of.(dst) = b_id then Some src else None
   ) lts.trans
@@ -153,7 +153,7 @@ type partition_result = {
   blocks     : int list array; 
 }
  
-let bisim_partition (lts : lts) : partition_result =
+let bisim_partition (lts : 'a lts) : partition_result =
   let n      = lts.states.n_states in
   let labels = LTS.all_labels lts in
   let block_of  = Array.make n 0 in
@@ -196,7 +196,7 @@ let bisim_partition (lts : lts) : partition_result =
 
    *)
  
-let tau_closure (lts : lts) (s : int) : int list =
+let tau_closure (lts : 'a lts) (s : int) : int list =
   let visited = Hashtbl.create 8 in
   let queue   = Queue.create () in
   Queue.push s queue;
@@ -213,7 +213,7 @@ let tau_closure (lts : lts) (s : int) : int list =
   Hashtbl.fold (fun k _ acc -> k :: acc) visited []
  
 (* Weak LTS.succ: (tau-star to tau-star) *)
-let weak_LTS_succ (lts : lts) (s : int) (a : label) : int list =
+let weak_LTS_succ (lts : 'a lts) (s : int) (a : label) : int list =
   let pre_tau = tau_closure lts s in
   let after_a = List.concat_map (fun s' -> LTS.succ lts s' a) pre_tau in
   let after_a_tau = List.concat_map (tau_closure lts) after_a in
@@ -221,7 +221,7 @@ let weak_LTS_succ (lts : lts) (s : int) (a : label) : int list =
  
 (** Fix point for weak bisimulation *)
 
-let bisim_weak (lts : lts) : PairSet.t =
+let bisim_weak (lts : 'a lts) : PairSet.t =
   let visible_labels =
     List.filter (fun l -> l <> "tau") (LTS.all_labels lts) in
   let n  = lts.states.n_states in
@@ -268,14 +268,14 @@ let bisim_weak (lts : lts) : PairSet.t =
    Given a LTS and a partition, returns the minimal LTS 
   *)
  
-let minimize_lts (lts : lts) (pr : partition_result) : lts =
+let minimize_lts (lts : 'a lts) (pr : partition_result) : 'a lts =
   let q_trans =
     List.map (fun (s, a, t) ->
       (pr.block_of.(s), a, pr.block_of.(t))
     ) lts.trans
     |> List.sort_uniq compare
   in
-  let state_min : state = {
+  let state_min : 'a state = {
     n_states = pr.n_blocks;
     init = pr.block_of.(lts.states.init)
   }
@@ -296,7 +296,7 @@ let print_partition (pr : partition_result) =
       (String.concat ", " (List.map string_of_int sorted))
   ) pr.blocks
  
-let print_lts_explicit (name : string) (lts : lts) =
+let print_lts_explicit (name : string) (lts : 'a lts) =
   Printf.printf "  LTS '%s': %d states, %d transitions, init=%d\n"
     name lts.states.n_states (List.length lts.trans) lts.states.n_states;
   List.iter (fun (s, a, t) ->

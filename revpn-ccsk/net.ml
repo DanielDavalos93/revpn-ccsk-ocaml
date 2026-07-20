@@ -13,8 +13,6 @@ type transition = {
   t_label: string
 }
 
-type label = string list
-
 (** [arc] is the immediate relation between places and transitions.
  Here the type [int] plays the rol of the number of tokens. *)
 type arc = 
@@ -27,12 +25,12 @@ type labelled_net = {
   places  : place list;
   transitions : transition list;
   arcs : arc list;
-  set : label;
+  set : string list;
   label_map : transition -> transition;
 }
 
 let make_label_net (places : place list) (transitions : transition list) (arcs : arc list) 
-    (set : label) (label_map : transition -> transition) : labelled_net =
+    (set : string list) (label_map : transition -> transition) : labelled_net =
   { places; transitions; arcs; set; label_map}
 
 let make_place id : place =
@@ -232,7 +230,7 @@ let reachable_markings (mn : marked_net) : marking list =
 
   type reachable_entry = {
   re_marking  : marking;
-  re_witness  : transition_id list;  (* ts tal que firing_sequence mn ts = Some {marking; ...} *)
+  re_witness  : transition_id list;  (* firing_sequence mn ts = Some {marking; ...} *)
 }
 
 let reachable_markings_with_witness (mn : marked_net) : reachable_entry list =
@@ -262,18 +260,18 @@ let reachable_markings_with_witness (mn : marked_net) : reachable_entry list =
 
 (** A labelled edge in the marking graph:
     m' -[a]-> m''  where  mn.net.label t = a  and  fire {mn | marking=m'} t = Some {marking=m''} *)
-type mg_edge = {
-  mg_src   : marking;          (* m'  *)
-  mg_label : string;           (* a = (mn.net.label t).t_label *)
-  mg_dst   : marking;          (* m'' *)
-}
-
-type marking_graph = {
-  mg_states  : marking list;    (* R  : reachable markings        *)
-  mg_sigma   : string list;           (* Σ  : mn.net.set                *)
-  mg_edges   : mg_edge list;    (* -> : labelled transition rel.  *)
-  mg_initial : marking;         (* M0 : initial marking           *)
-}
+(* type mg_edge = { *)
+(*   mg_src   : marking;          (* m'  *) *)
+(*   mg_label : string;           (* a = (mn.net.label t).t_label *) *)
+(*   mg_dst   : marking;          (* m'' *) *)
+(* } *)
+(**)
+(* type marking_graph = { *)
+(*   mg_states  : marking list;    (* R  : reachable markings        *) *)
+(*   mg_sigma   : string list;           (* Σ  : mn.net.set                *) *)
+(*   mg_edges   : mg_edge list;    (* -> : labelled transition rel.  *) *)
+(*   mg_initial : marking;         (* M0 : initial marking           *) *)
+(* } *)
 
 (** Normalize a marking to a canonical form for equality checks *)
 let normalize (m : marking) : marking =
@@ -286,26 +284,25 @@ let marking_equal (a : marking) (b : marking) : bool =
 (** [marking_graph mn] constructs the marking graph
       (reachable_markings mn,  mn.net.set,  ->,  mn.marking)
  *)
-let marking_graph (mn : marked_net) : marking_graph =
-  let states = reachable_markings mn in
-  let sigma  = mn.net.set in
-  let edges  =
-    List.concat_map (fun m' ->
-      List.filter_map (fun t ->
-        let mn' = { mn with marking = m' } in
-        match fire mn' t.t_id with
-        | None      -> None
-        | Some mn'' ->
-            Some { mg_src   = m';
-                   mg_label = (mn.net.label_map t).t_label;  (* : string list *)
-                   mg_dst   = mn''.marking }
-      ) mn.net.transitions
-    ) states
-  in
-  { mg_states  = states;
-    mg_sigma   = sigma;
-    mg_edges   = edges;
-    mg_initial = mn.marking }
+(* let marking_graph (mn : marked_net) : lts = *)
+(*   let states = List.map (fun x -> x) reachable_markings mn in *)
+(*   let sigma  = mn.net.set in *)
+(*   let edges  = *)
+(*     List.concat_map (fun m' -> *)
+(*       List.filter_map (fun t -> *)
+(*         let mn' = { mn with marking = m' } in *)
+(*         match fire mn' t.t_id with *)
+(*         | None      -> None *)
+(*         | Some mn'' -> *)
+(*             Some { mg_src   = m'; *)
+(*                    mg_label = (mn.net.label_map t).t_label;  (* : string list *) *)
+(*                    mg_dst   = mn''.marking } *)
+(*       ) mn.net.transitions *)
+(*     ) states *)
+(*   in *)
+(*   { states  = states; *)
+(*     trans   = edges; *)
+(*   } *)
 
 (* ------- Pretty-print ----------------- *)
  

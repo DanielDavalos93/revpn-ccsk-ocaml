@@ -12,7 +12,7 @@ open Revpn_ccsk.Lts
 
 *)
 
-let lts_trivial : lts = {
+let lts_trivial  = {
   states = {
     n_states = 3;
     init = 0
@@ -37,7 +37,7 @@ let lts_trivial : lts = {
         5 --a--> 7
 *)
 
-let lts_choice_vs_par : lts = {
+let lts_choice_vs_par  = {
   states = {
     n_states = 8;
     init  = 0;
@@ -62,7 +62,7 @@ let lts_choice_vs_par : lts = {
     P: 0 --tau--> 1 --a--> 2
     Q: 3 --a-->  2          (they shared the state 2 = 0)
 *)
-let lts_tau_example : lts = {
+let lts_tau_example = {
   states = {
     n_states = 4;
     init  = 0;
@@ -84,7 +84,7 @@ let lts_tau_example : lts = {
 
   bisimilares: 2 ~ 0, 3 ~ 1, 4 ~ 0, 5 ~ 1.
 *)
-let lts_semaphores : lts = {
+let lts_semaphores = {
   states = {
     n_states = 6;
     init  = 0;
@@ -103,7 +103,7 @@ let lts_semaphores : lts = {
    § MAIN
    --------------------------------------------------------------- *)
 
-let check_bisim_pair (lts : lts) (r : PairSet.t)
+let check_bisim_pair (lts ) (r : PairSet.t)
                      (s : int) (t : int) (msg : string) =
   let result = PairSet.mem (s, t) r in
   Printf.printf "  %s:  %d ~ %d  ?  %b\n" msg s t result
