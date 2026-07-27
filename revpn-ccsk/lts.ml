@@ -15,16 +15,16 @@ type state = {
 (** Transition. A pair [(n1, a, n2)] is in a transition if there is an
     arc such that [n1 --[a]--> n2].
 *)
-type transition = (int * label * int) list
+type trans = (int * label * int) list
 
 type lts = {
     states : state;       (* States s*)
-    trans : transition    (* Transition relation *)
+    trans : trans    (* Transition relation *)
   }
 
 module LTS = struct
 
-  let make : state -> transition -> lts = fun s t -> {
+  let make : state -> trans -> lts = fun s t -> {
     states = s;
     trans = t;
   }

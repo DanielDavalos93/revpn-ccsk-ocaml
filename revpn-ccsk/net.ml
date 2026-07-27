@@ -195,7 +195,7 @@ let marking_graph (mn : marked_net) : (marking * transition_id * marking) list =
     let m    = Queue.pop queue in
     let cur  = { mn with marking = m } in
     let en = enabled_transitions cur in
-    Printf.printf "Estado: %s, transiciones habilitadas: %d\n" 
+    Printf.printf "Marking: %s, enabled transitions: %d\n" 
       (marking_key m) (List.length en);
     List.iter (fun t ->
       match fire cur t.t_id with

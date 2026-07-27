@@ -7,10 +7,10 @@ let pl = generate_place 4
 let tr = generate_transition 4
 
 let arcs = [
-  PT ("s1", "t1", 1); PT ("s1", "t2", 1);
-  TP ("t1", "s2", 1); TP ("t2", "s3", 1);
-  PT ("s3", "t4", 1); PT ("s2", "t4", 1); PT ("s2", "t3", 1);
-  TP ("t3", "s4", 1); TP ("t4", "s4", 1)
+  PT ("s1", "t1"); PT ("s1", "t2");
+  TP ("t1", "s2"); TP ("t2", "s3");
+  PT ("s3", "t4"); PT ("s2", "t4"); PT ("s2", "t3");
+  TP ("t3", "s4"); TP ("t4", "s4")
 ]
 
 let set : transition_id list = ["a"; "b"; "tau"]
@@ -27,7 +27,7 @@ let label_trans = fun x -> lambda x
 
 let net1 = make_label_net pl tr arcs set label_trans
 
-let init_marking = [("s1", 1)]
+let init_marking = ["s1"]
 
 let mnet1 = make_marked_net net1 init_marking
 
