@@ -50,11 +50,6 @@ let marking0 : marking = ["s1"]
 
 let marked_net1 = make_marked_net net4 marking0
 
-let label_of_trans4 net tid = 
-  match List.find_opt (fun t -> (net.label_map t).t_id = tid) net.transitions with
-  | Some t -> t.t_label
-  | None -> "?"
-
 let encode1 = encode marked_net1
 
 let marking_graph1 = marking_graph marked_net1
@@ -72,6 +67,8 @@ let () =
 let () =
   if ccs_net marked_net1.net 
     then (
+      print_result (process_of_marked_net marked_net1);
+      print_newline ();
       print_endline "The net is a CCS net";
       print_lts_explicit "LTS(Q,D)" encode1;
       print_newline ();

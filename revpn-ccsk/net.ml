@@ -180,8 +180,8 @@ let marking_key (m : marking) : transition_id =
 (** [marking_graph mn] returns all reachable edges (m, t, m') from [mn.marking]
     by BFS, visiting each marking at most once. *)
 let marking_graph (mn : marked_net) : (marking * transition_id * marking) list =
-  let visited : (string, unit) Hashtbl.t = Hashtbl.create 124 in
-  let queue   : marking Queue.t           = Queue.create () in
+  let visited : (string, unit) Hashtbl.t = Hashtbl.create 64 in
+  let queue   : marking Queue.t          = Queue.create () in
   let edges   : (marking * transition_id * marking) list ref = ref [] in
   let enqueue m =
     let k = marking_key m in
