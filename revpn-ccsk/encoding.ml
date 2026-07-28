@@ -19,6 +19,7 @@
 open Net
 open Ccsk.CCS
 open Lts
+open Util
 
 (** The process variable [Xs] associated to a place [s]. *)
 let var_of_place (pid : place_id) : string = "X" ^ pid
@@ -44,7 +45,7 @@ let label_of_transition (net : labelled_net) (trans : transition_id) : string =
   | Some t -> (net.label_map t).t_label
   | None -> failwith ("label_of_transition: unknown transition " ^ trans)
 
-let act_of_label (lbl : string) : Ccsk.act =
+  let act_of_label (lbl : string) : Ccsk.act =
   if lbl = "tau" || lbl = "" then Ccsk.Silent
   else if String.length lbl > 0 && lbl.[0] = '!' then
     Ccsk.Output (String.sub lbl 1 (String.length lbl - 1))
@@ -265,6 +266,27 @@ let lts_of_ccs (mn : marked_net) (p : process) (eq : equations) : lts =
   done;
   { states = { n_states = !next_id; init = get_id p };
     trans  = List.rev !edges }
+
+let lts_of_marked_net (mn : marked_net) : lts =
+  let mg = marking_graph mn in
+  let marks = List.concat_map (fun (s1,_,s2) -> s1 @ s2) mg |> set_of_list in
+  let rec aux_index a ls c =
+    match ls with
+    | [] -> c
+    | y :: ys -> if y = a then c else aux_index a ys (c + 1)
+  in
+  let states_n = List.map (fun x -> aux_index x marks 0) marks in
+  let st = {
+    n_states = List.length states_n;
+    init = aux_index (!! (mn.marking) 0) marks 0;
+  } in
+  let tr = List.map (fun (s1,a,s2) -> 
+    (aux_index (String.concat "" s1) marks 0, 
+    a, 
+    aux_index (String.concat "" s2) marks 0)
+  ) mg in
+  LTS.make st tr
+
 
 type encoding = {process : process; equations : equations}
 
