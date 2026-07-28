@@ -55,26 +55,35 @@ let label_of_trans4 net tid =
   | Some t -> t.t_label
   | None -> "?"
 
-let result1 = encode marked_net1
+let encode1 = encode marked_net1
+
+let marking_graph1 = marking_graph marked_net1
+
+let lts_mnet1 = lts_of_marked_net marked_net1
+
+let str_bisim = are_bisimilar_strong encode1 lts_mnet1
 
 let () = 
   print_endline "Algorithm 1 on the synchronising CCS net";
   print_newline ()
 
-let marking_graph1 = marking_graph marked_net1
+
 
 let () =
   if ccs_net marked_net1.net 
     then (
       print_endline "The net is a CCS net";
-      print_lts_explicit "LTS(Q,E)" result1;
-      print_newline ()
+      print_lts_explicit "LTS(Q,D)" encode1;
+      print_newline ();
+      print_lts_explicit "M(N,m)" lts_mnet1;
+      print_newline ();
+      print_bisimilar_strong encode1 lts_mnet1;
+      print_bisimilar_weak encode1 lts_mnet1;
     )
     else (
       print_endline "Is not a CCS net --> Algorithm stopped";
       print_newline ()
     )
-
 
 
 
