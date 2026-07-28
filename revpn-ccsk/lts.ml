@@ -311,4 +311,85 @@ let print_bisim_relation (r : PairSet.t) (n : int) =
     if s <= t then Printf.printf "    %d ~ %d\n" s t
   ) r
 
+let check_bisim_pair (lts : lts) (r : PairSet.t)
+                     (s : int) (t : int) =
+  let result = PairSet.mem (s, t) r in
+  Printf.printf " : %d ~ %d  ?  %b\n" s t result
 
+let combine (l1 : lts) (l2 : lts) : lts =
+  let n1 = l1.states.n_states in
+  let n2 = l2.states.n_states in
+  let shift s = s + n1 in
+  let trans_combined =
+    List.map (fun (s, a, t) -> (s, a, t)) l1.trans (* l1 *)
+    @
+    List.map (fun (s, a, t) -> (shift s, a, shift t)) l2.trans (* l2-> *)
+  in
+  let state = { n_states = n1 + n2; init = 0 } in 
+  { states = state; trans = trans_combined }
+
+let are_bisimilar_strong (l1 : lts) (l2 : lts) =
+  let combined = combine l1 l2 in
+  let pr = bisim_partition combined in
+  let n1 = l1.states.n_states in
+  pr.block_of.(0) = pr.block_of.(n1)
+
+let are_bisimilar_weak (l1 : lts) (l2 : lts)  =
+  let combined = combine l1 l2 in
+  let rel = bisim_weak combined in
+  let n1 = l1.states.n_states in
+  PairSet.mem (0, n1) rel
+
+let string_of_pair (s, t) = Printf.sprintf "(%d, %d)" s t
+
+let string_of_pairset (pairs : PairSet.t) =
+  if PairSet.is_empty pairs then "∅"
+  else
+    PairSet.fold (fun (s,t) acc ->
+      acc ^ (if acc = "" then "" else ", ") ^ string_of_pair (s,t)
+    ) pairs ""
+
+let string_of_transition_list trans =
+  List.map (fun (s,a,t) -> Printf.sprintf "  %d --[%s]--> %d" s a t) trans
+  |> String.concat "\n"
+
+(* let string_of_blocks (blocks : label list array) = *)
+(*   Array.mapi (fun i b -> *)
+(*     let sorted = List.sort compare b in *)
+(*     Printf.sprintf "  B%d = { %s }" i (String.concat ", " (List.map (fun x -> x) sorted))  *)
+(*   ) blocks  |> String.concat "\n" *)
+
+let print_bisimilar_strong (l1 : lts) (l2 : lts) : unit =
+  let n1 = l1.states.n_states in
+  let combined = combine l1 l2 in
+  let pr = bisim_partition combined in
+  let block1 = pr.block_of.(0) in
+  let block2 = pr.block_of.(n1) in
+  let result = (block1 = block2) in
+
+  Printf.printf "\n========== STRONG BISIMULATION ==========\n";
+  Printf.printf "LTS1: %d states, LTS2: %d states\n" n1 l2.states.n_states;
+  Printf.printf "LTS concated:\n";
+  Printf.printf "  states: 0..%d\n" (combined.states.n_states - 1);
+  Printf.printf "  transitions:\n%s\n" (string_of_transition_list combined.trans);
+  (* Printf.printf "\nPartition for bisimulation:\n"; *)
+  (* Printf.printf "%s\n" (string_of_blocks pr.blocks); *)
+  Printf.printf "\nInitial state LTS1 = 0  → block B%d\n" block1;
+  Printf.printf "Initial state LTS2 = %d → block B%d\n" n1 block2;
+  Printf.printf "\nRESULT: %s\n" (if result then "✅ Are bisimilars" else "❌ Aren't bisimilars");
+  Printf.printf "===========================================\n"
+
+let print_bisimilar_weak (l1 : lts) (l2 : lts) : unit =
+  let n1 = l1.states.n_states in
+  let combined = combine l1 l2 in
+  let rel = bisim_weak combined in
+  let result = PairSet.mem (0, n1) rel in
+
+  Printf.printf "\n========== WEAK BISIMULATION  ============\n";
+  Printf.printf "LTS1: %d states, LTS2: %d states\n" n1 l2.states.n_states;
+  Printf.printf "Pairs for weak bisimulation:\n";
+  Printf.printf "%s\n" (string_of_pairset rel);
+  Printf.printf "\nInitial state LTS1 = 0, LTS2 = %d\n" n1;
+  Printf.printf "Pair (0, %d) %s for relation\n" n1 (if result then "belongs" else "not belongs");
+  Printf.printf "\nRESULT: %s\n" (if result then "✅ Are weak bisimilars" else "❌ are not weak bisimilars");
+  Printf.printf "===========================================\n"
