@@ -1,4 +1,5 @@
-(** Encoding from CCS nets into CCS processes.
+(** 
+    Encoding from CCS nets into CCS processes.
 
     Given a {b CCS net} (a [Net.labelled_net] in which every transition has
     at most two places in its preset, and exactly two only when its label is

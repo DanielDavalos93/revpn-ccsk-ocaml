@@ -168,13 +168,13 @@ let enabled_transitions net =
     ) net.net.transitions
   
 
-(* let pair_fir (mn : marked_net) (t : transition_id) : marking * transition_id * marking = *)
-(*   let m1 = mn.marking in *)
-(*   let m2 = (fire mn t |> un_opt).marking in *)
-(*   (m1, t, m2) *)
+let pair_fir (mn : marked_net) (t : transition_id) : marking * transition_id * marking =
+  let m1 = mn.marking in
+  let m2 = (fire mn t |> un_opt).marking in
+  (m1, t, m2)
 
 (** Canonical key for a marking: sorted list of place_ids. *)
-let marking_key (m : marking) : transition_id =
+let marking_key (m : marking) : place_id =
   m |> List.sort String.compare |> String.concat ";"
 
 (** [marking_graph mn] returns all reachable edges (m, t, m') from [mn.marking]
@@ -194,16 +194,16 @@ let marking_graph (mn : marked_net) : (marking * transition_id * marking) list =
   while not (Queue.is_empty queue) do
     let m    = Queue.pop queue in
     let cur  = { mn with marking = m } in
-    let en = enabled_transitions cur in
+    let enabled_tr = enabled_transitions cur in
     Printf.printf "Marking: %s, enabled transitions: %d\n" 
-      (marking_key m) (List.length en);
+      (marking_key m) (List.length enabled_tr);
     List.iter (fun t ->
       match fire cur t.t_id with
       | None     -> ()
       | Some mn' ->
           edges := (m, (cur.net.label_map t).t_label, mn'.marking) :: !edges;
           enqueue mn'.marking
-    ) (enabled_transitions cur);
+    ) enabled_tr;
   done;
   List.rev !edges
 
