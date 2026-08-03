@@ -105,7 +105,16 @@ let rec sort_increasing_pair_left xs =
       else
         sort_increasing_pair_left (ys @ [(x,y)])
 
+let remove_one_token m pid =
+  let rec aux acc = function
+    | [] -> List.rev acc
+    | x::xs -> if x = pid then List.rev_append acc xs else aux (x::acc) xs
+  in
+  aux [] m
 
-let setminus xs ys = List.filter (fun x -> not (List.mem x ys)) xs
+let setminus m1 m2 =
+  List.fold_left (fun acc pid -> remove_one_token acc pid) m1 m2
+
+(* let setminus xs ys = List.filter (fun x -> not (List.mem x ys)) xs *)
 
 

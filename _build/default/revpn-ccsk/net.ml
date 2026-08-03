@@ -122,16 +122,6 @@ let is_enabled (mn : marked_net) (tid : transition_id) =
   List.for_all
     (fun pid -> tokens mn pid >= 1)
     (input_arcs mn.net tid)
- 
-let remove_one_token m pid =
-  let rec aux acc = function
-    | [] -> acc
-    | x::xs -> if x = pid then acc @ xs else aux (x::acc) xs
-  in
-  aux [] m
-
-let setminus m1 m2 =
-  List.fold_left (fun acc pid -> remove_one_token acc pid) m1 m2
 
 (** Fire a transition if it is enabled; return the net with
     the new marking on [Some] of [None] if it isn't enabled.*)
@@ -166,7 +156,6 @@ let enabled_transitions net =
     List.filter_map (fun t ->
       if is_enabled net t.t_id then Some t else None
     ) net.net.transitions
-  
 
 let pair_fir (mn : marked_net) (t : transition_id) : marking * transition_id * marking =
   let m1 = mn.marking in
@@ -175,7 +164,10 @@ let pair_fir (mn : marked_net) (t : transition_id) : marking * transition_id * m
 
 (** Canonical key for a marking: sorted list of place_ids. *)
 let marking_key (m : marking) : place_id =
-  m |> List.sort String.compare |> String.concat ";"
+  m |> String.concat ";"
+
+let normalize_marking (m : marking) =
+  m |> List.sort String.compare
 
 (** [marking_graph mn] returns all reachable edges (m, t, m') from [mn.marking]
     by BFS, visiting each marking at most once. *)
@@ -184,13 +176,15 @@ let marking_graph (mn : marked_net) : (marking * transition_id * marking) list =
   let queue   : marking Queue.t          = Queue.create () in
   let edges   : (marking * transition_id * marking) list ref = ref [] in
   let enqueue m =
-    let k = marking_key m in
+    let normalize = normalize_marking m in
+    let k = marking_key normalize in
     if not (Hashtbl.mem visited k) then begin
       Hashtbl.add visited k ();
-      Queue.push m queue
+      Queue.push normalize queue
     end
   in
-  enqueue mn.marking;
+  let init = normalize_marking mn.marking in
+  enqueue init;
   while not (Queue.is_empty queue) do
     let m    = Queue.pop queue in
     let cur  = { mn with marking = m } in
@@ -201,22 +195,66 @@ let marking_graph (mn : marked_net) : (marking * transition_id * marking) list =
       match fire cur t.t_id with
       | None     -> ()
       | Some mn' ->
-          edges := (m, (cur.net.label_map t).t_label, mn'.marking) :: !edges;
-          enqueue mn'.marking
+          let m' = normalize_marking mn'.marking in
+          edges := (m, (mn.net.label_map t).t_label, m') :: !edges;
+          enqueue m'
     ) enabled_tr;
   done;
   List.rev !edges
 
-let reachable_markings (mn : marked_net) =
+(** [reachable_markings mn] returns the list of reachable markings by
+   firing.
+ *)
+let reachable_markings (mn : marked_net) : marking list =
   let init = mn.marking in
   [init] @ List.map (fun (_,_,x) -> x) (marking_graph mn)
 
-let ccs_net (ln : labelled_net) =
+  (** A [ccs_net] is a function that verifies a labelled net such that
+      for all {m t \in T, |\bullet t| \le 2} and if {m |\bullet t|=2} then
+      {m \lambda (t) = \tau}.
+    *)
+let ccs_net (ln : labelled_net) : bool =
   List.for_all (fun x ->
     let len_pre = List.length (preset_of_transition ln x.t_id) in
     let lam_t = (ln.label_map x).t_label in
     len_pre <= 2 && ( not (len_pre = 2) || lam_t = "tau")
   ) ln.transitions
+
+let is_safe (mn : marked_net) : bool =
+  let visited = Hashtbl.create 1024 in
+  let queue = Queue.create () in
+  let safe = ref true in
+
+  let encolar m =
+    let norm = normalize_marking m in
+    let key = marking_key norm in
+    if not (Hashtbl.mem visited key) then begin
+      Hashtbl.add visited key ();
+      Queue.push norm queue
+    end
+  in
+  encolar mn.marking;
+
+  while not (Queue.is_empty queue) && !safe do
+    let m = Queue.pop queue in
+    let counts = Hashtbl.create 16 in
+    List.iter (fun pid ->
+      let c = try Hashtbl.find counts pid with Not_found -> 0 in
+      Hashtbl.replace counts pid (c + 1)
+    ) m;
+    Hashtbl.iter (fun _ cnt -> if cnt > 1 then safe := false) counts;
+    if !safe then
+      let cur = { mn with marking = m } in
+      List.iter (fun t ->
+        match fire cur t.t_id with
+        | None -> ()
+        | Some mn' ->
+            let m' = normalize_marking mn'.marking in
+            encolar m'
+      ) (enabled_transitions cur)
+  done;
+  !safe
+
 
 (* ------- Pretty-print ----------------- *)
 

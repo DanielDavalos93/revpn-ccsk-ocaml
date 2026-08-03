@@ -27,7 +27,7 @@ let transition4 = generate_transition 4
 
 let arcs4 =
   [
-    PT ("s1", "t1"); TP ("t1", "s2"); (*TP ("t1", "s1"); t1 *)
+    PT ("s1", "t1"); TP ("t1", "s2"); (*TP ("t1", "s1");  t1 *)
     PT ("s1", "t2"); TP ("t2", "s3");                     (* t2 *)
     PT ("s3", "t4"); PT ("s2", "t4"); TP ("t4", "s1"); TP ("t4", "s4"); (* t4 *)
     PT ("s2", "t3"); TP ("t3", "s4");                     (* t3 *)
