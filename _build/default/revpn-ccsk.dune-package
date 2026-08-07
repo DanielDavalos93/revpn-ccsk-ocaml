@@ -7,6 +7,7 @@
    ccsk.ml
    dune-package
    encoding.ml
+   enriching.ml
    lts.ml
    net.ml
    opam
@@ -23,6 +24,9 @@
    revpn_ccsk__Encoding.cmi
    revpn_ccsk__Encoding.cmt
    revpn_ccsk__Encoding.cmx
+   revpn_ccsk__Enriching.cmi
+   revpn_ccsk__Enriching.cmt
+   revpn_ccsk__Enriching.cmx
    revpn_ccsk__Lts.cmi
    revpn_ccsk__Lts.cmt
    revpn_ccsk__Lts.cmx
@@ -68,6 +72,10 @@
       (obj_name revpn_ccsk__Encoding)
       (visibility public)
       (source (path Encoding) (impl (path encoding.ml))))
+     (module
+      (obj_name revpn_ccsk__Enriching)
+      (visibility public)
+      (source (path Enriching) (impl (path enriching.ml))))
      (module
       (obj_name revpn_ccsk__Lts)
       (visibility public)

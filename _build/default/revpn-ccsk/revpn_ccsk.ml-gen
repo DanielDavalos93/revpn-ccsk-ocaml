@@ -6,6 +6,9 @@ module Ccsk = Revpn_ccsk__Ccsk
 (** @canonical Revpn_ccsk.Encoding *)
 module Encoding = Revpn_ccsk__Encoding
 
+(** @canonical Revpn_ccsk.Enriching *)
+module Enriching = Revpn_ccsk__Enriching
+
 (** @canonical Revpn_ccsk.Lts *)
 module Lts = Revpn_ccsk__Lts
 

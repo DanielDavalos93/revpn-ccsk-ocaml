@@ -1,7 +1,195 @@
 {0 Quick start}
 
+This page gets you running with [revpn-ccsk-ocaml] in a few minutes. The library implements Algorithm 1 of {{: https://github.com/DanielDavalos93/revpn-ccsk-ocaml/blob/main/Encoding%20Reversible%20Petri%20nets%20into%20CCSK.pdf} Melgratti, Mezzina & Pinna (2026)}: it encodes a labelled Petri net into a CCSK process and verifies that the resulting marking graph is bisimilar to the LTS of the encoded process.
+
+{1 Requirements}
+    • OCaml ≥ 4.14
+    • dune ≥ 3.0
+    • opam (recommended)
+
+{1 Installation}
+
+{2 With opam (recommended)}
+
 {[
-  let net = Revpn_ccsk.make_net places transitions arcs marking in
-  let pre = Revpn_ccsk.preset_of_transition net "t0" in
-  ...
+  Install opam if you do not have it yet
+  sudo apt-get install -y opam opam init -y eval $(opam env)
+  Install dune
+  opam install -y dune
+  Clone and enter the repository
+  git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
+  cd revpn-ccsk-ocaml
+  ]}
+
+{2 With apt (Ubuntu / Debian)}
+
+{[
+  sudo apt-get update sudo apt-get install -y ocaml ocaml-nox ocaml-dune 
+  git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
+  cd revpn-ccsk-ocaml
+  ]}
+
+{1 Build and run}
+
+{[ 
+  dune build                    # compile everything 
+  dune exec bin/main.exe        # run the main example 
+  dune exec bin/algorithm1.exe  # run the first algorithm from the paper
+  ]}
+
+To open the library in the REPL:
+{[ dune utop revpn-ccsk ]}
+
+{1 Repository layout}
+
+{[ 
+  revpn-ccsk-ocaml/ 
+  ├── revpn-ccsk/          (* library source *) 
+  │   ├── net.ml           (* Petri net types and firing semantics *) 
+  │   ├── lts.ml           (* Labelled Transition Systems and bisimulation *)
+  │   ├── ccsk.ml          (* CCS / CCSK process calculus *)
+  │   └── encoding.ml      (* Algorithm 1: net → CCS encoding *) 
+  ├── bin/ 
+  │   └── main.ml          (* entry point: runs Algorithm 1 on Figure 3 *) 
+  ├── test/                (* unit tests *) 
+  ├── doc/                 (* generated HTML documentation *)
+  └── dune-project 
+  ]}
+
+{1 Key modules}
+
+{2 Revpn_ccsk.Net}
+
+Defines Petri net structures and their execution semantics.
+{[ 
+open Revpn_ccsk.Net
+(* Build a net with 4 places and 4 transitions *) 
+let places      = generate_place 4        (* s1 … s4 *) 
+let transitions = generate_transition 4   (* t1 … t4 *)
+
+(* Arc list — PT (place, transition) and TP (transition, place) *) 
+let arcs = [ 
+    PT ("s1", "t1"); TP ("t1", "s2"); PT ("s1", "t2"); 
+    TP ("t2", "s3"); PT ("s2", "t3"); TP ("t3", "s4"); 
+    PT ("s2", "t4"); PT ("s3", "t4"); TP ("t4", "s1"); 
+    TP ("t4", "s4"); 
+    ]
+
+(* Label function: assign an observable action to each transition *) 
+let lambda t = match t.t_id with 
+  | "t1" -> { t with t_label = "a" } 
+  | "t2" -> { t with t_label = "b" } 
+  | "t3" -> { t with t_label = "b" } 
+  | "t4" -> { t with t_label = "tau" } 
+  | _    -> t
+
+let net    = make_label_net places transitions arcs ["a";"b";"tau"] lambda 
+let mnet   = make_marked_net net ["s1"]   (* initial marking: one token in s1 *)
+
+(* Fire a single transition *) 
+let mnet'  = fire mnet "t1"               (* : marked_net option *)
+
+(* Reachable markings by BFS *) 
+let reach  = bfs mnet                     (* : (marking * transition_id * marking) list *) 
 ]}
+
+{2 Revpn_ccsk.Lts}
+
+Labelled Transition Systems, bisimulation and reachability.
+
+{[ open Revpn_ccsk.Lts
+(* Build the marking graph as an explicit LTS *) 
+let mg : lts = marking_graph_as_lts mnet
+
+(* Naive fix-point bisimulation on a single LTS *) 
+let rel : PairSet.t = bisim_naive mg
+
+(* Check whether states 0 and 2 are bisimilar *) 
+let _ = PairSet.mem (0, 2) rel ]}
+
+{2 Revpn_ccsk.Ccsk}
+
+CCS / CCSK process calculus: syntax, transitions and notation.
+
+{[open Revpn_ccsk.Ccsk open Revpn_ccsk.Ccsk.CCS
+(* A hand-written CCS process: a.0 + b.0 *) 
+let p = Choice (Prefix (Input "a", Zero), Prefix (Input "b", Zero))
+
+(* One-step transitions under empty equations *) 
+let steps = transitions [] p ( [(Input "a", Zero); (Input "b", Zero)] *)
+
+(* Pretty-print an action *) 
+let _ = notation_act (Input "a")    (* "a"   *) 
+let _ = notation_act Silent         (* "tau" *) 
+]}
+
+{2 Revpn_ccsk__Encoding}
+
+Algorithm 1: encode a marked net into a CCS process + defining equations.
+{[ 
+module Encoding = Revpn_ccsk__Encoding
+let result = Encoding.encode mnet (* result.process   : the top-level CCS process Q         *) (* result.equations : the defining equations E (one per place) *)
+(* Pretty-print the result *) 
+let () = Encoding.print_result result ]}
+
+{1 End-to-end example: bisimulation check (Theorem 1)}
+
+The following reproduces what [bin/main.ml] does for the net of Figure 3.
+
+{[ 
+  open Revpn_ccsk.Net 
+  open Revpn_ccsk.Lts 
+  open Revpn_ccsk.Ccsk.CCS 
+  module Encoding = Revpn_ccsk__Encoding
+
+(* 1. Build marking graph as LTS *) 
+let lts_mg  = marking_graph_as_lts mnet
+
+(* 2. Build LTS of Q under E *) 
+let result  = Encoding.encode mnet 
+let lts_ccs = lts_of_ccs mnet result.process result.equations
+
+(* 3. Disjoint union + bisimulation check *) 
+let ok = bisimilar_across lts_mg lts_ccs 
+let () = assert ok; print_endline "Theorem 1 holds for this net." ]}
+
+{1 Important design notes}
+
+{2 Avoiding type-shadowing errors}
+
+Never open [Revpn_ccsk.Ccsk.CCS] and [Revpn_ccsk.Net] in the same scope. 
+Both define a type called [transition], and OCaml will number them [/1] and [/2], making them mutually incompatible. Use qualified access instead:
+{[ (* WRONG — causes  "transition/1 vs transition/2"  errors *) 
+open Revpn_ccsk.Net open Revpn_ccsk.Ccsk.CCS
+(* RIGHT — alias the CCS module, keep Net types in scope *) 
+open  Revpn_ccsk.Net 
+module CCS = Revpn_ccsk.Ccsk.CCS
+let steps = CCS.transitions eqs proc ]}
+
+{2 Marking representation}
+
+Markings are [place_id list] (a multiset encoded as a list, including duplicates for multi-token places). Two markings are equal when their sorted forms match; use [marking_key] from [Net] for hashing.
+
+{2 Arc weights}
+
+Arcs are unweighted: [PT (p, t)] means one token flows from [p] to [t]. To model weighted arcs, repeat the arc constructor the required number of times.
+
+{2 Tau labels and the encoding}
+
+The encoding uses fresh channel names of the form ["s"^t_id] for synchronising (preset-size 2) transitions. These channels are hidden by a [Restriction] on [Q], so they produce [Silent] in the CCS LTS. The helper [lts_of_ccs] re-maps these back to the net label (["tau"]) via a pre-built lookup table — do not apply [notation_act] directly if you want net labels on the edges.
+
+{1 Running the tests}
+
+{[ dune test ]}
+
+{1 Building the documentation}
+
+{[ dune build @doc
+HTML output lands in:
+open _build/default/_doc/_html/index.html ]}
+
+{1 References}
+    • Melgratti, H. C., Mezzina, C. A., Pinna, G. M.: {e Encoding Reversible Petri Nets into CCSK.} In: Components Operationally: Reversibility and System Engineering — Essays Dedicated to Jean-Bernard Stefani on the Occasion of His 65th Birthday. 2026, pp. 3–23. {{: https://github.com/DanielDavalos93/revpn-ccsk-ocaml/blob/main/Encoding%20Reversible%20Petri%20nets%20into%20CCSK.pdf} [PDF]}
+    • QCOMICAL project: {{: https://wdi.centralesupelec.fr/qcomical/} [https://wdi.centralesupelec.fr/qcomical/]}
+    • odoc documentation: {{: https://danieldavalos93.github.io/revpn-ccsk-ocaml} [https://danieldavalos93.github.io/revpn-ccsk-ocaml]}
+

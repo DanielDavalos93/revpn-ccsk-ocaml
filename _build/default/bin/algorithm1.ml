@@ -27,7 +27,7 @@ let transition4 = generate_transition 4
 
 let arcs4 =
   [
-    PT ("s1", "t1"); TP ("t1", "s2"); (*TP ("t1", "s1");  t1 *)
+    PT ("s1", "t1"); TP ("t1", "s2"); TP ("t1", "s1");  (*t1 *)
     PT ("s1", "t2"); TP ("t2", "s3");                     (* t2 *)
     PT ("s3", "t4"); PT ("s2", "t4"); TP ("t4", "s1"); TP ("t4", "s4"); (* t4 *)
     PT ("s2", "t3"); TP ("t3", "s4");                     (* t3 *)
@@ -65,11 +65,11 @@ let () =
 
 
 let () =
-  if ccs_net marked_net1.net 
+  if ccs_net marked_net1.net &&  is_safe marked_net1
     then (
       print_result (process_of_marked_net marked_net1);
       print_newline ();
-      print_endline "The net is a CCS net";
+      print_endline "The net is a CCS net and 1-safe";
       print_lts_explicit "LTS(Q,D)" encode1;
       print_newline ();
       print_lts_explicit "M(N,m)" lts_mnet1;
@@ -78,8 +78,15 @@ let () =
       print_bisimilar_weak encode1 lts_mnet1;
     )
     else (
+      if not (ccs_net marked_net1.net) then (
       print_endline "Is not a CCS net --> Algorithm stopped";
       print_newline ()
+      )
+      else (
+      print_endline "Is not a 1-safe net --> Algorithm stopped";
+      print_newline ()
+
+      )
     )
 
 

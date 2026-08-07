@@ -169,7 +169,7 @@ let marking_key (m : marking) : place_id =
 let normalize_marking (m : marking) =
   m |> List.sort String.compare
 
-(** [marking_graph mn] returns all reachable edges (m, t, m') from [mn.marking]
+  (** [marking_graph mn] returns all reachable edges {m (m, t, m')} from [mn.marking]
     by BFS, visiting each marking at most once. *)
 let marking_graph (mn : marked_net) : (marking * transition_id * marking) list =
   let visited : (string, unit) Hashtbl.t = Hashtbl.create 64 in
@@ -209,10 +209,10 @@ let reachable_markings (mn : marked_net) : marking list =
   let init = mn.marking in
   [init] @ List.map (fun (_,_,x) -> x) (marking_graph mn)
 
-  (** A [ccs_net] is a function that verifies a labelled net such that
+(** A [ccs_net] is a function that verifies a labelled net such that
       for all {m t \in T, |\bullet t| \le 2} and if {m |\bullet t|=2} then
       {m \lambda (t) = \tau}.
-    *)
+ *)
 let ccs_net (ln : labelled_net) : bool =
   List.for_all (fun x ->
     let len_pre = List.length (preset_of_transition ln x.t_id) in
@@ -225,15 +225,15 @@ let is_safe (mn : marked_net) : bool =
   let queue = Queue.create () in
   let safe = ref true in
 
-  let encolar m =
-    let norm = normalize_marking m in
-    let key = marking_key norm in
-    if not (Hashtbl.mem visited key) then begin
-      Hashtbl.add visited key ();
-      Queue.push norm queue
-    end
+  let queue_marking m =
+    let key = marking_key (normalize_marking m) in
+    if not (Hashtbl.mem visited key) then 
+      begin
+        Hashtbl.add visited key ();
+        Queue.push (normalize_marking m) queue
+      end
   in
-  encolar mn.marking;
+  queue_marking mn.marking;
 
   while not (Queue.is_empty queue) && !safe do
     let m = Queue.pop queue in
@@ -250,13 +250,13 @@ let is_safe (mn : marked_net) : bool =
         | None -> ()
         | Some mn' ->
             let m' = normalize_marking mn'.marking in
-            encolar m'
+            queue_marking m'
       ) (enabled_transitions cur)
   done;
   !safe
 
 
-(* ------- Pretty-print ----------------- *)
+(** ------- Pretty-print ----------------- *)
 
 let print_preset_postset net =
   print_endline "Preset and Postset of transitions";
