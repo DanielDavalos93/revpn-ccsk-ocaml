@@ -3,46 +3,48 @@
 This page gets you running with [revpn-ccsk-ocaml] in a few minutes. The library implements Algorithm 1 of {{: https://github.com/DanielDavalos93/revpn-ccsk-ocaml/blob/main/Encoding%20Reversible%20Petri%20nets%20into%20CCSK.pdf} Melgratti, Mezzina & Pinna (2026)}: it encodes a labelled Petri net into a CCSK process and verifies that the resulting marking graph is bisimilar to the LTS of the encoded process.
 
 {1 Requirements}
-    • OCaml ≥ 4.14
-    • dune ≥ 3.0
-    • opam (recommended)
+    - OCaml ≥ 4.14
+    - dune ≥ 3.0
+    - opam (recommended)
 
 {1 Installation}
 
 {2 With opam (recommended)}
 
 {[
-  Install opam if you do not have it yet
-  sudo apt-get install -y opam opam init -y eval $(opam env)
-  Install dune
-  opam install -y dune
-  Clone and enter the repository
-  git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
-  cd revpn-ccsk-ocaml
-  ]}
+#Install opam if you do not have it yet
+sudo apt-get install -y opam opam init -y eval $(opam env)
+
+#Install dune
+opam install -y dune
+
+#Clone and enter the repository
+git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
+cd revpn-ccsk-ocaml
+]}
 
 {2 With apt (Ubuntu / Debian)}
 
 {[
-  sudo apt-get update sudo apt-get install -y ocaml ocaml-nox ocaml-dune 
-  git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
-  cd revpn-ccsk-ocaml
-  ]}
+sudo apt-get update sudo apt-get install -y ocaml ocaml-nox ocaml-dune 
+git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
+cd revpn-ccsk-ocaml
+]}
 
 {1 Build and run}
 
 {[ 
-  dune build                    # compile everything 
-  dune exec bin/main.exe        # run the main example 
-  dune exec bin/algorithm1.exe  # run the first algorithm from the paper
-  ]}
+dune build                    # compile everything 
+dune exec bin/main.exe        # run the main example 
+dune exec bin/algorithm1.exe  # run the first algorithm from the paper
+]}
 
 To open the library in the REPL:
 {[ dune utop revpn-ccsk ]}
 
 {1 Repository layout}
 
-{[ 
+[ 
   revpn-ccsk-ocaml/ 
   ├── revpn-ccsk/          (* library source *) 
   │   ├── net.ml           (* Petri net types and firing semantics *) 
@@ -54,7 +56,7 @@ To open the library in the REPL:
   ├── test/                (* unit tests *) 
   ├── doc/                 (* generated HTML documentation *)
   └── dune-project 
-  ]}
+  ]
 
 {1 Key modules}
 
@@ -128,8 +130,12 @@ let _ = notation_act Silent         (* "tau" *) 
 Algorithm 1: encode a marked net into a CCS process + defining equations.
 {[ 
 module Encoding = Revpn_ccsk__Encoding
-let result = Encoding.encode mnet (* result.process   : the top-level CCS process Q         *) (* result.equations : the defining equations E (one per place) *)
-(* Pretty-print the result *) 
+let result = Encoding.encode mnet 
+(** 
+  result.process   : the top-level CCS process Q
+  result.equations : the defining equations E (one per place) 
+  *)
+
 let () = Encoding.print_result result ]}
 
 {1 End-to-end example: bisimulation check (Theorem 1)}
@@ -137,10 +143,10 @@ let () = Encoding.print_result result ]}
 The following reproduces what [bin/main.ml] does for the net of Figure 3.
 
 {[ 
-  open Revpn_ccsk.Net 
-  open Revpn_ccsk.Lts 
-  open Revpn_ccsk.Ccsk.CCS 
-  module Encoding = Revpn_ccsk__Encoding
+open Revpn_ccsk.Net 
+open Revpn_ccsk.Lts 
+open Revpn_ccsk.Ccsk.CCS 
+module Encoding = Revpn_ccsk__Encoding
 
 (* 1. Build marking graph as LTS *) 
 let lts_mg  = marking_graph_as_lts mnet
@@ -160,7 +166,9 @@ let () = assert ok; print_endline "Theorem 1 holds for this net." ]}
 Never open [Revpn_ccsk.Ccsk.CCS] and [Revpn_ccsk.Net] in the same scope. 
 Both define a type called [transition], and OCaml will number them [/1] and [/2], making them mutually incompatible. Use qualified access instead:
 {[ (* WRONG — causes  "transition/1 vs transition/2"  errors *) 
-open Revpn_ccsk.Net open Revpn_ccsk.Ccsk.CCS
+open Revpn_ccsk.Net 
+open Revpn_ccsk.Ccsk.CCS
+
 (* RIGHT — alias the CCS module, keep Net types in scope *) 
 open  Revpn_ccsk.Net 
 module CCS = Revpn_ccsk.Ccsk.CCS
@@ -184,12 +192,11 @@ The encoding uses fresh channel names of the form ["s"^t_id] for synchronising 
 
 {1 Building the documentation}
 
-{[ dune build @doc
-HTML output lands in:
-open _build/default/_doc/_html/index.html ]}
+{[dune build @doc]}
+HTML output lands in: [open _build/default/_doc/_html/index.html]
 
 {1 References}
-    • Melgratti, H. C., Mezzina, C. A., Pinna, G. M.: {e Encoding Reversible Petri Nets into CCSK.} In: Components Operationally: Reversibility and System Engineering — Essays Dedicated to Jean-Bernard Stefani on the Occasion of His 65th Birthday. 2026, pp. 3–23. {{: https://github.com/DanielDavalos93/revpn-ccsk-ocaml/blob/main/Encoding%20Reversible%20Petri%20nets%20into%20CCSK.pdf} [PDF]}
-    • QCOMICAL project: {{: https://wdi.centralesupelec.fr/qcomical/} [https://wdi.centralesupelec.fr/qcomical/]}
-    • odoc documentation: {{: https://danieldavalos93.github.io/revpn-ccsk-ocaml} [https://danieldavalos93.github.io/revpn-ccsk-ocaml]}
+    - Melgratti, H. C., Mezzina, C. A., Pinna, G. M.: {e Encoding Reversible Petri Nets into CCSK.} In: Components Operationally: Reversibility and System Engineering — Essays Dedicated to Jean-Bernard Stefani on the Occasion of His 65th Birthday. 2026, pp. 3–23. {{: https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1} [https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1]}
+    - QCOMICAL project: {{: https://wdi.centralesupelec.fr/qcomical/} [https://wdi.centralesupelec.fr/qcomical/]}
+    - odoc documentation: {{: https://danieldavalos93.github.io/revpn-ccsk-ocaml} [https://danieldavalos93.github.io/revpn-ccsk-ocaml]}
 

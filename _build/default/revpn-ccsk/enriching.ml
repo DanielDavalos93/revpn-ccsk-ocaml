@@ -1,8 +1,9 @@
 open Net
 open Lts
+
 (** [token] is the set of tokens defined inductively as:
-  - [Tok_empty]: {m (\cdot, \llangle \rrangle, \cdot)}
-  - [Tok (a, ls, i)]: if [ls] has [token] type, {m (a, \llangle w_1,\dots,w_n\rrangle, i)} with {m a} an action, {m w_1,\dots,w_n} are tokens and {m i\in\mathbb N} an identificator number.
+  - [Tok_empty]: {m (\cdot, \langle\!\langle \rangle\!\rangle, \cdot)}
+  - [Tok (a, ls, i)]: if [ls] has [token] type, {m (a, \langle\!\langle w_1,\dots,w_n\rangle\!\rangle, i)} with {m a} an action, {m w_1,\dots,w_n} are tokens and {m i\in\mathbb N} an identificator number.
   *)
 type token = 
   | Tok_empty
@@ -17,6 +18,7 @@ let rec size (tk : token) : int =
 
 (** ---- Example ---- *)
 
+(** {m w_0 = (\cdot, \langle\!\langle \rangle\!\rangle)} *)
 let w0 = Tok_empty                        (* size w0 -> 0 *)
 let w1 = Tok ("a", [Tok_empty], 1)        (* size w1 -> 1 *)
 let w2 = Tok ("b", [Tok_empty], 1)        (* size w2 -> 1 *)
