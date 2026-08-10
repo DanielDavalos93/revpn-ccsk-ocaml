@@ -12,39 +12,39 @@ This page gets you running with [revpn-ccsk-ocaml] in a few minutes. The librar
 {2 With opam (recommended)}
 
 {[
-#Install opam if you do not have it yet
-sudo apt-get install -y opam opam init -y eval $(opam env)
-
-#Install dune
-opam install -y dune
-
-#Clone and enter the repository
-git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
-cd revpn-ccsk-ocaml
+$ #Install opam if you do not have it yet
+$ sudo apt-get install -y opam opam init -y eval $(opam env)
+$
+$ #Install dune
+$ opam install -y dune
+$
+$ #Clone and enter the repository
+$ git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
+$ cd revpn-ccsk-ocaml
 ]}
 
 {2 With apt (Ubuntu / Debian)}
 
 {[
-sudo apt-get update sudo apt-get install -y ocaml ocaml-nox ocaml-dune 
-git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
-cd revpn-ccsk-ocaml
+$ sudo apt-get update sudo apt-get install -y ocaml ocaml-nox ocaml-dune 
+$ git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
+$ cd revpn-ccsk-ocaml
 ]}
 
 {1 Build and run}
 
 {[ 
-dune build                    # compile everything 
-dune exec bin/main.exe        # run the main example 
-dune exec bin/algorithm1.exe  # run the first algorithm from the paper
+$ dune build                    # compile everything 
+$ dune exec bin/main.exe        # run the main example 
+$ dune exec bin/algorithm1.exe  # run the first algorithm from the paper
 ]}
 
 To open the library in the REPL:
-{[ dune utop revpn-ccsk ]}
+{[$ dune utop revpn-ccsk ]}
 
 {1 Repository layout}
 
-[ 
+{[ 
   revpn-ccsk-ocaml/ 
   ├── revpn-ccsk/          (* library source *) 
   │   ├── net.ml           (* Petri net types and firing semantics *) 
@@ -56,7 +56,7 @@ To open the library in the REPL:
   ├── test/                (* unit tests *) 
   ├── doc/                 (* generated HTML documentation *)
   └── dune-project 
-  ]
+]}
 
 {1 Key modules}
 
@@ -85,14 +85,23 @@ let lambda t = match t.t_id with 
   | "t4" -> { t with t_label = "tau" } 
   | _    -> t
 
+{%html: <figure>
+  <img src="images/petri_net.svg"
+       alt="Labelled Petri net: places s1-s4, transitions t1-t4"
+       style="max-width:480px; display:block; margin:auto"/>
+  <figcaption style="text-align:center; color:#555; font-size:0.9em">
+    Fig. 1 — Labelled Petri net (quickstart example)
+  </figcaption>
+</figure> %}
+
 let net    = make_label_net places transitions arcs ["a";"b";"tau"] lambda 
-let mnet   = make_marked_net net ["s1"]   (* initial marking: one token in s1 *)
+let mnet   = make_marked_net net ["s1"]  (* initial marking: one token in s1 *)
 
 (* Fire a single transition *) 
-let mnet'  = fire mnet "t1"               (* : marked_net option *)
+let mnet'  = fire mnet "t1" 
 
 (* Reachable markings by BFS *) 
-let reach  = bfs mnet                     (* : (marking * transition_id * marking) list *) 
+let reach  = bfs mnet 
 ]}
 
 {2 Revpn_ccsk.Lts}
@@ -159,6 +168,15 @@ let lts_ccs = lts_of_ccs mnet result.process result.equations
 let ok = bisimilar_across lts_mg lts_ccs 
 let () = assert ok; print_endline "Theorem 1 holds for this net." ]}
 
+{%html: <figure>
+  <img src="images/ccs_lts.svg"
+       alt="CCS to LTS"
+       style="max-width:480px; display:block; margin:auto"/>
+  <figcaption style="text-align:center; color:#555; font-size:0.9em">
+    Fig. 1 — CCS to LTS
+  </figcaption>
+</figure> %}
+
 {1 Important design notes}
 
 {2 Avoiding type-shadowing errors}
@@ -188,11 +206,11 @@ The encoding uses fresh channel names of the form ["s"^t_id] for synchronising 
 
 {1 Running the tests}
 
-{[ dune test ]}
+{[$ dune test ]}
 
 {1 Building the documentation}
 
-{[dune build @doc]}
+{[$ dune build @doc]}
 HTML output lands in: [open _build/default/_doc/_html/index.html]
 
 {1 References}
