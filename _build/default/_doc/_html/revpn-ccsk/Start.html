@@ -54,14 +54,133 @@ let mnet   = make_marked_net net [&quot;s1&quot;]  (* initial marking: one token
 let mnet'  = fire mnet &quot;t1&quot; 
 
 (* Reachable markings by BFS *) 
-let reach  = bfs mnet </code></pre> <figure>
-  <img src="images/petri_net.svg"
-       alt="Labelled Petri net: places s1-s4, transitions t1-t4"
-       style="max-width:480px; display:block; margin:auto"/>
-  <figcaption style="text-align:center; color:#555; font-size:0.9em">
-    Fig. 1 — Labelled Petri net (quickstart example)
-  </figcaption>
-</figure> <h3 id="revpn_ccsk.lts"><a href="#revpn_ccsk.lts" class="anchor"></a>Revpn_ccsk.Lts</h3><p>Labelled Transition Systems, bisimulation and reachability.</p><pre class="language-ocaml"><code> open Revpn_ccsk.Lts
+let reach  = bfs mnet </code></pre>
+<figure style="text-align:center;margin:2em auto">
+<svg width="350pt" height="598pt"
+ viewBox="0.00 0.00 349.60 597.60" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(28.8 568.8)">
+<title>PetriNet</title>
+<polygon fill="white" stroke="transparent" points="-28.8,28.8 -28.8,-568.8 320.8,-568.8 320.8,28.8 -28.8,28.8"/>
+<text text-anchor="middle" x="146" y="-524.8" font-family="Helvetica Neue" font-size="14.00">Labelled Petri Net &#160;(quickstart example)</text>
+<text text-anchor="middle" x="146" y="-509.8" font-family="Helvetica Neue" font-size="14.00">Places: s1–s4 · Transitions: t1–t4</text>
+<!-- s1 -->
+<g id="node1" class="node">
+<title>s1</title>
+<ellipse fill="#aaccff" stroke="#336699" stroke-width="1.6" cx="184.71" cy="-461.5" rx="23.5" ry="23.5"/>
+<ellipse fill="none" stroke="#336699" stroke-width="1.6" cx="184.71" cy="-461.5" rx="27.5" ry="27.5"/>
+<text text-anchor="middle" x="184.71" y="-458.4" font-family="Helvetica Neue" font-size="12.00">s1</text>
+<text text-anchor="middle" x="151.71" y="-492.4" font-family="Helvetica Neue" font-size="12.00">●</text>
+</g>
+<!-- t1 -->
+<g id="node5" class="node">
+<title>t1</title>
+<polygon fill="#2255aa" stroke="#222222" points="105.71,-369 47.71,-369 47.71,-329 105.71,-329 105.71,-369"/>
+<text text-anchor="middle" x="76.71" y="-352.4" font-family="Helvetica Neue" font-size="12.00" fill="white">t1</text>
+<text text-anchor="middle" x="76.71" y="-339.4" font-family="Helvetica Neue" font-size="12.00" fill="white">[a]</text>
+</g>
+<!-- s1&#45;&gt;t1 -->
+<g id="edge1" class="edge">
+<title>s1&#45;&gt;t1</title>
+<path fill="none" stroke="#444444" stroke-width="1.4" d="M165.9,-441.25C147.93,-422.87 120.77,-395.08 101.14,-374.99"/>
+<polygon fill="#444444" stroke="#444444" stroke-width="1.4" points="102.9,-372.79 95.31,-369.03 98.9,-376.71 102.9,-372.79"/>
+</g>
+<!-- t2 -->
+<g id="node6" class="node">
+<title>t2</title>
+<polygon fill="#2255aa" stroke="#222222" points="213.71,-369 155.71,-369 155.71,-329 213.71,-329 213.71,-369"/>
+<text text-anchor="middle" x="184.71" y="-352.4" font-family="Helvetica Neue" font-size="12.00" fill="white">t2</text>
+<text text-anchor="middle" x="184.71" y="-339.4" font-family="Helvetica Neue" font-size="12.00" fill="white">[b]</text>
+</g>
+<!-- s1&#45;&gt;t2 -->
+<g id="edge3" class="edge">
+<title>s1&#45;&gt;t2</title>
+<path fill="none" stroke="#444444" stroke-width="1.4" d="M184.71,-433.75C184.71,-416.63 184.71,-394.47 184.71,-377.25"/>
+<polygon fill="#444444" stroke="#444444" stroke-width="1.4" points="187.51,-377.23 184.71,-369.23 181.91,-377.23 187.51,-377.23"/>
+</g>
+<!-- s2 -->
+<g id="node2" class="node">
+<title>s2</title>
+<ellipse fill="#ddeeff" stroke="#336699" stroke-width="1.6" cx="76.71" cy="-240.5" rx="23.5" ry="23.5"/>
+<text text-anchor="middle" x="76.71" y="-237.4" font-family="Helvetica Neue" font-size="12.00">s2</text>
+</g>
+<!-- t3 -->
+<g id="node7" class="node">
+<title>t3</title>
+<polygon fill="#2255aa" stroke="#222222" points="105.71,-152 47.71,-152 47.71,-112 105.71,-112 105.71,-152"/>
+<text text-anchor="middle" x="76.71" y="-135.4" font-family="Helvetica Neue" font-size="12.00" fill="white">t3</text>
+<text text-anchor="middle" x="76.71" y="-122.4" font-family="Helvetica Neue" font-size="12.00" fill="white">[b]</text>
+</g>
+<!-- s2&#45;&gt;t3 -->
+<g id="edge5" class="edge">
+<title>s2&#45;&gt;t3</title>
+<path fill="none" stroke="#444444" stroke-width="1.4" d="M76.71,-216.91C76.71,-200.44 76.71,-178.02 76.71,-160.5"/>
+<polygon fill="#444444" stroke="#444444" stroke-width="1.4" points="79.51,-160.34 76.71,-152.34 73.91,-160.34 79.51,-160.34"/>
+</g>
+<!-- t4 -->
+<g id="node8" class="node">
+<title>t4</title>
+<polygon fill="#884422" stroke="#222222" points="213.71,-152 155.71,-152 155.71,-112 213.71,-112 213.71,-152"/>
+<text text-anchor="middle" x="184.71" y="-135.4" font-family="Helvetica Neue" font-size="12.00" fill="white">t4</text>
+<text text-anchor="middle" x="184.71" y="-122.4" font-family="Helvetica Neue" font-size="12.00" fill="white">[τ]</text>
+</g>
+<!-- s2&#45;&gt;t4 -->
+<g id="edge7" class="edge">
+<title>s2&#45;&gt;t4</title>
+<path fill="none" stroke="#444444" stroke-width="1.4" d="M93.11,-223.32C110.73,-205.95 138.94,-178.13 159.41,-157.95"/>
+<polygon fill="#444444" stroke="#444444" stroke-width="1.4" points="161.49,-159.83 165.22,-152.22 157.56,-155.84 161.49,-159.83"/>
+</g>
+<!-- s3 -->
+<g id="node3" class="node">
+<title>s3</title>
+<ellipse fill="#ddeeff" stroke="#336699" stroke-width="1.6" cx="184.71" cy="-240.5" rx="23.5" ry="23.5"/>
+<text text-anchor="middle" x="184.71" y="-237.4" font-family="Helvetica Neue" font-size="12.00">s3</text>
+</g>
+<!-- s3&#45;&gt;t4 -->
+<g id="edge8" class="edge">
+<title>s3&#45;&gt;t4</title>
+<path fill="none" stroke="#444444" stroke-width="1.4" d="M184.71,-216.91C184.71,-200.44 184.71,-178.02 184.71,-160.5"/>
+<polygon fill="#444444" stroke="#444444" stroke-width="1.4" points="187.51,-160.34 184.71,-152.34 181.91,-160.34 187.51,-160.34"/>
+</g>
+<!-- s4 -->
+<g id="node4" class="node">
+<title>s4</title>
+<ellipse fill="#ddeeff" stroke="#336699" stroke-width="1.6" cx="130.71" cy="-23.5" rx="23.5" ry="23.5"/>
+<text text-anchor="middle" x="130.71" y="-20.4" font-family="Helvetica Neue" font-size="12.00">s4</text>
+</g>
+<!-- t1&#45;&gt;s2 -->
+<g id="edge2" class="edge">
+<title>t1&#45;&gt;s2</title>
+<path fill="none" stroke="#444444" stroke-width="1.4" d="M76.71,-328.96C76.71,-313.19 76.71,-290.47 76.71,-272.14"/>
+<polygon fill="#444444" stroke="#444444" stroke-width="1.4" points="79.51,-272.07 76.71,-264.07 73.91,-272.07 79.51,-272.07"/>
+</g>
+<!-- t2&#45;&gt;s3 -->
+<g id="edge4" class="edge">
+<title>t2&#45;&gt;s3</title>
+<path fill="none" stroke="#444444" stroke-width="1.4" d="M184.71,-328.96C184.71,-313.19 184.71,-290.47 184.71,-272.14"/>
+<polygon fill="#444444" stroke="#444444" stroke-width="1.4" points="187.51,-272.07 184.71,-264.07 181.91,-272.07 187.51,-272.07"/>
+</g>
+<!-- t3&#45;&gt;s4 -->
+<g id="edge6" class="edge">
+<title>t3&#45;&gt;s4</title>
+<path fill="none" stroke="#444444" stroke-width="1.4" d="M86.36,-111.96C94.83,-95.27 107.23,-70.8 116.77,-51.99"/>
+<polygon fill="#444444" stroke="#444444" stroke-width="1.4" points="119.28,-53.23 120.4,-44.83 114.29,-50.69 119.28,-53.23"/>
+</g>
+<!-- t4&#45;&gt;s1 -->
+<g id="edge9" class="edge">
+<title>t4&#45;&gt;s1</title>
+<path fill="none" stroke="#444444" stroke-width="1.4" d="M199.51,-152.11C211.17,-168.37 226.61,-192.87 233.71,-217 247.13,-262.58 246.16,-341.72 238.71,-369 232.36,-392.25 218.43,-415.6 206.3,-432.89"/>
+<polygon fill="#444444" stroke="#444444" stroke-width="1.4" points="203.99,-431.32 201.59,-439.45 208.54,-434.59 203.99,-431.32"/>
+</g>
+<!-- t4&#45;&gt;s4 -->
+<g id="edge10" class="edge">
+<title>t4&#45;&gt;s4</title>
+<path fill="none" stroke="#444444" stroke-width="1.4" d="M175.06,-111.96C166.59,-95.27 154.19,-70.8 144.65,-51.99"/>
+<polygon fill="#444444" stroke="#444444" stroke-width="1.4" points="147.13,-50.69 141.02,-44.83 142.14,-53.23 147.13,-50.69"/>
+</g>
+</g>
+</svg>
+</figure>
+<p>Circles are places; filled rectangles are transitions annotated with their <code>lambda</code> label. The double circle on <code>s1</code> marks the initial token. Transition <code>t4</code> (brown) has two input places <code>s2</code> and <code>s3</code> — it is the <em>synchronising</em> transition encoded via a fresh restricted channel <code>st4</code>.</p><h3 id="revpn_ccsk.lts"><a href="#revpn_ccsk.lts" class="anchor"></a>Revpn_ccsk.Lts</h3><p>Labelled Transition Systems, bisimulation and reachability.</p><pre class="language-ocaml"><code> open Revpn_ccsk.Lts
 (* Build the marking graph as an explicit LTS *) 
 let mg : lts = marking_graph_as_lts mnet
 
@@ -101,16 +220,149 @@ let lts_ccs = lts_of_ccs mnet result.process result.equations
 
 (* 3. Disjoint union + bisimulation check *) 
 let ok = bisimilar_across lts_mg lts_ccs 
-let () = assert ok; print_endline &quot;Theorem 1 holds for this net.&quot; </code></pre> <figure>
-  <img src="images/ccs_lts.svg" />
-  <figcaption style="text-align:center; color:#555; font-size:0.9em">
-    Fig. 1 — CCS to LTS
-  </figcaption>
-</figure> <h2 id="important-design-notes"><a href="#important-design-notes" class="anchor"></a>Important design notes</h2><h3 id="avoiding-type-shadowing-errors"><a href="#avoiding-type-shadowing-errors" class="anchor"></a>Avoiding type-shadowing errors</h3><p>Never open <code>Revpn_ccsk.Ccsk.CCS</code> and <code>Revpn_ccsk.Net</code> in the same scope.  Both define a type called <code>transition</code>, and OCaml will number them <code>/1</code> and <code>/2</code>, making them mutually incompatible. Use qualified access instead:</p><pre class="language-ocaml"><code> (* WRONG — causes  &quot;transition/1 vs transition/2&quot;  errors *) 
+let () = assert ok; print_endline &quot;Theorem 1 holds for this net.&quot; </code></pre><h2 id="important-design-notes"><a href="#important-design-notes" class="anchor"></a>Important design notes</h2><h3 id="avoiding-type-shadowing-errors"><a href="#avoiding-type-shadowing-errors" class="anchor"></a>Avoiding type-shadowing errors</h3><p>Never open <code>Revpn_ccsk.Ccsk.CCS</code> and <code>Revpn_ccsk.Net</code> in the same scope.  Both define a type called <code>transition</code>, and OCaml will number them <code>/1</code> and <code>/2</code>, making them mutually incompatible. Use qualified access instead:</p><pre class="language-ocaml"><code> (* WRONG — causes  &quot;transition/1 vs transition/2&quot;  errors *) 
 open Revpn_ccsk.Net 
 open Revpn_ccsk.Ccsk.CCS
 
 (* RIGHT — alias the CCS module, keep Net types in scope *) 
 open  Revpn_ccsk.Net 
 module CCS = Revpn_ccsk.Ccsk.CCS
-let steps = CCS.transitions eqs proc </code></pre><h3 id="marking-representation"><a href="#marking-representation" class="anchor"></a>Marking representation</h3><p>Markings are <code>place_id list</code> (a multiset encoded as a list, including duplicates for multi-token places). Two markings are equal when their sorted forms match; use <code>marking_key</code> from <code>Net</code> for hashing.</p><h3 id="arc-weights"><a href="#arc-weights" class="anchor"></a>Arc weights</h3><p>Arcs are unweighted: <code>PT (p, t)</code> means one token flows from <code>p</code> to <code>t</code>. To model weighted arcs, repeat the arc constructor the required number of times.</p><h3 id="tau-labels-and-the-encoding"><a href="#tau-labels-and-the-encoding" class="anchor"></a>Tau labels and the encoding</h3><p>The encoding uses fresh channel names of the form <code>&quot;s&quot;^t_id</code> for synchronising (preset-size 2) transitions. These channels are hidden by a <code>Restriction</code> on <code>Q</code>, so they produce <code>Silent</code> in the CCS LTS. The helper <code>lts_of_ccs</code> re-maps these back to the net label (<code>&quot;tau&quot;</code>) via a pre-built lookup table — do not apply <code>notation_act</code> directly if you want net labels on the edges.</p><h2 id="running-the-tests"><a href="#running-the-tests" class="anchor"></a>Running the tests</h2><pre class="language-ocaml"><code>$ dune test </code></pre><h2 id="building-the-documentation"><a href="#building-the-documentation" class="anchor"></a>Building the documentation</h2><pre class="language-ocaml"><code>$ dune build @doc</code></pre><p>HTML output lands in: <code>open _build/default/_doc/_html/index.html</code></p><h2 id="references"><a href="#references" class="anchor"></a>References</h2><ul><li>Melgratti, H. C., Mezzina, C. A., Pinna, G. M.: <em>Encoding Reversible Petri Nets into CCSK.</em> In: Components Operationally: Reversibility and System Engineering — Essays Dedicated to Jean-Bernard Stefani on the Occasion of His 65th Birthday. 2026, pp. 3–23. <a href="https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1"><code>https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1</code></a></li><li>QCOMICAL project: <a href="https://wdi.centralesupelec.fr/qcomical/"><code>https://wdi.centralesupelec.fr/qcomical/</code></a></li><li>odoc documentation: <a href="https://danieldavalos93.github.io/revpn-ccsk-ocaml"><code>https://danieldavalos93.github.io/revpn-ccsk-ocaml</code></a></li></ul></div></body></html>
+let steps = CCS.transitions eqs proc </code></pre><h3 id="marking-representation"><a href="#marking-representation" class="anchor"></a>Marking representation</h3><p>Markings are <code>place_id list</code> (a multiset encoded as a list, including duplicates for multi-token places). Two markings are equal when their sorted forms match; use <code>marking_key</code> from <code>Net</code> for hashing.</p><h3 id="arc-weights"><a href="#arc-weights" class="anchor"></a>Arc weights</h3><p>Arcs are unweighted: <code>PT (p, t)</code> means one token flows from <code>p</code> to <code>t</code>. To model weighted arcs, repeat the arc constructor the required number of times.</p><h3 id="tau-labels-and-the-encoding"><a href="#tau-labels-and-the-encoding" class="anchor"></a>Tau labels and the encoding</h3><p>The encoding uses fresh channel names of the form <code>&quot;s&quot;^t_id</code> for synchronising (preset-size 2) transitions. These channels are hidden by a <code>Restriction</code> on <code>Q</code>, so they produce <code>Silent</code> in the CCS LTS. The helper <code>lts_of_ccs</code> re-maps these back to the net label (<code>&quot;tau&quot;</code>) via a pre-built lookup table — do not apply <code>notation_act</code> directly if you want net labels on the edges.</p>
+<figure style="text-align:center;margin:2em auto">
+<svg width="747pt" height="486pt"
+ viewBox="0.00 0.00 747.00 486.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+<g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(36 450)">
+<title>Bisimulation</title>
+<polygon fill="white" stroke="transparent" points="-36,36 -36,-450 711,-450 711,36 -36,36"/>
+<text text-anchor="middle" x="337.5" y="-398.8" font-family="Helvetica Neue" font-size="14.00">Bisimulation &#160;– &#160;marking_graph(N, M₀) &#160;~ &#160;LTS(Q, E)</text>
+<text text-anchor="middle" x="337.5" y="-383.8" font-family="Helvetica Neue" font-size="14.00">Dashed arrows show the bisimulation relation between the two LTS</text>
+<g id="clust1" class="cluster">
+<title>cluster_mg</title>
+<path fill="#f0f6ff" stroke="#336699" stroke-width="1.5" d="M20,-8C20,-8 247,-8 247,-8 253,-8 259,-14 259,-20 259,-20 259,-356 259,-356 259,-362 253,-368 247,-368 247,-368 20,-368 20,-368 14,-368 8,-362 8,-356 8,-356 8,-20 8,-20 8,-14 14,-8 20,-8"/>
+<text text-anchor="middle" x="133.5" y="-353.6" font-family="Helvetica Neue" font-size="13.00">Marking Graph</text>
+</g>
+<g id="clust2" class="cluster">
+<title>cluster_ccs</title>
+<path fill="#fffbf0" stroke="#996633" stroke-width="1.5" d="M317,-8C317,-8 655,-8 655,-8 661,-8 667,-14 667,-20 667,-20 667,-356 667,-356 667,-362 661,-368 655,-368 655,-368 317,-368 317,-368 311,-368 305,-362 305,-356 305,-356 305,-20 305,-20 305,-14 311,-8 317,-8"/>
+<text text-anchor="middle" x="486" y="-353.6" font-family="Helvetica Neue" font-size="13.00">CCS LTS(Q, E)</text>
+</g>
+<!-- M0 -->
+<g id="node1" class="node">
+<title>M0</title>
+<ellipse fill="#aaccff" stroke="#336699" stroke-width="1.5" cx="125" cy="-294" rx="44.5" ry="18"/>
+<ellipse fill="none" stroke="#336699" stroke-width="1.5" cx="125" cy="-294" rx="48.5" ry="22"/>
+<text text-anchor="middle" x="125" y="-291.2" font-family="Helvetica Neue" font-size="11.00">M₀ = {s1}</text>
+</g>
+<!-- M1 -->
+<g id="node2" class="node">
+<title>M1</title>
+<ellipse fill="#aaccff" stroke="#336699" stroke-width="1.5" cx="60" cy="-162" rx="44.5" ry="18"/>
+<text text-anchor="middle" x="60" y="-159.2" font-family="Helvetica Neue" font-size="11.00">M₁ = {s2}</text>
+</g>
+<!-- M0&#45;&gt;M1 -->
+<g id="edge1" class="edge">
+<title>M0&#45;&gt;M1</title>
+<path fill="none" stroke="#1155aa" stroke-width="1.5" d="M114.7,-272.4C103.14,-249.27 84.39,-211.78 72.13,-187.25"/>
+<polygon fill="#1155aa" stroke="#1155aa" stroke-width="1.5" points="74.47,-185.69 68.39,-179.78 69.46,-188.19 74.47,-185.69"/>
+<text text-anchor="middle" x="101.5" y="-223.2" font-family="Helvetica Neue" font-size="11.00" fill="#1155aa"> a </text>
+</g>
+<!-- M2 -->
+<g id="node3" class="node">
+<title>M2</title>
+<ellipse fill="#cccccc" stroke="#336699" stroke-width="1.5" cx="207" cy="-162" rx="44.5" ry="18"/>
+<text text-anchor="middle" x="207" y="-159.2" font-family="Helvetica Neue" font-size="11.00">M₂ = {s3}</text>
+</g>
+<!-- M0&#45;&gt;M2 -->
+<g id="edge2" class="edge">
+<title>M0&#45;&gt;M2</title>
+<path fill="none" stroke="#117733" stroke-width="1.5" d="M137.81,-272.69C152.49,-249.42 176.51,-211.34 192.03,-186.73"/>
+<polygon fill="#117733" stroke="#117733" stroke-width="1.5" points="194.46,-188.12 196.36,-179.86 189.73,-185.13 194.46,-188.12"/>
+<text text-anchor="middle" x="177.5" y="-223.2" font-family="Helvetica Neue" font-size="11.00" fill="#117733"> b </text>
+</g>
+<!-- Q0 -->
+<g id="node5" class="node">
+<title>Q0</title>
+<ellipse fill="#ffddaa" stroke="#996633" stroke-width="1.5" cx="389" cy="-294" rx="72.31" ry="18"/>
+<ellipse fill="none" stroke="#996633" stroke-width="1.5" cx="389" cy="-294" rx="76.32" ry="22"/>
+<text text-anchor="middle" x="389" y="-291.2" font-family="Helvetica Neue" font-size="11.00">Q₀ = X_{s1}\{st4}</text>
+</g>
+<!-- M0&#45;&gt;Q0 -->
+<g id="edge7" class="edge">
+<title>M0&#45;&gt;Q0</title>
+<path fill="none" stroke="#cc0000" stroke-width="1.2" stroke-dasharray="5,2" d="M173.73,-294C212.69,-294 268.01,-294 312.81,-294"/>
+<text text-anchor="middle" x="243.17" y="-300" font-family="Helvetica Neue" font-size="10.00" fill="#cc0000"> ~ </text>
+</g>
+<!-- M3 -->
+<g id="node4" class="node">
+<title>M3</title>
+<ellipse fill="#cccccc" stroke="#336699" stroke-width="1.5" cx="74" cy="-34" rx="44.5" ry="18"/>
+<text text-anchor="middle" x="74" y="-31.2" font-family="Helvetica Neue" font-size="11.00">M₃ = {s4}</text>
+</g>
+<!-- M1&#45;&gt;M3 -->
+<g id="edge3" class="edge">
+<title>M1&#45;&gt;M3</title>
+<path fill="none" stroke="#117733" stroke-width="1.5" d="M61.89,-144.01C64.28,-122.5 68.42,-85.25 71.18,-60.37"/>
+<polygon fill="#117733" stroke="#117733" stroke-width="1.5" points="74,-60.39 72.1,-52.13 68.43,-59.77 74,-60.39"/>
+<text text-anchor="middle" x="74.5" y="-95.2" font-family="Helvetica Neue" font-size="11.00" fill="#117733"> b </text>
+</g>
+<!-- Q1 -->
+<g id="node6" class="node">
+<title>Q1</title>
+<ellipse fill="#ffddaa" stroke="#996633" stroke-width="1.5" cx="385" cy="-162" rx="72.32" ry="18"/>
+<text text-anchor="middle" x="385" y="-159.2" font-family="Helvetica Neue" font-size="11.00">Q₁ = X_{s2}\{st4}</text>
+</g>
+<!-- M1&#45;&gt;Q1 -->
+<g id="edge8" class="edge">
+<title>M1&#45;&gt;Q1</title>
+<path fill="none" stroke="#cc0000" stroke-width="1.2" stroke-dasharray="5,2" d="M82.87,-177.67C116.67,-198.93 182.24,-233.03 240.5,-221.5 282.02,-213.29 326.59,-192.99 355.08,-178.38"/>
+<text text-anchor="middle" x="233" y="-223.5" font-family="Helvetica Neue" font-size="10.00" fill="#cc0000"> ~ </text>
+</g>
+<!-- Q2 -->
+<g id="node7" class="node">
+<title>Q2</title>
+<ellipse fill="#cccccc" stroke="#996633" stroke-width="1.5" cx="587" cy="-162" rx="72.32" ry="18"/>
+<text text-anchor="middle" x="587" y="-159.2" font-family="Helvetica Neue" font-size="11.00">Q₂ = X_{s3}\{st4}</text>
+</g>
+<!-- M2&#45;&gt;Q2 -->
+<g id="edge9" class="edge">
+<title>M2&#45;&gt;Q2</title>
+<path fill="none" stroke="#cc0000" stroke-width="1.2" stroke-dasharray="5,2" d="M227.29,-178.32C246.78,-192.88 277.75,-213.15 308.5,-221.5 397.25,-245.6 504.05,-203.27 555.83,-178.32"/>
+<text text-anchor="middle" x="316" y="-223.5" font-family="Helvetica Neue" font-size="10.00" fill="#cc0000"> ~ </text>
+</g>
+<!-- Q3 -->
+<g id="node8" class="node">
+<title>Q3</title>
+<ellipse fill="#cccccc" stroke="#996633" stroke-width="1.5" cx="385" cy="-34" rx="72.32" ry="18"/>
+<text text-anchor="middle" x="385" y="-31.2" font-family="Helvetica Neue" font-size="11.00">Q₃ = X_{s4}\{st4}</text>
+</g>
+<!-- M3&#45;&gt;Q3 -->
+<g id="edge10" class="edge">
+<title>M3&#45;&gt;Q3</title>
+<path fill="none" stroke="#cc0000" stroke-width="1.2" stroke-dasharray="5,2" d="M118.56,-34C169.2,-34 252.59,-34 312.6,-34"/>
+<text text-anchor="middle" x="215.67" y="-40" font-family="Helvetica Neue" font-size="10.00" fill="#cc0000"> ~ </text>
+</g>
+<!-- Q0&#45;&gt;Q1 -->
+<g id="edge4" class="edge">
+<title>Q0&#45;&gt;Q1</title>
+<path fill="none" stroke="#1155aa" stroke-width="1.5" d="M388.35,-271.82C387.64,-248.91 386.52,-212.4 385.77,-188.07"/>
+<polygon fill="#1155aa" stroke="#1155aa" stroke-width="1.5" points="388.57,-187.93 385.52,-180.02 382.97,-188.1 388.57,-187.93"/>
+<text text-anchor="middle" x="394.5" y="-223.2" font-family="Helvetica Neue" font-size="11.00" fill="#1155aa"> a </text>
+</g>
+<!-- Q0&#45;&gt;Q2 -->
+<g id="edge5" class="edge">
+<title>Q0&#45;&gt;Q2</title>
+<path fill="none" stroke="#117733" stroke-width="1.5" d="M418.64,-273.54C455.51,-249.33 518.16,-208.2 555.76,-183.51"/>
+<polygon fill="#117733" stroke="#117733" stroke-width="1.5" points="557.32,-185.83 562.47,-179.1 554.25,-181.15 557.32,-185.83"/>
+<text text-anchor="middle" x="506.5" y="-223.2" font-family="Helvetica Neue" font-size="11.00" fill="#117733"> b </text>
+</g>
+<!-- Q1&#45;&gt;Q3 -->
+<g id="edge6" class="edge">
+<title>Q1&#45;&gt;Q3</title>
+<path fill="none" stroke="#117733" stroke-width="1.5" d="M385,-143.74C385,-122.16 385,-85.03 385,-60.25"/>
+<polygon fill="#117733" stroke="#117733" stroke-width="1.5" points="387.8,-60.05 385,-52.05 382.2,-60.05 387.8,-60.05"/>
+<text text-anchor="middle" x="392.5" y="-95.2" font-family="Helvetica Neue" font-size="11.00" fill="#117733"> b </text>
+</g>
+</g>
+</svg>
+</figure>
+<h2 id="running-the-tests"><a href="#running-the-tests" class="anchor"></a>Running the tests</h2><pre class="language-ocaml"><code>$ dune test </code></pre><h2 id="building-the-documentation"><a href="#building-the-documentation" class="anchor"></a>Building the documentation</h2><pre class="language-ocaml"><code>$ dune build @doc</code></pre><p>HTML output lands in: <code>open _build/default/_doc/_html/index.html</code></p><h2 id="references"><a href="#references" class="anchor"></a>References</h2><ul><li>Melgratti, H. C., Mezzina, C. A., Pinna, G. M.: <em>Encoding Reversible Petri Nets into CCSK.</em> In: Components Operationally: Reversibility and System Engineering — Essays Dedicated to Jean-Bernard Stefani on the Occasion of His 65th Birthday. 2026, pp. 3–23. <a href="https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1"><code>https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1</code></a></li><li>QCOMICAL project: <a href="https://wdi.centralesupelec.fr/qcomical/"><code>https://wdi.centralesupelec.fr/qcomical/</code></a></li><li>odoc documentation: <a href="https://danieldavalos93.github.io/revpn-ccsk-ocaml"><code>https://danieldavalos93.github.io/revpn-ccsk-ocaml</code></a></li></ul></div></body></html>
