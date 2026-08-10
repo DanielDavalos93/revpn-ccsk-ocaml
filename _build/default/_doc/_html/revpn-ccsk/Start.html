@@ -47,15 +47,6 @@ let lambda t = match t.t_id with 
   | &quot;t4&quot; -&gt; { t with t_label = &quot;tau&quot; } 
   | _    -&gt; t
 
-{%html: &lt;figure&gt;
-  &lt;img src=&quot;images/petri_net.svg&quot;
-       alt=&quot;Labelled Petri net: places s1-s4, transitions t1-t4&quot;
-       style=&quot;max-width:480px; display:block; margin:auto&quot;/&gt;
-  &lt;figcaption style=&quot;text-align:center; color:#555; font-size:0.9em&quot;&gt;
-    Fig. 1 — Labelled Petri net (quickstart example)
-  &lt;/figcaption&gt;
-&lt;/figure&gt; %}
-
 let net    = make_label_net places transitions arcs [&quot;a&quot;;&quot;b&quot;;&quot;tau&quot;] lambda 
 let mnet   = make_marked_net net [&quot;s1&quot;]  (* initial marking: one token in s1 *)
 
@@ -63,7 +54,14 @@ let mnet   = make_marked_net net [&quot;s1&quot;]  (* initial marking: one token
 let mnet'  = fire mnet &quot;t1&quot; 
 
 (* Reachable markings by BFS *) 
-let reach  = bfs mnet </code></pre><h3 id="revpn_ccsk.lts"><a href="#revpn_ccsk.lts" class="anchor"></a>Revpn_ccsk.Lts</h3><p>Labelled Transition Systems, bisimulation and reachability.</p><pre class="language-ocaml"><code> open Revpn_ccsk.Lts
+let reach  = bfs mnet </code></pre> <figure>
+  <img src="images/petri_net.svg"
+       alt="Labelled Petri net: places s1-s4, transitions t1-t4"
+       style="max-width:480px; display:block; margin:auto"/>
+  <figcaption style="text-align:center; color:#555; font-size:0.9em">
+    Fig. 1 — Labelled Petri net (quickstart example)
+  </figcaption>
+</figure> <h3 id="revpn_ccsk.lts"><a href="#revpn_ccsk.lts" class="anchor"></a>Revpn_ccsk.Lts</h3><p>Labelled Transition Systems, bisimulation and reachability.</p><pre class="language-ocaml"><code> open Revpn_ccsk.Lts
 (* Build the marking graph as an explicit LTS *) 
 let mg : lts = marking_graph_as_lts mnet
 
@@ -104,9 +102,7 @@ let lts_ccs = lts_of_ccs mnet result.process result.equations
 (* 3. Disjoint union + bisimulation check *) 
 let ok = bisimilar_across lts_mg lts_ccs 
 let () = assert ok; print_endline &quot;Theorem 1 holds for this net.&quot; </code></pre> <figure>
-  <img src="images/ccs_lts.svg"
-       alt="CCS to LTS"
-       style="max-width:480px; display:block; margin:auto"/>
+  <img src="images/ccs_lts.svg" />
   <figcaption style="text-align:center; color:#555; font-size:0.9em">
     Fig. 1 — CCS to LTS
   </figcaption>

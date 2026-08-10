@@ -85,15 +85,6 @@ let lambda t = match t.t_id with 
   | "t4" -> { t with t_label = "tau" } 
   | _    -> t
 
-{%html: <figure>
-  <img src="images/petri_net.svg"
-       alt="Labelled Petri net: places s1-s4, transitions t1-t4"
-       style="max-width:480px; display:block; margin:auto"/>
-  <figcaption style="text-align:center; color:#555; font-size:0.9em">
-    Fig. 1 — Labelled Petri net (quickstart example)
-  </figcaption>
-</figure> %}
-
 let net    = make_label_net places transitions arcs ["a";"b";"tau"] lambda 
 let mnet   = make_marked_net net ["s1"]  (* initial marking: one token in s1 *)
 
@@ -103,6 +94,15 @@ let mnet'  = fire mnet "t1"
 (* Reachable markings by BFS *) 
 let reach  = bfs mnet 
 ]}
+
+{%html: <figure>
+  <img src="images/petri_net.svg"
+       alt="Labelled Petri net: places s1-s4, transitions t1-t4"
+       style="max-width:480px; display:block; margin:auto"/>
+  <figcaption style="text-align:center; color:#555; font-size:0.9em">
+    Fig. 1 — Labelled Petri net (quickstart example)
+  </figcaption>
+</figure> %}
 
 {2 Revpn_ccsk.Lts}
 
@@ -169,9 +169,7 @@ let ok = bisimilar_across lts_mg lts_ccs 
 let () = assert ok; print_endline "Theorem 1 holds for this net." ]}
 
 {%html: <figure>
-  <img src="images/ccs_lts.svg"
-       alt="CCS to LTS"
-       style="max-width:480px; display:block; margin:auto"/>
+  <img src="images/ccs_lts.svg" />
   <figcaption style="text-align:center; color:#555; font-size:0.9em">
     Fig. 1 — CCS to LTS
   </figcaption>
