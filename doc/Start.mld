@@ -96,7 +96,7 @@ let reach  = bfs mnet
 ]}
 
 {%html: <figure>
-  <img src="images/petri_net.svg"
+  <img src="petri_net.svg"
        alt="Labelled Petri net: places s1-s4, transitions t1-t4"
        style="max-width:480px; display:block; margin:auto"/>
   <figcaption style="text-align:center; color:#555; font-size:0.9em">
@@ -169,7 +169,7 @@ let ok = bisimilar_across lts_mg lts_ccs 
 let () = assert ok; print_endline "Theorem 1 holds for this net." ]}
 
 {%html: <figure>
-  <img src="images/ccs_lts.svg" />
+  <img src="ccs_lts.svg" />
   <figcaption style="text-align:center; color:#555; font-size:0.9em">
     Fig. 1 — CCS to LTS
   </figcaption>
