@@ -26,7 +26,8 @@ $ cd revpn-ccsk-ocaml
 {2 With apt (Ubuntu / Debian)}
 
 {[
-$ sudo apt-get update sudo apt-get install -y ocaml ocaml-nox ocaml-dune 
+$ sudo apt-get update 
+$ sudo apt-get install -y ocaml ocaml-nox ocaml-dune 
 $ git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
 $ cd revpn-ccsk-ocaml
 ]}

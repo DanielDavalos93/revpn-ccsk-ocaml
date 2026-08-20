@@ -1,4 +1,4 @@
-(* open Ccsk *)
+open Ccsk
 (* Labelled Transition Systems (LTS) *)
 
 (* Build LTS from CCS types (?) *)

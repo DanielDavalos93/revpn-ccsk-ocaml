@@ -115,6 +115,9 @@ let remove_one_token m pid =
 let setminus m1 m2 =
   List.fold_left (fun acc pid -> remove_one_token acc pid) m1 m2
 
+let intersect l1 l2 = 
+  List.filter (fun x -> List.mem x l2) l1 
+
 let encode_letter (a : string) : int =
   match a with
   | "a" -> 1

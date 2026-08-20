@@ -1,5 +1,6 @@
-(* open Net *)
-(* open Lts *)
+open Net
+open Lts
+open Util
 
 (** [token] is the set of tokens defined inductively as:
   - [Tok_empty]: {m (\cdot, \langle\!\langle \rangle\!\rangle, \cdot)}
@@ -69,10 +70,10 @@ let rec m (marking : marking) : token =
     are one [Tok(p, [Tok_empty], i)] per place, numbered left to right.
 
       m_flat []           = Tok_empty
-      m_flat [p₁;…;pₙ]   = Tok ("·", [Tok(p₁,[Tok_empty],1);
-                                        Tok(p₂,[Tok_empty],2);
+      m_flat [p1;…;pn]   = Tok ("·", [Tok(p1,[Tok_empty],1);
+                                        Tok(p2,[Tok_empty],2);
                                         …
-                                        Tok(pₙ,[Tok_empty],n)], n+1)  *)
+                                        Tok(pn,[Tok_empty],n)], n+1)  *)
 let rec m_flat (ln : labelled_net) (tid : transition_id) : token =
   let label_a = (ln.label_map {t_id = tid; t_label = ""}).t_label in
   let pres_t = input_arcs ln tid in
@@ -88,8 +89,8 @@ let rec m_flat (ln : labelled_net) (tid : transition_id) : token =
 (** [is_enabled_tk tn tid] checks if transition [tid] is enabled
     in the token net [tn].
 
-    A transition [tid] with input places [p₁,…,pₖ] is enabled iff
-    the current marking token has label in {p₁,…,pₖ}, i.e., the
+    A transition [tid] with input places [p1,…,pk] is enabled iff
+    the current marking token has label in {p1,…,pk}, i.e., the
     token currently sits in one of the input places. *)
 let is_enabled_tk (tn : token_net) (tid : transition_id) : bool =
   let inputs = input_arcs tn.net tid in
@@ -106,7 +107,7 @@ let next_id (tk : token) : int = size tk + 1
 
     Firing [t] with:
       - current token  w = Tok (p, history, i)  in input place [p]
-      - output places  [q₁, …, qₖ]
+      - output places  [q1, …, qk]
 
     Produces one new token per output place, each wrapping [w]:
       w'ⱼ = Tok (qⱼ, [w], next_id w)
@@ -176,15 +177,21 @@ let rec firing_sequence_tk (tn : token_net) (ts : transition_id list) : token_ne
       | None     -> None
       | Some tn' -> firing_sequence_tk tn' ts
 
-(** {b Key Labelled Net}*)
+(** {b Key Labelled Net}
+  A net {m K = (N, S_k)} is called {b key} labelled net (or key net) if 
+  for every {m t \in T}, {m |t\bullet \cap S_k| = 1}, and for all 
+  {m s \in S_k, |s\bullet|=0 \wedge |\bullet s|=1.}
+*)
 let key_net (tn : marked_net) : bool =
-  let exists_subset =
-    List.exists (fun x ->
-      List.for_all (fun y -> List.mem y x) (get_place tn.net) 
-      &&
-      List.for_all (fun z -> (List.mem (input_arcs tn.net z) x)) tn.net
-      ) (reachable_markings tn) in
-  exists_subset
+    List.for_all (fun t ->
+      let post_t = output_arcs tn.net t in
+      List.length (intersect post_t tn.marking) = 1
+    ) (get_transition tn.net) &&
+    List.for_all (fun s ->
+      let pre_s = List.map (fun x -> x.t_id) (preset_of_place tn.net s) in
+      let post_s = List.map (fun x -> x.t_id) (postset_of_place tn.net s) in
+      List.length pre_s = 1 && List.length post_s = 0
+    ) tn.marking
 
 (** Example *)
 (* let tnet1 : token_net = make_token_net net1 (Tok ("s1", [Tok_empty],1)) *)
