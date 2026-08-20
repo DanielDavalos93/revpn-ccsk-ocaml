@@ -1,4 +1,5 @@
 open Util
+open Lts
 
 type place_id = string
 type transition_id = string
@@ -24,7 +25,7 @@ type labelled_net = {
   places  : place list;
   transitions : transition list;
   arcs : arc list;
-  set : string list;
+  set : label list;
   label_map : transition -> transition;
 }
 
@@ -70,7 +71,7 @@ let make_marked_net net marking : marked_net =
 let get_transition (n : labelled_net)  =
   List.map (fun x -> x.t_id) n.transitions
 
-let get_place (n : labelled_net)  =
+let get_place (n : labelled_net) : marking =
   List.map (fun x -> x.p_id) n.places
 
 let tokens (mn : marked_net) (p : place_id) =
@@ -119,8 +120,7 @@ let postset_of_place net pid =
   ) net.arcs
  
 let is_enabled (mn : marked_net) (tid : transition_id) =
-  List.for_all
-    (fun pid -> tokens mn pid >= 1)
+  List.for_all (fun pid -> tokens mn pid >= 1)
     (input_arcs mn.net tid)
 
 (** Fire a transition if it is enabled; return the net with
@@ -306,7 +306,7 @@ let arcs = [
   TP ("t3", "s4"); TP ("t4", "s4")
 ]
 
-let set : transition_id list = ["a"; "b"; "tau"]
+let set : label list = ["a"; "b"; "tau"]
 
 let lambda t  =
   match t.t_id with
@@ -336,7 +336,7 @@ let arcs2 = [
 ]
 let init2 = ["s1"]
 
-let set2 : transition_id list = ["a"; "b"]
+let set2 : label list = ["a"; "b"]
 
 let lambda2 t  =
   match t.t_id with
