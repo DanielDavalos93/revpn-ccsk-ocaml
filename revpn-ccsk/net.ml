@@ -25,13 +25,13 @@ type labelled_net = {
   places  : place list;
   transitions : transition list;
   arcs : arc list;
-  set : label list;
+  set : string list;
   label_map : transition -> transition;
 }
 
 let make_label_net (places : place list) (transitions : transition list) (arcs : arc list) 
     (set : string list) (label_map : transition -> transition) : labelled_net =
-  { places; transitions; arcs; set; label_map}
+  { places; transitions; arcs; set; label_map }
 
 let make_place id : place =
   { p_id = id }
@@ -210,8 +210,8 @@ let reachable_markings (mn : marked_net) : marking list =
   [init] @ List.map (fun (_,_,x) -> x) (marking_graph mn)
 
 (** A [ccs_net] is a function that verifies a labelled net such that
-      for all {m t \in T, |\bullet t| \le 2} and if {m |\bullet t|=2} then
-      {m \lambda (t) = \tau}.
+    for all {m t \in T, |\bullet t| \le 2} and if {m |\bullet t|=2} then
+    {m \lambda (t) = \tau}.
  *)
 let ccs_net (ln : labelled_net) : bool =
   List.for_all (fun x ->
@@ -298,7 +298,7 @@ let pl : place list = generate_place 4
 let tr : transition list = generate_transition 4
 
 let arcs = [
-  PT ("s1", "t1"); (*TP ("t1", "s1"); *)
+  PT ("s1", "t1"); TP ("t1", "s1");
   PT ("s1", "t2");
   TP ("t1", "s2"); TP ("t2", "s3");
   PT ("s3", "t4"); PT ("s2", "t4"); 
@@ -306,7 +306,7 @@ let arcs = [
   TP ("t3", "s4"); TP ("t4", "s4")
 ]
 
-let set : label list = ["a"; "b"; "tau"]
+let set : string list = ["a"; "b"; "tau"]
 
 let lambda t  =
   match t.t_id with
@@ -331,12 +331,12 @@ let tr2 = generate_transition 2
 let arcs2 = [
   PT ("s1","t1");
   PT ("s1","t2");
-  TP ("t1","s2");
+  TP ("t1","s1");
   TP ("t2","s2")
 ]
 let init2 = ["s1"]
 
-let set2 : label list = ["a"; "b"]
+let set2 : string list = ["a"; "b"]
 
 let lambda2 t  =
   match t.t_id with

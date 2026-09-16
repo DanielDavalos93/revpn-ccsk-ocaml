@@ -4,10 +4,10 @@
 
 let rec (--) i j = if i > j then [] else i :: i + 1 -- j
 
-(* let (|>>) x f =  *)
-(*   match x with *)
-(*   | None -> None *)
-(*   | Some y -> f y *)
+let (|>>) x f = 
+  match x with
+  | None -> None
+  | Some y -> f y
 
 (** [zip [l1,l2,..] [t1,t2,..]] returns the list of pairs [[(l1,t1), (l2,t2), ..]]. *)
 
@@ -118,33 +118,6 @@ let setminus m1 m2 =
 let intersect l1 l2 = 
   List.filter (fun x -> List.mem x l2) l1 
 
-let encode_letter (a : string) : int =
-  match a with
-  | "a" -> 1
-  | "b" -> 2
-  | "c" -> 3
-  | "d" -> 4
-  | "e" -> 5
-  | "f" -> 6
-  | "g" -> 7
-  | "h" -> 8
-  | "i" -> 9
-  | "j" -> 10
-  | "k" -> 11
-  | "m" -> 12
-  | "n" -> 13
-  | "o" -> 14
-  | "p" -> 15
-  | "q" -> 16
-  | "r" -> 17
-  | "s" -> 18
-  | "t" -> 19
-  | "u" -> 20
-  | "v" -> 21
-  | "w" -> 22
-  | "x" -> 23
-  | "y" -> 24
-  | "z" -> 25
-  | _ -> 0
-
+let encode_string (s : string) : int =
+  String.fold_left (fun x -> fun y -> (x + int_of_char y) - 96) 0 s 
 
