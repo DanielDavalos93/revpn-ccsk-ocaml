@@ -472,7 +472,5 @@ The encoding uses fresh channel names of the form ["s"^t_id] for synchronising 
 HTML output lands in: [open _build/default/_doc/_html/index.html]
 
 {1 References}
-    - Melgratti, H. C., Mezzina, C. A., Pinna, G. M.: {e Encoding Reversible Petri Nets into CCSK.} In: Components Operationally: Reversibility and System Engineering — Essays Dedicated to Jean-Bernard Stefani on the Occasion of His 65th Birthday. 2026, pp. 3–23. {{: https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1} [https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1]}
-    - QCOMICAL project: {{: https://wdi.centralesupelec.fr/qcomical/} [https://wdi.centralesupelec.fr/qcomical/]}
-    - odoc documentation: {{: https://danieldavalos93.github.io/revpn-ccsk-ocaml} [https://danieldavalos93.github.io/revpn-ccsk-ocaml]}
+    - Melgratti, H. C., Mezzina, C. A., Pinna, G. M.: {e Encoding Reversible Petri Nets into CCSK.} In: Components Operationally: Reversibility and System Engineering — Essays Dedicated to Jean-Bernard Stefani on the Occasion of His 65th Birthday. 2026, pp. 3--23. {{: https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1} [paper link]}
 

@@ -10,7 +10,6 @@ let (|>>) x f =
   | Some y -> f y
 
 (** [zip [l1,l2,..] [t1,t2,..]] returns the list of pairs [[(l1,t1), (l2,t2), ..]]. *)
-
 let rec zip ls ts = 
   match ls, ts with
   | [], _ -> []

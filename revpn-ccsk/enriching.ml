@@ -19,7 +19,7 @@ let rec size (tk : token) : int =
       List.fold_left (max) 0 (List.map (size) tok) + 1
 
 (** {b Sum of tokens.} If {m t_1 = (a_1,w_1,i_1)} and 
-    {m t_2 = (a_1, w_2, i_2)} then {m t_1\oplus t_2 = 
+    {m t_2 = (a_1, w_2, i_2)} then {m t_1+_. t_2 = 
       (a_1,w_1,i_1);(a_2,w_2,i_2)} is the concatenation of tokens.
 *)
 let (+.) (t1: token) (t2: token) : token list =
@@ -48,22 +48,22 @@ let (-.) (t: token) (sub_tok: token) : token =
 
 (** ---- Example ---- *)
 
-(** {m w_0 = (\cdot, \langle\!\langle \rangle\!\rangle)} *)
+(** {m w_0 = (\cdot, \langle\!\langle \rangle\!\rangle, \cdot)} *)
 let w0 = Tok_empty                        (* size w0 -> 0 *)
 
-(** {m w_1 = (a, (\cdot, \langle\!\langle \rangle\!\rangle), 1)} *)
+(** {m w_1 = (a, (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 1)} *)
 let w1 = Tok ("a", [Tok_empty], 1)        (* size w1 -> 1 *)
 
-(** {m w_2 = (b, (\cdot, \langle\!\langle \rangle\!\rangle), 1)} *)
+(** {m w_2 = (b, (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 1)} *)
 let w2 = Tok ("b", [Tok_empty], 1)        (* size w2 -> 1 *)
 
-(** {m w_3 = (a, \langle\!\langle (\cdot \langle\!\langle \rangle\!\rangle), 
-    (b, (\cdot, \langle\!\langle \rangle\!\rangle), 1)\rangle\!\rangle, 2)} *)
+(** {m w_3 = (a, \langle\!\langle (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 
+    (b, (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 1)\rangle\!\rangle, 2)} *)
 let w3 = Tok ("a", [Tok_empty;
           Tok ("b", [Tok_empty], 1)], 2)  (* size w3 -> 2 *)
 
-(** {m w_4 = (\tau, \langle\!\langle(a, \langle\!\langle (\cdot \langle\!\langle \rangle\!\rangle), 
-    (b, (\cdot, \langle\!\langle \rangle\!\rangle), 1)\rangle\!\rangle, 2)\rangle\!\rangle, 3)} *)
+(** {m w_4 = (\tau, \langle\!\langle(a, \langle\!\langle (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 
+    (b, (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 1)\rangle\!\rangle, 2)\rangle\!\rangle, 3)} *)
 let w4 = Tok ("tau", [w3], 3)  (* size w4 -> 2 *)
 
 (* --------------------- *)
@@ -166,12 +166,12 @@ let next_id (tk : token) : int = size tk + 1
       - output places  [q1, …, qk]
 
     Produces one new token per output place, each wrapping [w]:
-      {m w'_j = \mathsf{Tok} (q_j, \mathtt{w}, \mathtt{next_id w}}
+      {m w'_j = \mathsf{Tok} (q_j, \mathsf{w}, \mathsf{next_id w})}
     Since the marking is a single token, firing [t] with one output
     place produces [Tok (q, [w], i+1)].
     For transitions with multiple output places (like [t4] in Figure 3)
     we produce a combined token whose children are one token per output:
-      {m w' = \mathsf{Tok} (tid, [\mathsf{Tok} (q_1,\mathtt{w},i+1); Tok(q_2,\mathtt{w},i+2)], i+1)}
+      {m w' = \mathsf{Tok} (tid, [\mathsf{Tok} (q_1,\mathsf{w},i+1); \mathsf{Tok}(q_2,\mathsf{w},i+2)], i+1)}
 
     Returns [None] if [tid] is not enabled. *)
 let fire_tk (tn : token_net) (tid : transition_id) : token_net option =
@@ -232,9 +232,9 @@ let rec firing_sequence_tk (tn : token_net) (ts : transition_id list) : token_ne
 
 (** {b Key Labelled Net}
 
-  A net {m K = (N, S_k)} is called {b key} labelled net (or key net) if 
-    for every {m t \in T}, {m |t^{\bullet} \cap S_k| = 1}, and for all 
-  {m s \in S_k}, such that {m |s^{\bullet}}|=0 \wedge |^{\bullet} s|=1.}
+  A net {m K = (N, S_k)} is called {b key labelled net} (or simply key net)
+  if for every {m t \in T}, {m |t^{\bullet} \cap S_k| = 1}, and for all 
+  {m s \in S_k}, such that {m |s^{\bullet}|=0 \wedge |{}^{\bullet} s|=1.}
 *)
 let key_net (tn : marked_net) : bool =
     List.for_all (fun t ->
