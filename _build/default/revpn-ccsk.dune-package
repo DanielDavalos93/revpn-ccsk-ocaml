@@ -1,4 +1,4 @@
-(lang dune 3.24)
+(lang dune 3.23)
 (name revpn-ccsk)
 (sections (lib .) (libexec .) (bin ../../bin) (doc ../../doc/revpn-ccsk))
 (files

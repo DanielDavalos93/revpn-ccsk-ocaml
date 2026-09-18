@@ -13,9 +13,8 @@ $ cd revpn-ccsk-ocaml</code></pre><h3 id="with-apt-(ubuntu-/-debian)"><a href="#
 $ sudo apt-get install -y ocaml ocaml-nox ocaml-dune 
 $ git clone https://github.com/DanielDavalos93/revpn-ccsk-ocaml.git 
 $ cd revpn-ccsk-ocaml</code></pre><h2 id="build-and-run"><a href="#build-and-run" class="anchor"></a>Build and run</h2><pre class="language-ocaml"><code> 
-$ dune build                    # compile everything 
-$ dune exec bin/main.exe        # run the main example 
-$ dune exec bin/algorithm1.exe  # run the first algorithm from the paper</code></pre><p>To open the library in the REPL:</p><pre class="language-ocaml"><code>$ dune utop revpn-ccsk </code></pre><h2 id="repository-layout"><a href="#repository-layout" class="anchor"></a>Repository layout</h2><pre class="language-ocaml"><code> 
+$ dune build                          # compile everything 
+$ ./_build/default/bin/algorithm1.exe # run the first algorithm from the paper</code></pre><p>To open the library in the REPL:</p><pre class="language-ocaml"><code>$ dune utop revpn-ccsk </code></pre><h2 id="repository-layout"><a href="#repository-layout" class="anchor"></a>Repository layout</h2><pre class="language-ocaml"><code> 
   revpn-ccsk-ocaml/ 
   ├── revpn-ccsk/          (* library source *) 
   │   ├── net.ml           (* Petri net types and firing semantics *) 
@@ -230,7 +229,7 @@ open  Revpn_ccsk.Net 
 module CCS = Revpn_ccsk.Ccsk.CCS
 let steps = CCS.transitions eqs proc </code></pre><h3 id="marking-representation"><a href="#marking-representation" class="anchor"></a>Marking representation</h3><p>Markings are <code>place_id list</code> (a multiset encoded as a list, including duplicates for multi-token places). Two markings are equal when their sorted forms match; use <code>marking_key</code> from <code>Net</code> for hashing.</p><h3 id="arc-weights"><a href="#arc-weights" class="anchor"></a>Arc weights</h3><p>Arcs are unweighted: <code>PT (p, t)</code> means one token flows from <code>p</code> to <code>t</code>. To model weighted arcs, repeat the arc constructor the required number of times.</p><h3 id="tau-labels-and-the-encoding"><a href="#tau-labels-and-the-encoding" class="anchor"></a>Tau labels and the encoding</h3><p>The encoding uses fresh channel names of the form <code>&quot;s&quot;^t_id</code> for synchronising (preset-size 2) transitions. These channels are hidden by a <code>Restriction</code> on <code>Q</code>, so they produce <code>Silent</code> in the CCS LTS. The helper <code>lts_of_ccs</code> re-maps these back to the net label (<code>&quot;tau&quot;</code>) via a pre-built lookup table — do not apply <code>notation_act</code> directly if you want net labels on the edges.</p>
 <figure style="text-align:center;margin:2em auto">
-<svg width="747pt" height="486pt"
+<svg width="740pt" height="486pt"
  viewBox="0.00 0.00 747.00 486.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(36 450)">
 <title>Bisimulation</title>
@@ -366,4 +365,4 @@ let steps = CCS.transitions eqs proc </code></pre><h3 id="marking-representatio
 </g>
 </svg>
 </figure>
-<h2 id="running-the-tests"><a href="#running-the-tests" class="anchor"></a>Running the tests</h2><pre class="language-ocaml"><code>$ dune test </code></pre><h2 id="building-the-documentation"><a href="#building-the-documentation" class="anchor"></a>Building the documentation</h2><pre class="language-ocaml"><code>$ dune build @doc</code></pre><p>HTML output lands in: <code>open _build/default/_doc/_html/index.html</code></p><h2 id="references"><a href="#references" class="anchor"></a>References</h2><ul><li>Melgratti, H. C., Mezzina, C. A., Pinna, G. M.: <em>Encoding Reversible Petri Nets into CCSK.</em> In: Components Operationally: Reversibility and System Engineering — Essays Dedicated to Jean-Bernard Stefani on the Occasion of His 65th Birthday. 2026, pp. 3--23. <a href="https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1"><code>paper link</code></a></li></ul></div></body></html>
+<h2 id="running-the-tests"><a href="#running-the-tests" class="anchor"></a>Running the tests</h2><pre class="language-ocaml"><code>$ dune test </code></pre><h2 id="building-the-documentation"><a href="#building-the-documentation" class="anchor"></a>Building the documentation</h2><pre class="language-ocaml"><code>$ dune build @doc</code></pre><p>HTML output lands in: <code>xdg-open _build/default/_doc/_html/index.html</code></p><h2 id="references"><a href="#references" class="anchor"></a>References</h2><ul><li>Melgratti, H. C., Mezzina, C. A., Pinna, G. M.: <em>Encoding Reversible Petri Nets into CCSK.</em> In: Components Operationally: Reversibility and System Engineering — Essays Dedicated to Jean-Bernard Stefani on the Occasion of His 65th Birthday. 2026, pp. 3--23. <a href="https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1"><code>paper link</code></a></li></ul></div></body></html>

@@ -2,18 +2,26 @@ open Net
 open Lts
 open Util
 
+type token = 
+  | Tok_empty
+  | Tok of (label * token list * int)
+
 (** 
    [token] is the type of tokens defined inductively as:
 
      {m \cfrac{}{\mathsf{Tok\_empty : token}} \qquad\qquad 
-     \cfrac{a\in\mathsf{A} \qquad ls\mathsf{: [token]} \qquad i \in \mathbb N}{\mathsf{Tok}(a, ls, i)} }
+     \cfrac{a\in\mathsf{A} \qquad ls\mathsf{ : [token]} \qquad i \in \mathbb N}{\mathsf{Tok}(a, ls, i)}\mathsf{ : token}}
 
   - [Tok_empty]: {m (\cdot, \langle\!\langle \rangle\!\rangle, \cdot)}
   - [Tok (a, ls, i)]: if [ls] has [token] type, {m (a, \langle\!\langle w_1,\dots,w_n\rangle\!\rangle, i)} with {m a} an action, {m w_1,\dots,w_n} are tokens and {m i\in\mathbb N} an identificator number.
   *)
-type token = 
-  | Tok_empty
-  | Tok of (label * token list * int)
+
+
+(** The {i size} of a token is defined as follows: 
+  {m \mathsf{size}((\cdot,\langle\!\langle \rangle\!\rangle,\cdot))=0} and
+  {m \mathsf{size}((a,\langle\!\langle w_1,\dots, w_n \rangle\!\rangle,j))=
+    \max\{\mathsf{size(w_i) \mid 1\le i \le n}\} + 1}.
+ *)
 
 let rec size (tk : token) : int =
   match tk with
@@ -272,7 +280,11 @@ let knet3 : keyPairNet =
   {net = net3; 
   key = List.map (fun x -> x.p_id) key3}
 
-(** {b Key place} *)
+(** {b Key place.} Given a key labelled net {m \mathsf{K} = (N, S_k)} and
+    a transition {m t\in T}, the {i key place} [keypl k t] return the place
+    {s^t\in S_k} such that {m {}^{\bullet}s^t = \{t\}.}
+*)
+
 let keypl (kn : keyPairNet) (t : transition_id) =
   let sk = kn.key in
   List.filter (fun x -> 

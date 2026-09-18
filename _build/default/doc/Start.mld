@@ -35,9 +35,8 @@ $ cd revpn-ccsk-ocaml
 {1 Build and run}
 
 {[ 
-$ dune build                    # compile everything 
-$ dune exec bin/main.exe        # run the main example 
-$ dune exec bin/algorithm1.exe  # run the first algorithm from the paper
+$ dune build                          # compile everything 
+$ ./_build/default/bin/algorithm1.exe # run the first algorithm from the paper
 ]}
 
 To open the library in the REPL:
@@ -324,7 +323,7 @@ The encoding uses fresh channel names of the form ["s"^t_id] for synchronising 
 
 {%html:
 <figure style="text-align:center;margin:2em auto">
-<svg width="747pt" height="486pt"
+<svg width="740pt" height="486pt"
  viewBox="0.00 0.00 747.00 486.00" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
 <g id="graph0" class="graph" transform="scale(1 1) rotate(0) translate(36 450)">
 <title>Bisimulation</title>
@@ -469,7 +468,7 @@ The encoding uses fresh channel names of the form ["s"^t_id] for synchronising 
 {1 Building the documentation}
 
 {[$ dune build @doc]}
-HTML output lands in: [open _build/default/_doc/_html/index.html]
+HTML output lands in: [xdg-open _build/default/_doc/_html/index.html]
 
 {1 References}
     - Melgratti, H. C., Mezzina, C. A., Pinna, G. M.: {e Encoding Reversible Petri Nets into CCSK.} In: Components Operationally: Reversibility and System Engineering — Essays Dedicated to Jean-Bernard Stefani on the Occasion of His 65th Birthday. 2026, pp. 3--23. {{: https://link.springer.com/chapter/10.1007/978-3-031-99717-4_1} [paper link]}

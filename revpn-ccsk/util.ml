@@ -1,8 +1,8 @@
 (* Util *)
 
-(** range from i to j: [i--j] generes the list [[i;i+1;..;j]] *)
 
 let rec (--) i j = if i > j then [] else i :: i + 1 -- j
+(** range from i to j: [i--j] generes the list [[i;i+1;..;j]] *)
 
 let (|>>) x f = 
   match x with

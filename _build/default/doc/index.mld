@@ -2,10 +2,9 @@
 
 This repository contains the OCaml implementation of theoretical framework apperead in this 
 {{:https://iris.unica.it/handle/11584/456965} paper}.
-The work is part of the QCOMICAL MSCA-SE secondments of Daniel Dávalos at
-
-University of Urbino (period 19/4/26-18/6/26) under the supervision of Claudio Antares Mezzina;
-University of Cagliari (period 18/6/26-17/7/26) under the supervision of G. Michele Pinna
+The work is part of the QCOMICAL MSCA-SE secondments of Daniel Dávalos at:
+- University of Urbino (period 19/4/26-18/6/26) under the supervision of Claudio Antares Mezzina;
+- University of Cagliari (period 18/6/26-17/7/26) under the supervision of G. Michele Pinna.
 
 {0 Modules}
 
@@ -25,7 +24,13 @@ University of Cagliari (period 18/6/26-17/7/26) under the supervision of G. Mich
 
 {!modules: Revpn_ccsk.Encoding} 
 
+{1 Enriching}
+
 {!modules: Revpn_ccsk.Enriching}
+
+{1 Utils}
+
+{!modules: Revpn_ccsk.Util}
 
 {0 {{!page: Start} Quick start}}
 
