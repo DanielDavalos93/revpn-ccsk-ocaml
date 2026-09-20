@@ -235,7 +235,7 @@ let rec firing_sequence_tk (tn : token_net) (ts : transition_id list) : token_ne
 
 type keyPairNet = {
   net : labelled_net;
-  key : label list;
+  key : place_id list;
   }
 
 
@@ -282,11 +282,57 @@ let knet3 : keyPairNet =
 
 (** {b Key place.} Given a key labelled net {m \mathsf{K} = (N, S_k)} and
     a transition {m t\in T}, the {i key place} [keypl k t] return the place
-    {s^t\in S_k} such that {m {}^{\bullet}s^t = \{t\}.}
+    {m s^t\in S_k} such that {m {}^{\bullet}s^t = \{t\}.}
 *)
 
 let keypl (kn : keyPairNet) (t : transition_id) =
   let sk = kn.key in
   List.filter (fun x -> 
     (List.map (fun y -> y.t_id) (preset_of_place kn.net x)) = [t]) sk
+
+(* let is_initial (kn : keyPairNet) : bool = *)
+
+(** {1 Reversible labelled net} 
+  
+  A {b reversible labelled net} with resersing transitions {m U\subseteq T}
+  (we denote this as [rev_trans] in the constructor of the type 
+  [reversing_net]) and key places {m S_k \subseteq S} is the tripe 
+  {m R = (\langle S, T, F, \lambda, A\rangle, S_k, U)}.
+*)
+type reversing_net = {
+  net : labelled_net;
+  key : label list;
+  rev_trans : transition list;
+}
+
+let is_reversible_lab_net (rn : reversing_net) : bool =
+  let fwdT = setminus rn.net.transitions rn.rev_trans in
+  let trS = get_transition rn.net in
+  let plS = get_place rn.net in
+  let prodTP = bin_prod trS plS in
+  let prodPT = bin_prod plS trS in
+  let bwdF = (List.map (fun x -> TP x) prodTP) @ (List.map (fun x -> PT x) prodPT) in
+
+  let fwNet : keyPairNet = {
+    net = {
+      places = rn.net.places;
+      transitions = fwdT;
+      arcs = setminus rn.net.arcs bwdF;
+      set = rn.net.set;
+      label_map = rn.net.label_map;
+      };
+    key = rn.key;
+    } 
+  in
+  let prop_reverse_transition u = fun t -> 
+      (preset_of_transition rn.net u.t_id == 
+        postset_of_transition rn.net t.t_id) &&
+      (postset_of_transition rn.net u.t_id == 
+        preset_of_transition rn.net t.t_id) &&
+      (rn.net.label_map t = rn.net.label_map u) in
+  is_key_net fwNet &&
+  is_subset rn.rev_trans rn.net.transitions &&
+  List.for_all (fun u ->
+    exists_unique fwdT (prop_reverse_transition u)
+    ) rn.rev_trans
 
