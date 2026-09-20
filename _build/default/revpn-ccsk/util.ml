@@ -29,9 +29,12 @@ let unzip (xs: ('a * 'b) list) : ('a list * 'b list) =
 
 
 (* Append disjoint union *)
-let append_disj f xs = List.filter f xs, List.filter (function x -> f x |> not) xs
+let append_disj f xs = List.filter f xs, List.filter (
+  function x -> f x |> not) xs
 
-(* Get the n-th element of a list *)
+(** Get the n-th element of a list. For a list [ls] and a positive integer
+    number [i], [ls !! i] return the element of the list [ls] in the 
+    i-th position. *)
 let rec ( !! ) xs n = 
   match xs, n with
     | [], _ -> raise (Failure "get_nth")
@@ -43,11 +46,6 @@ let init : 'a list -> 'a list = fun xs -> List.rev xs |> List.tl |> List.rev
 
 let last : 'a list -> 'a = fun xs -> !! xs (List.length xs - 1)
 
-(** Concat lists *)
-(* let rec ( ++ ) xs ys = *)
-(*   match xs with  *)
-(*   | [] -> ys  *)
-(*   | xs -> (init xs) ++ ((last xs) :: ys) *)
 let rec insert x ls =
   match ls with
   | [] -> [[x]]
@@ -71,7 +69,8 @@ let rec set_of_list xs = match xs with
   | [] -> []
   | x :: xs -> if List.mem x xs then set_of_list xs else x :: set_of_list xs
 
-(* Binary product *)
+(** Binary product. Given two sets [A] and [B], [bin_prod A B] return the
+ list of pairs [(a, b)] where {m a \in A \wedge b \in B}. *)
 let rec bin_prod xs ys =
   match xs with
   | [] -> []
@@ -116,6 +115,25 @@ let setminus m1 m2 =
 
 let intersect l1 l2 = 
   List.filter (fun x -> List.mem x l2) l1 
+
+  (** This function ask if {m s_1 \subseteq s_2} with the follow statement:
+    {m \forall x, x \in s_1 \Longrightarrow x \in s_2 \equiv 
+    \forall x, \neg (x \in s_1) \vee \in s_2.}*)
+let is_subset l1 l2 =
+  List.for_all (fun x ->
+    not (List.mem x l1) || List.mem x l2) l1
+
+(** For a set {m x} and a function {m f : x \to \mathsf{Bool}}, 
+    [exists_unique x f] is equivalent to {m \exists! x, f(x)}, which its
+    definition is {m \exists x, \left(f(x) \wedge \forall y, 
+    f(y) \Longrightarrow x = y\right).}
+    *)
+let exists_unique ls f =
+  List.exists (fun x ->
+    f x && List.for_all (fun y -> 
+      not (f y) || x == y) ls
+    ) ls
+
 
 let encode_string (s : string) : int =
   String.fold_left (fun x -> fun y -> (x + int_of_char y) - 96) 0 s 
