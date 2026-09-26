@@ -6,14 +6,17 @@ type token =
   | Tok_empty
   | Tok of (label * token list * int)
 
-(** 
+(**
+  Let {m N = \langle S, T, F, \lambda, \mathsf{A} \rangle} be a labelled net.
    [token] is the type of tokens defined inductively as:
 
      {m \cfrac{}{\mathsf{Tok\_empty : token}} \qquad\qquad 
-     \cfrac{a\in\mathsf{A} \qquad ls\mathsf{ : [token]} \qquad i \in \mathbb N}{\mathsf{Tok}(a, ls, i)}\mathsf{ : token}}
+     \cfrac{a\in\mathsf{A} \qquad ls\mathsf{ : [token]} \qquad i \in \mathbb N}{\mathsf{Tok}(a, ls, i)\mathsf{ : token}}}
 
   - [Tok_empty]: {m (\cdot, \langle\!\langle \rangle\!\rangle, \cdot)}
-  - [Tok (a, ls, i)]: if [ls] has [token] type, {m (a, \langle\!\langle w_1,\dots,w_n\rangle\!\rangle, i)} with {m a} an action, {m w_1,\dots,w_n} are tokens and {m i\in\mathbb N} an identificator number.
+  - [Tok (a, ls, i)]: if [ls] has [token] type, 
+    {m (a, \langle\!\langle w_1,\dots,w_n\rangle\!\rangle, i)} with {m a} 
+    an action, {m w_1,\dots,w_n} are tokens and {m i\in\mathbb N} an identificator number.
   *)
 
 
@@ -50,6 +53,7 @@ let toks (w : token) =
   match w with
   | Tok_empty -> []
   | Tok (_,w,_) -> w
+
 
 let (-.) (t: token) (sub_tok: token) : token =
   match t with
@@ -305,15 +309,15 @@ type reversing_net = {
   rev_trans : transition list;
 }
 
-let is_reversible_lab_net (rn : reversing_net) : bool =
-  let fwdT = setminus rn.net.transitions rn.rev_trans in
+let fwNet (rn : reversing_net) : keyPairNet = 
+  let fwdT = setminus rn.net.transitions rn.rev_trans in 
   let trS = get_transition rn.net in
   let plS = get_place rn.net in
   let prodTP = bin_prod trS plS in
-  let prodPT = bin_prod plS trS in
-  let bwdF = (List.map (fun x -> TP x) prodTP) @ (List.map (fun x -> PT x) prodPT) in
-
-  let fwNet : keyPairNet = {
+  let prodPT = bin_prod plS trS in 
+  let bwdF = (List.map (fun x -> TP x) prodTP) @ 
+          (List.map (fun x -> PT x) prodPT) in
+  {
     net = {
       places = rn.net.places;
       transitions = fwdT;
@@ -323,14 +327,16 @@ let is_reversible_lab_net (rn : reversing_net) : bool =
       };
     key = rn.key;
     } 
-  in
+
+let is_reversible_lab_net (rn : reversing_net) : bool =
+  let fwdT = setminus rn.net.transitions rn.rev_trans in
   let prop_reverse_transition u = fun t -> 
       (preset_of_transition rn.net u.t_id == 
         postset_of_transition rn.net t.t_id) &&
       (postset_of_transition rn.net u.t_id == 
         preset_of_transition rn.net t.t_id) &&
       (rn.net.label_map t = rn.net.label_map u) in
-  is_key_net fwNet &&
+  is_key_net (fwNet rn) &&
   is_subset rn.rev_trans rn.net.transitions &&
   List.for_all (fun u ->
     exists_unique fwdT (prop_reverse_transition u)
