@@ -33,12 +33,14 @@ let rec size (tk : token) : int =
       List.fold_left (max) 0 (List.map (size) tok) + 1
 
 (** {b Sum of tokens.} If {m t_1 = (a_1,w_1,i_1)} and 
-    {m t_2 = (a_1, w_2, i_2)} then {m t_1+_. t_2 = 
+    {m t_2 = (a_1, w_2, i_2)} then {m t_1+_{\bullet} t_2 = 
       (a_1,w_1,i_1);(a_2,w_2,i_2)} is the concatenation of tokens.
 *)
 let (+.) (t1: token) (t2: token) : token list =
   [t1; t2]
 
+(** Given a token [w = (a, w', i)] we define: [kt w = i], [lab_tok w = a]
+and [toks w = w']. *)
 let kt (w : token) =
   match w with
   | Tok_empty -> 0
@@ -54,7 +56,8 @@ let toks (w : token) =
   | Tok_empty -> []
   | Tok (_,w,_) -> w
 
-
+  (** For a token {m w = (a,\langle\!\langle w_1,\dots,w_{j-1},w_j,w_{j+1}\rangle\!\rangle, i)}, we define {m w -_{\bullet} w_j} as 
+   (a,\langle\!\langle w_1,\dots,w_{j-1},w_{j+1}\rangle\!\rangle, i). *)
 let (-.) (t: token) (sub_tok: token) : token =
   match t with
   | Tok_empty -> Tok_empty
@@ -115,22 +118,12 @@ let immediate_transitions (ln : labelled_net) : (transition_id * transition_id) 
 (** [m_flat marking] converts a marking into a flat token whose children
     are one [Tok(p, [Tok_empty], i)] per place, numbered left to right.
 
-      m_flat []           = Tok_empty
-      m_flat [p1;…;pn]   = Tok ("·", [Tok(p1,[Tok_empty],1);
-                                        Tok(p2,[Tok_empty],2);
-                                        …
-                                        Tok(pn,[Tok_empty],n)], n+1)  *)
-(* let rec m_flat (ln : labelled_net) (tid : transition_id) : token = *)
-(*   let label_a = (ln.label_map {t_id = tid; t_label = ""}).t_label in *)
-(*   let pres_t = input_arcs ln tid in *)
-(*   match pres_t with *)
-(*   | []  -> Tok_empty *)
-(*   | [p] -> Tok (label_a, [Tok_empty], encode_string label_a) *)
-(*   | ps  -> *)
-(*       let children = *)
-(*         List.mapi (fun i p -> Tok (label_a, [Tok_empty], i)) ps in *)
-(*       let top_id = encode_string label_a in *)
-(*       Tok (label_a, children, top_id) *)
+      [m_flat []           = Tok_empty]
+      
+      [m_flat [p1;…;pn]   = Tok ("·", [Tok(p1,[Tok_empty],1);]
+                                        [Tok(p2,[Tok_empty],2);]
+                                        [...]
+                                        [Tok(pn,[Tok_empty],n)], n+1)]  *)
 let rec m_flat (net : labelled_net) (marking : marking) : token =
   let lbl pid =
     match List.find_opt (fun p -> p.p_id = pid) net.places with
@@ -305,40 +298,47 @@ let keypl (kn : keyPairNet) (t : transition_id) =
 *)
 type reversing_net = {
   net : labelled_net;
-  key : label list;
+  key : place_id list;
   rev_trans : transition list;
 }
 
-let fwNet (rn : reversing_net) : keyPairNet = 
-  let fwdT = setminus rn.net.transitions rn.rev_trans in 
-  let trS = get_transition rn.net in
-  let plS = get_place rn.net in
-  let prodTP = bin_prod trS plS in
-  let prodPT = bin_prod plS trS in 
-  let bwdF = (List.map (fun x -> TP x) prodTP) @ 
-          (List.map (fun x -> PT x) prodPT) in
+(** [forwardNet] take a [reversing_net] and return a [keyPairNet] removing
+    their backward transitions and all their arcs containing reversing 
+    transitions.
+ *)
+let forwardNet (rn : reversing_net) : keyPairNet = 
+  let bwdT = rn.rev_trans in
+  let fwdT = setminus rn.net.transitions bwdT in 
+  let fwd_arcs = List.filter (fun x ->
+          (List.mem (pi x Fst) (List.map (fun x -> x.t_id) fwdT)) ||
+          (List.mem (pi x Snd) (List.map (fun x -> x.t_id) fwdT)) 
+          ) rn.net.arcs in
   {
     net = {
       places = rn.net.places;
       transitions = fwdT;
-      arcs = setminus rn.net.arcs bwdF;
+      arcs = fwd_arcs;
       set = rn.net.set;
       label_map = rn.net.label_map;
       };
     key = rn.key;
     } 
 
+let prop_reverse_transition (rn : reversing_net) (u : transition) = 
+  fun t -> 
+      (preset_of_transition rn.net u.t_id = 
+        postset_of_transition rn.net t.t_id) &&
+      (postset_of_transition rn.net u.t_id = 
+        preset_of_transition rn.net t.t_id) &&
+      ((rn.net.label_map t).t_label = (rn.net.label_map u).t_label)
+
 let is_reversible_lab_net (rn : reversing_net) : bool =
   let fwdT = setminus rn.net.transitions rn.rev_trans in
-  let prop_reverse_transition u = fun t -> 
-      (preset_of_transition rn.net u.t_id == 
-        postset_of_transition rn.net t.t_id) &&
-      (postset_of_transition rn.net u.t_id == 
-        preset_of_transition rn.net t.t_id) &&
-      (rn.net.label_map t = rn.net.label_map u) in
-  is_key_net (fwNet rn) &&
+  is_key_net (forwardNet rn) &&
   is_subset rn.rev_trans rn.net.transitions &&
   List.for_all (fun u ->
-    exists_unique fwdT (prop_reverse_transition u)
-    ) rn.rev_trans
+    List.exists (fun t ->
+    exists_unique fwdT (prop_reverse_transition rn u) t
+    ) fwdT
+  ) rn.rev_trans
 

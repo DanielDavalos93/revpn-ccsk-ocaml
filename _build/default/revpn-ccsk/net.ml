@@ -25,7 +25,7 @@ type labelled_net = {
   places  : place list;
   transitions : transition list;
   arcs : arc list;
-  set : string list;
+  set : label list;
   label_map : transition -> transition;
 }
 
@@ -47,6 +47,21 @@ let generate_transition n  =
 
 let make_label f t =
   List.map (f) t
+
+type int_projection =
+  | Fst
+  | Snd
+
+(** [pi r i] is the projection function, which return the first element 
+    of the relation {m \pi (x,y) 1 \mapsto x} or the second one 
+    {m \pi (x,y) 2 \mapsto y}.
+ *)
+let pi (r : arc) (i : int_projection) =
+  match r, i with
+  | TP (t,_), Fst -> t
+  | TP (_,p), Snd -> p
+  | PT (p,_), Fst -> p
+  | PT (_,t), Snd -> t
 
 type marked_net = {
   net : labelled_net;

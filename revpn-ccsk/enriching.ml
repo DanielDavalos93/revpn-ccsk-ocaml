@@ -310,8 +310,8 @@ let forwardNet (rn : reversing_net) : keyPairNet =
   let bwdT = rn.rev_trans in
   let fwdT = setminus rn.net.transitions bwdT in 
   let fwd_arcs = List.filter (fun x ->
-          (List.mem (pi x 1) (List.map (fun x -> x.t_id) fwdT)) ||
-          (List.mem (pi x 2) (List.map (fun x -> x.t_id) fwdT)) 
+          (List.mem (pi x Fst) (List.map (fun x -> x.t_id) fwdT)) ||
+          (List.mem (pi x Snd) (List.map (fun x -> x.t_id) fwdT)) 
           ) rn.net.arcs in
   {
     net = {
