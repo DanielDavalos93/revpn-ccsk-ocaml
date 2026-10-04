@@ -1,6 +1,6 @@
-open Net
-open Lts
-open Util
+(* open Net *)
+(* open Lts *)
+(* open Util *)
 
 type token = 
   | Tok_empty
@@ -306,9 +306,11 @@ type reversing_net = {
     their backward transitions and all their arcs containing reversing 
     transitions.
  *)
+let forwardTransition (rn : reversing_net) : transitions =
+  setminus rn.net.transitions rn.rev_trans
+
 let forwardNet (rn : reversing_net) : keyPairNet = 
-  let bwdT = rn.rev_trans in
-  let fwdT = setminus rn.net.transitions bwdT in 
+  let fwdT = forwardTransition rn in
   let fwd_arcs = List.filter (fun x ->
           (List.mem (pi x Fst) (List.map (fun x -> x.t_id) fwdT)) ||
           (List.mem (pi x Snd) (List.map (fun x -> x.t_id) fwdT)) 
@@ -333,7 +335,7 @@ let prop_reverse_transition (rn : reversing_net) (u : transition) =
       ((rn.net.label_map t).t_label = (rn.net.label_map u).t_label)
 
 let is_reversible_lab_net (rn : reversing_net) : bool =
-  let fwdT = setminus rn.net.transitions rn.rev_trans in
+  let fwdT = forwardTransition rn in
   is_key_net (forwardNet rn) &&
   is_subset rn.rev_trans rn.net.transitions &&
   List.for_all (fun u ->
@@ -341,4 +343,7 @@ let is_reversible_lab_net (rn : reversing_net) : bool =
     exists_unique fwdT (prop_reverse_transition rn u) t
     ) fwdT
   ) rn.rev_trans
+
+
+(** Enabling and Firing a Reversing Transition.*)
 
