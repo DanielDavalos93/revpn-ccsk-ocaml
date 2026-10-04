@@ -125,8 +125,7 @@ let is_subset l1 l2 =
 
 (** For a set {m s} and a function {m f : s \to \mathsf{Bool}}, 
     [exists_unique s f v] is equivalent to {m \exists! x, f(x)},
-    which its definition is {m f(v) \wedge \forall y \in s, 
-    f(y) \Longrightarrow x = y\right).}
+    which its definition is {m f(v) \wedge \forall y \in s, f(y) \Longrightarrow x = y}.
     *)
 let exists_unique s f x =
   f x && List.for_all (fun y -> not (f y) || (x = y)) s
