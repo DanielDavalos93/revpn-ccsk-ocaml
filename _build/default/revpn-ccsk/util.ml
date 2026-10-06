@@ -105,17 +105,10 @@ let setminus m1 m2 =
 let intersect l1 l2 = 
   List.filter (fun x -> List.mem x l2) l1 
 
-  (** This function ask if {m s_1 \subseteq s_2} with the follow statement:
-    {m \forall x, x \in s_1 \Longrightarrow x \in s_2 \equiv 
-    \forall x, \neg (x \in s_1) \vee \in s_2.}*)
 let is_subset l1 l2 =
   List.for_all (fun x ->
     not (List.mem x l1) || List.mem x l2) l1
 
-(** For a set {m s} and a function {m f : s \to \mathsf{Bool}}, 
-    [exists_unique s f v] is equivalent to {m \exists! x, f(x)},
-    which its definition is {m f(v) \wedge \forall y \in s, f(y) \Longrightarrow x = y}.
-    *)
 let exists_unique s f x =
   f x && List.for_all (fun y -> not (f y) || (x = y)) s
 

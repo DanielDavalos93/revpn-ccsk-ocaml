@@ -1,5 +1,9 @@
 type label = string
 type state = { n_states : int; init : int; }
+(** State. For practicy we use [[n] = 0..n-1] for states instead other type like [string]. 
+The current state [init] should be less or equal than [n_states].
+*)
+
 type trans = (int * label * int) list
 type lts = { states : state; trans : trans; }
 module LTS :

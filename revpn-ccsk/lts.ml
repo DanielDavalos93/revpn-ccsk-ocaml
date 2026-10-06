@@ -1,12 +1,9 @@
 open Ccsk
 (* Labelled Transition Systems (LTS) *)
 
-(* Build LTS from CCS types (?) *)
+(* Build LTS from CCS types *)
 type label = string
 
-(** State. For practicy we use [[n] = 0..n-1] for states instead other type like [string]. 
-The current state [init] should be less or equal than [n_states].
-*)
 type state = {
   n_states : int;
   init : int;
