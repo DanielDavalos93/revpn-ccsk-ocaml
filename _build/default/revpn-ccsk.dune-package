@@ -5,6 +5,7 @@
  (lib
   (META
    ccsk.ml
+   ccsk.mli
    dune-package
    encoding.ml
    encoding.mli
@@ -23,6 +24,7 @@
    revpn_ccsk.ml
    revpn_ccsk__Ccsk.cmi
    revpn_ccsk__Ccsk.cmt
+   revpn_ccsk__Ccsk.cmti
    revpn_ccsk__Ccsk.cmx
    revpn_ccsk__Encoding.cmi
    revpn_ccsk__Encoding.cmt
@@ -75,7 +77,7 @@
      (module
       (obj_name revpn_ccsk__Ccsk)
       (visibility public)
-      (source (path Ccsk) (impl (path ccsk.ml))))
+      (source (path Ccsk) (intf (path ccsk.mli)) (impl (path ccsk.ml))))
      (module
       (obj_name revpn_ccsk__Encoding)
       (visibility public)

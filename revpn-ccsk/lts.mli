@@ -1,10 +1,14 @@
 type label = string
 type state = { n_states : int; init : int; }
-(** State. For practicy we use [[n] = 0..n-1] for states instead other type like [string]. 
-The current state [init] should be less or equal than [n_states].
-*)
+  (** {b State.} For practicy we use [[n] = 0..n-1] for states instead other type like [string]. 
+    The current state [init] should be less or equal than [n_states].
+  *)
 
 type trans = (int * label * int) list
+  (** {b Transition.} A pair [(n1, a, n2)] is in a transition if there is an
+    arc such that [n1 --[a]--> n2].
+  *)
+
 type lts = { states : state; trans : trans; }
 module LTS :
   sig
@@ -14,6 +18,7 @@ module LTS :
     val all_labels : lts -> label list
     val postset : lts -> int list -> label -> int list
   end
+
 module PairSet :
   sig
     type elt = int * int
@@ -62,19 +67,59 @@ module PairSet :
     val of_seq : elt Seq.t -> t
   end
 val refine_step : lts -> label list -> PairSet.t -> PairSet.t
+
 val bisim_naive : lts -> PairSet.t
+  (** 
+    {b NAIVE ALGORITHM.} Let be {m R_0 = S \times S} for the
+    base case and for the inductive step:
+
+    {math R_{k+1} = \{ (s,t) \in R_k |
+        \forall a, \forall s', s\overrightarrow{a}s' \to 
+        \exists t', t \overrightarrow{a} t' \wedge (s',t') \in R_k
+        \wedge
+        \forall a, \forall t', t \overrightarrow{a} t' \to
+        \exists s', s \overrightarrow{a} s' \wedge (s',t') \in R_k \}
+        }
+        
+        Stops when {m R_{k+1} = R_k} for any {m k\geq k_0} (find a fix point).
+
+   *)
+
 val pre_a : lts -> int array -> int -> label -> int list
+(** [pre_a(B)]: states with some succ. [a] in the block [B]. *)
+
 val split_block : int array -> int -> int -> int list -> int ref -> bool
+  (** Splits the block `c_id` if their states are in `splitter_set` *)
+
 type partition_result = {
   block_of : int array;
   n_blocks : int;
   blocks : int list array;
 }
+
 val bisim_partition : lts -> partition_result
 val tau_closure : lts -> int -> int list
 val weak_LTS_succ : lts -> int -> label -> int list
 val bisim_weak : lts -> PairSet.t
+
+(** 
+   WEAK BISIMULATION
+
+  [s ≈ t] if there is [R] shuch that every [(s,t) ∈ R] satisfies:
+       - if [s --a--> s'  (a ≠ τ)] then [∃ t'. t ==a==> t' y (s',t') ∈ R]
+             where  [==a==>] means  [τ* · a · τ*]
+       - si [s --τ--> s'] then [∃ t'. t ==ε==> t' y (s',t') ∈ R]
+             where  [==ε==>] means  [τ*]
+       (y simétricamente para t)
+ 
+    Implementation for closure of [τ] by [BFS/DFS], then fix point.
+
+   *)
+
 val minimize_lts : lts -> partition_result -> lts
+(**
+   {b Minimization.} Given a LTS and a partition, returns the minimal LTS 
+  *)
 val print_partition : partition_result -> unit
 val print_lts_explicit : string -> lts -> unit
 val print_bisim_relation : PairSet.t -> int -> unit

@@ -9,9 +9,6 @@ type state = {
   init : int;
 }
 
-(** Transition. A pair [(n1, a, n2)] is in a transition if there is an
-    arc such that [n1 --[a]--> n2].
-*)
 type trans = (int * label * int) list
 
 type lts = {
@@ -50,29 +47,6 @@ module LTS = struct
 
 end
 
-(** 
-   NAIVE ALGORITHM
-
-
-     [R₀ = S × S]
-
-     [Rₖ₊₁ = {! (s,t) ∈ Rₖ |
-               ∀a, ∀s', s --a--> s'  →  
-
-               ∃t', t --a--> t' ∧ (s',t') ∈ Rₖ
-                    ∧
-              
-              ∀a, ∀t', t --a--> t'  →  
-
-              ∃s', s --a--> s' ∧ (s',t') ∈ Rₖ }]
- 
-   Stops when Rₖ₊₁ = Rₖ (find a fix point).
-
-   *)
- 
-
-(** Set of pairs as a ordered list *)
-
 module PairSet = Set.Make(struct
   type t = int * int
   let compare = compare
@@ -100,7 +74,6 @@ let refine_step (lts : lts) (labels : label list) (r : PairSet.t) : PairSet.t =
     ) labels
   ) r
  
-(** The complete algorithm. Iteration till the fix point *)
 
 let bisim_naive (lts : lts) : PairSet.t =
   let labels = LTS.all_labels lts in
@@ -114,16 +87,12 @@ let bisim_naive (lts : lts) : PairSet.t =
     if PairSet.equal r r' then r else iterate r' in
   iterate r0
  
-  (** [pre_a(B)]: states with some succ. [a] in the block [B]. *)
-
 let pre_a (lts : lts) (block_of : int array) (b_id : int) (a : label) : int list =
   List.filter_map (fun (src, lbl, dst) ->
     if lbl = a && block_of.(dst) = b_id then Some src else None
   ) lts.trans
   |> List.sort_uniq compare
  
-(** Splits the block `c_id` if their states are in `splitter_set` *)
-
 let split_block (block_of : int array) (n : int) (c_id : int) 
                 (splitter_set : int list) (next_id : int ref) : bool =
   let in_splitter = Hashtbl.create 16 in
@@ -180,21 +149,7 @@ let bisim_partition (lts : lts) : partition_result =
     blocks.(block_of.(s)) <- s :: blocks.(block_of.(s))
   done;
   { block_of; n_blocks = nb; blocks }
- 
-(** 
-   WEAK BISIMULATION
-
-  [s ≈ t] if there is [R] shuch that every [(s,t) ∈ R] satisfies:
-       - if [s --a--> s'  (a ≠ τ)] then [∃ t'. t ==a==> t' y (s',t') ∈ R]
-             where  [==a==>] means  [τ* · a · τ*]
-       - si [s --τ--> s'] then [∃ t'. t ==ε==> t' y (s',t') ∈ R]
-             where  [==ε==>] means  [τ*]
-       (y simétricamente para t)
- 
-    Implementation for closure of [τ] by [BFS/DFS], then fix point.
-
-   *)
- 
+  
 let tau_closure (lts : lts) (s : int) : int list =
   let visited = Hashtbl.create 8 in
   let queue   = Queue.create () in
@@ -218,8 +173,6 @@ let weak_LTS_succ (lts : lts) (s : int) (a : label) : int list =
   let after_a_tau = List.concat_map (tau_closure lts) after_a in
   List.sort_uniq compare after_a_tau
  
-(** Fix point for weak bisimulation *)
-
 let bisim_weak (lts : lts) : PairSet.t =
   let visible_labels =
     List.filter (fun l -> l <> "tau") (LTS.all_labels lts) in
@@ -261,12 +214,6 @@ let bisim_weak (lts : lts) : PairSet.t =
   in
   iterate r0
  
-(**
-   MINIMIZATION
-
-   Given a LTS and a partition, returns the minimal LTS 
-  *)
- 
 let minimize_lts (lts : lts) (pr : partition_result) : lts =
   let q_trans =
     List.map (fun (s, a, t) ->
@@ -283,7 +230,7 @@ let minimize_lts (lts : lts) (pr : partition_result) : lts =
     trans    = q_trans;
   }
  
-(** --------------------
+(* --------------------
    PRETTY-PRINTERS
    --------------------- *)
  
@@ -350,11 +297,6 @@ let string_of_transition_list trans =
   List.map (fun (s,a,t) -> Printf.sprintf "  %d --[%s]--> %d" s a t) trans
   |> String.concat "\n"
 
-(* let string_of_blocks (blocks : label list array) = *)
-(*   Array.mapi (fun i b -> *)
-(*     let sorted = List.sort compare b in *)
-(*     Printf.sprintf "  B%d = { %s }" i (String.concat ", " (List.map (fun x -> x) sorted))  *)
-(*   ) blocks  |> String.concat "\n" *)
 
 let print_bisimilar_strong (l1 : lts) (l2 : lts) : unit =
   let n1 = l1.states.n_states in
@@ -369,8 +311,6 @@ let print_bisimilar_strong (l1 : lts) (l2 : lts) : unit =
   Printf.printf "LTS concated:\n";
   Printf.printf "  states: 0..%d\n" (combined.states.n_states - 1);
   Printf.printf "  transitions:\n%s\n" (string_of_transition_list combined.trans);
-  (* Printf.printf "\nPartition for bisimulation:\n"; *)
-  (* Printf.printf "%s\n" (string_of_blocks pr.blocks); *)
   Printf.printf "\nInitial state LTS1 = 0  → block B%d\n" block1;
   Printf.printf "Initial state LTS2 = %d → block B%d\n" n1 block2;
   Printf.printf "\nRESULT: %s\n" (if result then "✅ Are bisimilars" else "❌ Aren't bisimilars");
