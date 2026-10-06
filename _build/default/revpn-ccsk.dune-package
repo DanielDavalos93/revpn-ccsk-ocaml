@@ -1,4 +1,4 @@
-(lang dune 3.23)
+(lang dune 3.24)
 (name revpn-ccsk)
 (sections (lib .) (libexec .) (bin ../../bin) (doc ../../doc/revpn-ccsk))
 (files
@@ -7,9 +7,12 @@
    ccsk.ml
    dune-package
    encoding.ml
+   encoding.mli
    enriching.ml
    lts.ml
+   lts.mli
    net.ml
+   net.mli
    opam
    revpn_ccsk.a
    revpn_ccsk.cma
@@ -23,20 +26,25 @@
    revpn_ccsk__Ccsk.cmx
    revpn_ccsk__Encoding.cmi
    revpn_ccsk__Encoding.cmt
+   revpn_ccsk__Encoding.cmti
    revpn_ccsk__Encoding.cmx
    revpn_ccsk__Enriching.cmi
    revpn_ccsk__Enriching.cmt
    revpn_ccsk__Enriching.cmx
    revpn_ccsk__Lts.cmi
    revpn_ccsk__Lts.cmt
+   revpn_ccsk__Lts.cmti
    revpn_ccsk__Lts.cmx
    revpn_ccsk__Net.cmi
    revpn_ccsk__Net.cmt
+   revpn_ccsk__Net.cmti
    revpn_ccsk__Net.cmx
    revpn_ccsk__Util.cmi
    revpn_ccsk__Util.cmt
+   revpn_ccsk__Util.cmti
    revpn_ccsk__Util.cmx
-   util.ml))
+   util.ml
+   util.mli))
  (libexec (revpn_ccsk.cmxs))
  (bin (revpn_ccsk))
  (doc
@@ -71,7 +79,10 @@
      (module
       (obj_name revpn_ccsk__Encoding)
       (visibility public)
-      (source (path Encoding) (impl (path encoding.ml))))
+      (source
+       (path Encoding)
+       (intf (path encoding.mli))
+       (impl (path encoding.ml))))
      (module
       (obj_name revpn_ccsk__Enriching)
       (visibility public)
@@ -79,13 +90,13 @@
      (module
       (obj_name revpn_ccsk__Lts)
       (visibility public)
-      (source (path Lts) (impl (path lts.ml))))
+      (source (path Lts) (intf (path lts.mli)) (impl (path lts.ml))))
      (module
       (obj_name revpn_ccsk__Net)
       (visibility public)
-      (source (path Net) (impl (path net.ml))))
+      (source (path Net) (intf (path net.mli)) (impl (path net.ml))))
      (module
       (obj_name revpn_ccsk__Util)
       (visibility public)
-      (source (path Util) (impl (path util.ml))))))
+      (source (path Util) (intf (path util.mli)) (impl (path util.ml))))))
    (wrapped true))))

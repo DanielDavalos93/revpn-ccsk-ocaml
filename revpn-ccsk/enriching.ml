@@ -1,6 +1,6 @@
-(* open Net *)
-(* open Lts *)
-(* open Util *)
+open Net
+open Lts
+open Util
 
 type token = 
   | Tok_empty
@@ -306,7 +306,7 @@ type reversing_net = {
     their backward transitions and all their arcs containing reversing 
     transitions.
  *)
-let forwardTransition (rn : reversing_net) : transitions =
+let forwardTransition (rn : reversing_net) : transition list =
   setminus rn.net.transitions rn.rev_trans
 
 let forwardNet (rn : reversing_net) : keyPairNet = 

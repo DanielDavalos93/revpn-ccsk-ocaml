@@ -1,15 +1,10 @@
-(* Util *)
-
-
 let rec (--) i j = if i > j then [] else i :: i + 1 -- j
-(** range from i to j: [i--j] generes the list [[i;i+1;..;j]] *)
 
 let (|>>) x f = 
   match x with
   | None -> None
   | Some y -> f y
 
-(** [zip [l1,l2,..] [t1,t2,..]] returns the list of pairs [[(l1,t1), (l2,t2), ..]]. *)
 let rec zip ls ts = 
   match ls, ts with
   | [], _ -> []
@@ -27,14 +22,10 @@ let unzip (xs: ('a * 'b) list) : ('a list * 'b list) =
     | (_, y) :: ys -> y :: list_right ys in
   (list_left xs, list_right xs)
 
-
 (* Append disjoint union *)
 let append_disj f xs = List.filter f xs, List.filter (
   function x -> f x |> not) xs
 
-(** Get the n-th element of a list. For a list [ls] and a positive integer
-    number [i], [ls !! i] return the element of the list [ls] in the 
-    i-th position. *)
 let rec ( !! ) xs n = 
   match xs, n with
     | [], _ -> raise (Failure "get_nth")
@@ -69,8 +60,6 @@ let rec set_of_list xs = match xs with
   | [] -> []
   | x :: xs -> if List.mem x xs then set_of_list xs else x :: set_of_list xs
 
-(** Binary product. Given two sets [A] and [B], [bin_prod A B] return the
- list of pairs [(a, b)] where {m a \in A \wedge b \in B}. *)
 let rec bin_prod xs ys =
   match xs with
   | [] -> []
