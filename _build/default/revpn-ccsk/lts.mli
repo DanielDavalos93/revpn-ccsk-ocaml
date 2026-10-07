@@ -73,12 +73,12 @@ val bisim_naive : lts -> PairSet.t
     {b NAIVE ALGORITHM.} Let be {m R_0 = S \times S} for the
     base case and for the inductive step:
 
-    {math R_{k+1} = \{ (s,t) \in R_k |
-        \forall a, \forall s', s\overrightarrow{a}s' \to 
-        \exists t', t \overrightarrow{a} t' \wedge (s',t') \in R_k
+    {math R_{k+1} = \{ (s,t) \in R_k \mid
+        \forall a, \forall s', s\overrightarrow{a}s' \Rightarrow 
+        \exists t', t \underrightarrow{a} t' \wedge (s',t') \in R_k
         \wedge
-        \forall a, \forall t', t \overrightarrow{a} t' \to
-        \exists s', s \overrightarrow{a} s' \wedge (s',t') \in R_k \}
+        \forall a, \forall t', t \underrightarrow{a} t' \Rightarrow
+        \exists s', s \underrightarrow{a} s' \wedge (s',t') \in R_k \}
         }
         
         Stops when {m R_{k+1} = R_k} for any {m k\geq k_0} (find a fix point).
@@ -106,11 +106,11 @@ val bisim_weak : lts -> PairSet.t
    WEAK BISIMULATION
 
   [s ≈ t] if there is [R] shuch that every [(s,t) ∈ R] satisfies:
-       - if [s --a--> s'  (a ≠ τ)] then [∃ t'. t ==a==> t' y (s',t') ∈ R]
-             where  [==a==>] means  [τ* · a · τ*]
-       - si [s --τ--> s'] then [∃ t'. t ==ε==> t' y (s',t') ∈ R]
-             where  [==ε==>] means  [τ*]
-       (y simétricamente para t)
+       - if {m s \overset{a}{\longrightarrow} s'}  [(a ≠ τ)] then {m \exists t', t \overset{a}{\Longrightarrow} t'} and [(s',t') ∈ R]
+             where {m \overset{a}{\Longrightarrow}} means  [τ* · a · τ*]
+       - if {m s \overset{\tau}{\longrightarrow} s'} then [\exists t', t \overset{\varepsilon}{\Longrightarrow} t'] and [(s',t') ∈ R]
+             where {m \overset{\varepsilon}{\Longrightarrow}} means  [τ*]
+       (and symmetrically for [t])
  
     Implementation for closure of [τ] by [BFS/DFS], then fix point.
 
@@ -120,6 +120,7 @@ val minimize_lts : lts -> partition_result -> lts
 (**
    {b Minimization.} Given a LTS and a partition, returns the minimal LTS 
   *)
+  
 val print_partition : partition_result -> unit
 val print_lts_explicit : string -> lts -> unit
 val print_bisim_relation : PairSet.t -> int -> unit
