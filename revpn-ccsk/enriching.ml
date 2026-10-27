@@ -1,6 +1,6 @@
-open Net
+(* open Net
 open Lts
-open Util
+open Util *)
 
 type token = 
   | Tok_empty
@@ -67,24 +67,32 @@ let immediate_transitions (ln : labelled_net) : (transition_id * transition_id) 
   ) binProd
 
 
-let rec m_flat (net : labelled_net) (marking : marking) : token =
+let rec m_flat (mnet : marked_net) (tid : transition_id) : token =
+  let net = mnet.net in
   let lbl pid =
-    match List.find_opt (fun p -> p.p_id = pid) net.places with
-    | Some _ ->
-        pid
-    | None   ->
+    (* match List.find_opt (fun p -> p.p_id = pid) net.places with *)
+    (* | Some _ -> *)
+    (*     pid *)
+    (* | None   -> *)
         match List.find_opt (fun t -> t.t_id = pid) net.transitions with
         | Some t -> (net.label_map t).t_label
         | None   -> pid
   in
-  match marking with
-  | []      -> Tok_empty
-  | [p]     -> Tok (lbl p, [Tok_empty], 1)
-  | p :: ps ->
-      let child = m_flat net ps in
-      Tok (lbl p, [m_flat net [p]; child], size child + 1)
+  let pair_b = pairs_back mnet tid in
+  if is_subset (List.map (fun p -> fst p) pair_b) mnet.marking then
+      Tok (lbl tid, [Tok_empty], 1)
+  else
+  let pres_tid = preset_of_transition net tid in
+  let pres_m = List.concat_map (fun s -> 
+    List.map (fun x -> x.t_id) (preset_of_place net s)) pres_tid in
+  let mnet' = {mnet with marking = pres_tid} in
+  (* let pair_pres_tid = List.concat_map (pairs_back mnet') pres_m in *)
+  let child = List.map (fun t -> m_flat mnet' t) pres_m in
+  Tok (lbl tid, child, List.length child + 1)
 
+let next_id (tk : token) : int = size tk + 1
 
+(** Enabling and Firing a Reversing Transition.*)
 let is_enabled_tk (tn : token_net) (tid : transition_id) : bool =
   let inputs = input_arcs tn.net tid in
   match tn.key with
@@ -92,8 +100,6 @@ let is_enabled_tk (tn : token_net) (tid : transition_id) : bool =
   | Tok (a, t, _) -> 
       (* let lamb_t = (tn.net.label_map {t_id = tid; t_label = ""}).t_label in *)
       List.mem a inputs
-
-let next_id (tk : token) : int = size tk + 1
 
 let fire_tk (tn : token_net) (tid : transition_id) : token_net option =
   if not (is_enabled_tk tn tid) then None
@@ -198,7 +204,7 @@ type reversing_net = {
 let forwardTransition (rn : reversing_net) : transition list =
   setminus rn.net.transitions rn.rev_trans
 
-let forwardNet (rn : reversing_net) : keyPairNet = 
+let forwardKeyNet (rn : reversing_net) : keyPairNet = 
   let fwdT = forwardTransition rn in
   let fwd_arcs = List.filter (fun x ->
           (List.mem (pi x Fst) (List.map (fun x -> x.t_id) fwdT)) ||
@@ -225,7 +231,7 @@ let prop_reverse_transition (rn : reversing_net) (u : transition) =
 
 let is_reversible_lab_net (rn : reversing_net) : bool =
   let fwdT = forwardTransition rn in
-  is_key_net (forwardNet rn) &&
+  is_key_net (forwardKeyNet rn) &&
   is_subset rn.rev_trans rn.net.transitions &&
   List.for_all (fun u ->
     List.exists (fun t ->
@@ -234,5 +240,4 @@ let is_reversible_lab_net (rn : reversing_net) : bool =
   ) rn.rev_trans
 
 
-(** Enabling and Firing a Reversing Transition.*)
 

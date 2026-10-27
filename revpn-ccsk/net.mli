@@ -1,10 +1,14 @@
 type place_id = string
-type transition_id = place_id
+type transition_id = string
 type place = { p_id : transition_id; }
 type transition = { t_id : transition_id; t_label : transition_id; }
+
 type arc =
     PT of (transition_id * transition_id)
   | TP of (transition_id * transition_id)
+  (** [arc] is the immediate relation between places and transitions.
+ Here the type [int] plays the rol of the number of tokens. *)
+
 type marking = transition_id list
 type labelled_net = {
   places : place list;
@@ -24,6 +28,11 @@ val generate_transition : int -> transition list
 val make_label : ('a -> 'b) -> 'a list -> 'b list
 type int_projection = Fst | Snd
 val pi : arc -> int_projection -> transition_id
+  (** [pi r i] is the projection function, which return the first element 
+    of the relation {m \pi (x,y) 1 \mapsto x} or the second one 
+    {m \pi (x,y) 2 \mapsto y}.
+  *)
+
 type marked_net = { net : labelled_net; marking : marking; }
 val empty_transition : transition
 val empty_marked_net : marked_net
@@ -39,16 +48,35 @@ val preset_of_place : labelled_net -> place_id -> transition list
 val postset_of_place : labelled_net -> place_id -> transition list
 val is_enabled : marked_net -> transition_id -> bool
 val fire : marked_net -> transition_id -> marked_net option
+  (** Fire a transition if it is enabled; return the net with
+    the new marking on [Some] of [None] if it isn't enabled.*)
+
 val un_opt : marked_net option -> marked_net
 val firing_sequence : marked_net -> transition_id list -> marked_net option
 val enabled_transitions : marked_net -> transition list
+  (** List of enabled transitions *)
+
 val pair_fir :
   marked_net -> transition_id -> marking * transition_id * marking
 val marking_key : marking -> place_id
-val normalize_marking : marking -> string list
-val marking_graph : marked_net -> (marking * transition_id * marking) list
+  (** Canonical key for a marking: sorted list of place_ids. *)
+
+val normalize_marking : marking -> marking
+val marking_graph : marked_net -> (marking * label * marking) list
+  (** [marking_graph mn] returns all reachable edges {m (m, t, m')} from [mn.marking]
+    by BFS, visiting each marking at most once. *)
+
 val reachable_markings : marked_net -> marking list
+  (** [reachable_markings mn] returns the list of reachable markings by
+   firing.
+  *)
+
 val ccs_net : labelled_net -> bool
+  (** A [ccs_net] is a function that verifies a labelled net such that
+    for all {m t \in T, |\bullet t| \le 2} and if {m |\bullet t|=2} then
+    {m \lambda (t) = \tau}.
+  *)
+
 val is_safe : marked_net -> bool
 val print_preset_postset : labelled_net -> unit
 val print_marking : marked_net -> unit

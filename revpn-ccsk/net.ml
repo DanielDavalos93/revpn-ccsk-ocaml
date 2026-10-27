@@ -1,5 +1,5 @@
-open Util
-open Lts
+(* open Util
+open Lts *)
 
 type place_id = string
 type transition_id = string
@@ -13,8 +13,6 @@ type transition = {
   t_label: string
 }
 
-(** [arc] is the immediate relation between places and transitions.
- Here the type [int] plays the rol of the number of tokens. *)
 type arc = 
   | PT of (place_id * transition_id) 
   | TP of (transition_id * place_id)
@@ -52,10 +50,6 @@ type int_projection =
   | Fst
   | Snd
 
-(** [pi r i] is the projection function, which return the first element 
-    of the relation {m \pi (x,y) 1 \mapsto x} or the second one 
-    {m \pi (x,y) 2 \mapsto y}.
- *)
 let pi (r : arc) (i : int_projection) =
   match r, i with
   | TP (t,_), Fst -> t
@@ -92,17 +86,17 @@ let get_place (n : labelled_net) : marking =
 let tokens (mn : marked_net) (p : place_id) =
   List.filter (fun x -> p = x) mn.marking |> List.length
  
-let input_arcs net tid : marking =
+let input_arcs n tid : marking =
   List.filter_map (function
     | PT (pid, t) when t = tid -> Some pid
     | _ -> None
-  ) net.arcs
+  ) n.arcs
  
-let output_arcs net tid : marking =
+let output_arcs n tid : marking =
   List.filter_map (function
     | TP (t, pid) when t = tid -> Some pid
     | _ -> None
-  ) net.arcs
+  ) n.arcs
 
 (* ---- Preset and Postset -------- *)
  
@@ -111,14 +105,14 @@ let preset_of_transition net tid =
     | PT (pid, t) when t = tid ->
         List.find_opt (fun p -> p.p_id = pid) net.places
     | _ -> None
-  ) net.arcs
+  ) net.arcs |> List.map (fun p -> p.p_id)
  
 let postset_of_transition net tid =
   List.filter_map (function
     | TP (t, pid) when t = tid ->
         List.find_opt (fun p -> p.p_id = pid) net.places
     | _ -> None
-  ) net.arcs
+  ) net.arcs |> List.map (fun p -> p.p_id)
  
 let preset_of_place net pid =
   List.filter_map (function
@@ -134,12 +128,18 @@ let postset_of_place net pid =
     | _ -> None
   ) net.arcs
  
+let initial_marking (n : labelled_net) : place_id list =
+  let pl = get_place n in
+  List.filter (fun x -> preset_of_place n x = []) pl
+
+let final_marking (n : labelled_net) : place_id list =
+  let pl = get_place n in
+  List.filter (fun x -> postset_of_place n x = []) pl
+  
 let is_enabled (mn : marked_net) (tid : transition_id) =
   List.for_all (fun pid -> tokens mn pid >= 1)
     (input_arcs mn.net tid)
 
-(** Fire a transition if it is enabled; return the net with
-    the new marking on [Some] of [None] if it isn't enabled.*)
 let fire (net : marked_net) (tid :transition_id) : marked_net option =
   if not (is_enabled net tid) then None (*Error "Transition is not enabled"*)
   else
@@ -166,7 +166,7 @@ let rec firing_sequence (mn : marked_net) (s : transition_id list) : marked_net 
       } in
       firing_sequence net1 ts
 
-(** List of enabled transitions *)
+
 let enabled_transitions net =
     List.filter_map (fun t ->
       if is_enabled net t.t_id then Some t else None
@@ -177,16 +177,21 @@ let pair_fir (mn : marked_net) (t : transition_id) : marking * transition_id * m
   let m2 = (fire mn t |> un_opt).marking in
   (m1, t, m2)
 
-(** Canonical key for a marking: sorted list of place_ids. *)
+let pairs_back (mn : marked_net) (tid : transition_id) : (place_id * transition_id) list =
+  let postset_tid = postset_of_transition mn.net tid in
+  let preset_tid = preset_of_transition mn.net tid in
+  if is_subset mn.marking postset_tid then
+    (List.map (fun s -> (s, tid)) preset_tid)
+  else
+    []
+
 let marking_key (m : marking) : place_id =
   m |> String.concat ";"
 
 let normalize_marking (m : marking) =
   m |> List.sort String.compare
 
-  (** [marking_graph mn] returns all reachable edges {m (m, t, m')} from [mn.marking]
-    by BFS, visiting each marking at most once. *)
-let marking_graph (mn : marked_net) : (marking * transition_id * marking) list =
+let marking_graph (mn : marked_net) : (marking * label * marking) list =
   let visited : (string, unit) Hashtbl.t = Hashtbl.create 64 in
   let queue   : marking Queue.t          = Queue.create () in
   let edges   : (marking * transition_id * marking) list ref = ref [] in
@@ -211,23 +216,17 @@ let marking_graph (mn : marked_net) : (marking * transition_id * marking) list =
       | None     -> ()
       | Some mn' ->
           let m' = normalize_marking mn'.marking in
-          edges := (m, (mn.net.label_map t).t_label, m') :: !edges;
+          let label' = (mn.net.label_map t).t_label in
+          edges := (m, label', m') :: !edges;
           enqueue m'
     ) enabled_tr;
   done;
   List.rev !edges
 
-(** [reachable_markings mn] returns the list of reachable markings by
-   firing.
- *)
 let reachable_markings (mn : marked_net) : marking list =
   let init = mn.marking in
   [init] @ List.map (fun (_,_,x) -> x) (marking_graph mn)
 
-(** A [ccs_net] is a function that verifies a labelled net such that
-    for all {m t \in T, |\bullet t| \le 2} and if {m |\bullet t|=2} then
-    {m \lambda (t) = \tau}.
- *)
 let ccs_net (ln : labelled_net) : bool =
   List.for_all (fun x ->
     let len_pre = List.length (preset_of_transition ln x.t_id) in
@@ -276,8 +275,8 @@ let is_safe (mn : marked_net) : bool =
 let print_preset_postset net =
   print_endline "Preset and Postset of transitions";
   List.iter (fun t ->
-    let pre  = preset_of_transition  net t.t_id |> List.map (fun p -> p.p_id) in
-    let post = postset_of_transition net t.t_id |> List.map (fun p -> p.p_id) in
+    let pre  = preset_of_transition  net t.t_id  in
+    let post = postset_of_transition net t.t_id  in
     Printf.printf "  •%s = { %s }\n"  t.t_id (String.concat ", " pre);
     Printf.printf "   %s• = { %s }\n" t.t_id (String.concat ", " post)
   ) net.transitions;

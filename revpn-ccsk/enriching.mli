@@ -55,9 +55,9 @@ val w4 : token
   (** {m w_4 = (\tau, \langle\!\langle(a, \langle\!\langle (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 
     (b, \langle\!\langle(\cdot, \langle\!\langle \rangle\!\rangle, \cdot)\rangle\!\rangle, 1)\rangle\!\rangle, 2)\rangle\!\rangle, 3)} *)
 
-type token_net = { net : Net.labelled_net; key : token; }
 (** --------------------- *)
 
+type token_net = { net : Net.labelled_net; key : token; }
   (** To take into account the new notion of tokens, we have to reformulate
     the notions for semantics. [token_net] is the type for nets where the 
     markings have type [token].
@@ -128,7 +128,7 @@ type keyPairNet = { net : Net.labelled_net; key : string list; }
 val is_key_net : keyPairNet -> bool
 
 val key3 : Net.place list
-(** Example
+(* Example
  Using [net1] from [Net.ml] we define a token net with marking *)
 
 val pl3 : Net.place list
@@ -143,12 +143,10 @@ val keypl : keyPairNet -> string -> string list
 
 type reversing_net = {
   net : Net.labelled_net;
-  key : string list;
+  key : Net.place_id list;
   rev_trans : Net.transition list;
 }
-(** {1 Reversible labelled net} 
-  
-  A {b reversible labelled net} with resersing transitions {m U\subseteq T}
+(** A {b reversible labelled net} with resersing transitions {m U\subseteq T}
   (we denote this as [rev_trans] in the constructor of the type 
   [reversing_net]) and key places {m S_k \subseteq S} is the tripe 
   {m R = (\langle S, T, F, \lambda, A\rangle, S_k, U)}.
