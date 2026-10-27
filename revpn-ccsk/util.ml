@@ -112,6 +112,10 @@ let is_subset l1 l2 =
 let exists_unique s f x =
   f x && List.for_all (fun y -> not (f y) || (x = y)) s
 
+let rec elem a ls : bool =
+  match ls with
+  | [] -> false
+  | x :: xs -> x = a || (elem a xs)
 
 let encode_string (s : string) : int =
   String.fold_left (fun x -> fun y -> (x + int_of_char y) - 96) 0 s 
