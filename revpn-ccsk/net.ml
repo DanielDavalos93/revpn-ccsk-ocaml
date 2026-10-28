@@ -1,5 +1,5 @@
-(* open Util
-open Lts *)
+open Util
+open Lts
 
 type place_id = string
 type transition_id = string
@@ -180,10 +180,7 @@ let pair_fir (mn : marked_net) (t : transition_id) : marking * transition_id * m
 let pairs_back (mn : marked_net) (tid : transition_id) : (place_id * transition_id) list =
   let postset_tid = postset_of_transition mn.net tid in
   let preset_tid = preset_of_transition mn.net tid in
-  if is_subset mn.marking postset_tid then
-    (List.map (fun s -> (s, tid)) preset_tid)
-  else
-    []
+  (List.map (fun s -> (s, tid)) preset_tid)
 
 let marking_key (m : marking) : place_id =
   m |> String.concat ";"

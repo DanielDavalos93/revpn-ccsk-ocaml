@@ -62,7 +62,7 @@ val marking_key : marking -> place_id
   (** Canonical key for a marking: sorted list of place_ids. *)
 
 val normalize_marking : marking -> marking
-val marking_graph : marked_net -> (marking * label * marking) list
+val marking_graph : marked_net -> (marking * transition_id * marking) list
   (** [marking_graph mn] returns all reachable edges {m (m, t, m')} from [mn.marking]
     by BFS, visiting each marking at most once. *)
 
