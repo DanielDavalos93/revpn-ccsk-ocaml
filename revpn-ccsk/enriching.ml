@@ -1,6 +1,6 @@
-(* open Net
+open Net
 open Lts
-open Util *)
+open Util
 
 type token = 
   | Tok_empty
@@ -70,24 +70,18 @@ let immediate_transitions (ln : labelled_net) : (transition_id * transition_id) 
 let rec m_flat (mnet : marked_net) (tid : transition_id) : token =
   let net = mnet.net in
   let lbl pid =
-    (* match List.find_opt (fun p -> p.p_id = pid) net.places with *)
-    (* | Some _ -> *)
-    (*     pid *)
-    (* | None   -> *)
-        match List.find_opt (fun t -> t.t_id = pid) net.transitions with
-        | Some t -> (net.label_map t).t_label
-        | None   -> pid
+    match List.find_opt (fun t -> t.t_id = pid) net.transitions with
+    | Some t -> (net.label_map t).t_label
+    | None   -> pid
   in
   let pair_b = pairs_back mnet tid in
   if is_subset (List.map (fun p -> fst p) pair_b) mnet.marking then
-      Tok (lbl tid, [Tok_empty], 1)
+    Tok (lbl tid, [Tok_empty], 1)
   else
   let pres_tid = preset_of_transition net tid in
   let pres_m = List.concat_map (fun s -> 
     List.map (fun x -> x.t_id) (preset_of_place net s)) pres_tid in
-  let mnet' = {mnet with marking = pres_tid} in
-  (* let pair_pres_tid = List.concat_map (pairs_back mnet') pres_m in *)
-  let child = List.map (fun t -> m_flat mnet' t) pres_m in
+  let child = List.map (fun t -> m_flat mnet t) pres_m in
   Tok (lbl tid, child, List.length child + 1)
 
 let next_id (tk : token) : int = size tk + 1
@@ -98,7 +92,6 @@ let is_enabled_tk (tn : token_net) (tid : transition_id) : bool =
   match tn.key with
   | Tok_empty -> false
   | Tok (a, t, _) -> 
-      (* let lamb_t = (tn.net.label_map {t_id = tid; t_label = ""}).t_label in *)
       List.mem a inputs
 
 let fire_tk (tn : token_net) (tid : transition_id) : token_net option =
