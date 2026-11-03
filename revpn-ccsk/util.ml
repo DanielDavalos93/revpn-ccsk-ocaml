@@ -92,6 +92,15 @@ let rec sort_increasing_pair_left xs =
       else
         sort_increasing_pair_left (ys @ [(x,y)])
 
+let rec compare_list cmp a b =
+  match a, b with
+  | [], [] -> 0
+  | [], _  -> -1
+  | _, []  -> 1
+  | x :: ra, y :: rb ->
+      let c = cmp x y in
+      if c <> 0 then c else compare_list cmp ra rb
+
 let remove_one_token m pid =
   let rec aux acc = function
     | [] -> List.rev acc
