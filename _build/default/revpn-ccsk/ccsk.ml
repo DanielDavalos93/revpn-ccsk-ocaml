@@ -8,8 +8,6 @@ let co_action = function
   | Output a  -> Input a
   | Silent    -> Silent
 
-(** We can tested that: [co_action(co_action a) = a], for [a] in [act_t]*)
-
 let notation_act = function
   | Input a   -> a
   | Output a  -> "!" ^ a
@@ -17,7 +15,6 @@ let notation_act = function
 
 type relabel = string -> string
 
-(** Syntax of CCS: process and agents *)
 module CCS = struct
 
   (** Syntax of CCS: process and agents *)
@@ -32,7 +29,6 @@ type process =
   | Relabel of process * relabel
   | Rec of string * process       (* rec X.P *)
 
-(* D = [Xi = Qi] *)
 type equations = (string * process) list
 
 let opt_equations (e : equations) (x : string) : process =
@@ -40,8 +36,6 @@ let opt_equations (e : equations) (x : string) : process =
   | Some p -> p
   | None -> failwith ("Variable of process invalid: " ^ x)
 
-
-(** Substitution *)
 
 let rec subst (x : string) (s : process) (p : process) : process =
   match p with
@@ -54,11 +48,6 @@ let rec subst (x : string) (s : process) (p : process) : process =
   | Relabel (p1, f) -> Relabel (subst x s p1, f)
   | Rec (y, p1) -> if y = x then Rec (x, p1) else Rec (x, subst x s p1)
   
-
-
-(** Structural semantics: Return the list [ls : (action * process) list] which a process
-can execute in a step.*)
-
 let relabel_act (f : relabel) (a : act) : act =
   match a with
   | Input x -> Input (f x)
@@ -119,8 +108,6 @@ let rec string_of_process = function
 
 end
 
-(** Syntax of CCSK: CCS and Keys *)
-
 module CCSK = struct
 
 type process =
@@ -132,16 +119,12 @@ type process =
   | Var of string                 (* X *)
   | Relabel of process * relabel
 
-(* D = [Xi = Qi] *)
-type equations = (string * process) list
+  type equations = (string * process) list
 
 let opt_equations (e : equations) (x : string) : process =
   match List.assoc_opt x e with
   | Some p -> p
   | None -> failwith ("Variable of process invalid: " ^ x)
-
-
-(** Substitution *)
 
 let rec subst (x : string) (s : process) (p : process) : process =
   match p with
@@ -192,9 +175,6 @@ let rec transitions (e : equations) (p : process) : (act * process) list =
         (relabel_act f a, Relabel (p1', f))
       ) (transitions e p1)
   | Var x -> transitions e (opt_equations e x)
-
-
-(** CCS with Communication Keys *)
 
 let rec key (p : process)  =
   match p with

@@ -42,8 +42,8 @@ val get_place : labelled_net -> marking
 val tokens : marked_net -> place_id -> int
 val input_arcs : labelled_net -> transition_id -> marking
 val output_arcs : labelled_net -> transition_id -> marking
-val preset_of_transition : labelled_net -> transition_id -> place list
-val postset_of_transition : labelled_net -> transition_id -> place list
+val preset_of_transition : labelled_net -> transition_id -> string list
+val postset_of_transition : labelled_net -> transition_id -> string list
 val preset_of_place : labelled_net -> place_id -> transition list
 val postset_of_place : labelled_net -> place_id -> transition list
 val is_enabled : marked_net -> transition_id -> bool

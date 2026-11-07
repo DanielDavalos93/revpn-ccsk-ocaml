@@ -1,4 +1,4 @@
 (test
  (name test_revpn_ccsk)
- (libraries revpn-ccsk)
+ (libraries revpn-ccsk alcotest)
  )

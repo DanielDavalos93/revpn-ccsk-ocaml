@@ -10,6 +10,7 @@
    encoding.ml
    encoding.mli
    enriching.ml
+   enriching.mli
    lts.ml
    lts.mli
    net.ml
@@ -32,6 +33,7 @@
    revpn_ccsk__Encoding.cmx
    revpn_ccsk__Enriching.cmi
    revpn_ccsk__Enriching.cmt
+   revpn_ccsk__Enriching.cmti
    revpn_ccsk__Enriching.cmx
    revpn_ccsk__Lts.cmi
    revpn_ccsk__Lts.cmt
@@ -88,7 +90,10 @@
      (module
       (obj_name revpn_ccsk__Enriching)
       (visibility public)
-      (source (path Enriching) (impl (path enriching.ml))))
+      (source
+       (path Enriching)
+       (intf (path enriching.mli))
+       (impl (path enriching.ml))))
      (module
       (obj_name revpn_ccsk__Lts)
       (visibility public)

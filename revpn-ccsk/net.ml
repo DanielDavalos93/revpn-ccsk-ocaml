@@ -10,7 +10,7 @@ type place = {
 
 type transition = {
   t_id: transition_id;
-  t_label: string
+  t_label: label;
 }
 
 type arc = 
@@ -100,20 +100,12 @@ let output_arcs n tid : marking =
 
 (* ---- Preset and Postset -------- *)
  
-let preset_of_transition net tid =
-  List.filter_map (function
-    | PT (pid, t) when t = tid ->
-        List.find_opt (fun p -> p.p_id = pid) net.places
-    | _ -> None
-  ) net.arcs |> List.map (fun p -> p.p_id)
+let preset_of_transition net tid : place_id list =
+  List.filter (fun x -> List.mem (PT (x, tid)) (net.arcs)) (get_place net)
  
-let postset_of_transition net tid =
-  List.filter_map (function
-    | TP (t, pid) when t = tid ->
-        List.find_opt (fun p -> p.p_id = pid) net.places
-    | _ -> None
-  ) net.arcs |> List.map (fun p -> p.p_id)
- 
+let postset_of_transition net tid : place_id list =
+  List.filter (fun x -> (List.mem (TP (tid, x)) (net.arcs))) (get_place net)
+
 let preset_of_place net pid =
   List.filter_map (function
     | TP (tid, p) when p = pid ->
@@ -157,7 +149,6 @@ let un_opt (x : marked_net option) : marked_net =
 let rec firing_sequence (mn : marked_net) (s : transition_id list) : marked_net option =
   match s with
   | [] -> Some mn
-  (* | [t] -> fire mn t *)
   | t :: ts ->
       let m1 = (fire mn t |> un_opt).marking in
       let net1 = {
@@ -178,7 +169,6 @@ let pair_fir (mn : marked_net) (t : transition_id) : marking * transition_id * m
   (m1, t, m2)
 
 let pairs_back (mn : marked_net) (tid : transition_id) : (place_id * transition_id) list =
-  let postset_tid = postset_of_transition mn.net tid in
   let preset_tid = preset_of_transition mn.net tid in
   (List.map (fun s -> (s, tid)) preset_tid)
 
@@ -202,20 +192,20 @@ let marking_graph (mn : marked_net) : (marking * label * marking) list =
   in
   let init = normalize_marking mn.marking in
   enqueue init;
-  while not (Queue.is_empty queue) do
+  while not (Queue.is_empty queue)  do
     let m    = Queue.pop queue in
-    let cur  = { mn with marking = m } in
-    let enabled_tr = enabled_transitions cur in
+    let mn  = { mn with marking = m } in
+    let enabled_tr = enabled_transitions mn in
     Printf.printf "Marking: %s, enabled transitions: %d\n" 
       (marking_key m) (List.length enabled_tr);
     List.iter (fun t ->
-      match fire cur t.t_id with
+      match fire mn t.t_id with
       | None     -> ()
       | Some mn' ->
           let m' = normalize_marking mn'.marking in
           let label' = (mn.net.label_map t).t_label in
           edges := (m, label', m') :: !edges;
-          enqueue m'
+          enqueue m';
     ) enabled_tr;
   done;
   List.rev !edges
