@@ -1,9 +1,9 @@
 open Net
 open Lts
-open Token
 open Util
+open Token
 
-open Multiset
+(* open Multiset *)
 
 type net_system = {
   net : labelled_net;
@@ -16,32 +16,32 @@ let make_net_system (net : labelled_net) (m : markingTok) : net_system = {
 }
 
 
-let rec m_flat (mnet : marked_net) (tid : transition_id) : Token.t =
-  let net = mnet.net in
-  let lbl pid =
-    match List.find_opt (fun t -> t.t_id = pid) net.transitions with
-    | Some t -> (net.label_map t).t_label
-    | None   -> pid
-  in
-  let pair_b = pairs_back mnet tid in
-  if is_subset (List.map (fun p -> fst p) pair_b) mnet.marking then
-    Tok (lbl tid, [Tok_empty], 1)
-  else
-  let pres_tid = preset_of_transition net tid in
-  let pres_m = List.concat_map (fun s -> 
-    List.map (fun x -> x.t_id) (preset_of_place net s)) pres_tid in
-  let child = List.map (fun t -> m_flat mnet t) pres_m in
-  Tok (lbl tid, child, List.length child)
-
-let immediate_transitions (ln : labelled_net) : (transition_id * transition_id) list =
-  let plSet = get_place ln in
-  let trSet = get_transition ln in
-  let binProd = bin_prod trSet trSet in
-  List.filter (fun pair ->
-    (List.exists (fun x ->
-      List.mem (TP (fst pair, x)) ln.arcs && List.mem (PT (x, snd pair)) ln.arcs
-    ) plSet)
-  ) binProd
+(* let rec m_flat (mnet : marked_net) (tid : transition_id) : Token.t = *)
+(*   let net = mnet.net in *)
+(*   let lbl pid = *)
+(*     match List.find_opt (fun t -> t.t_id = pid) net.transitions with *)
+(*     | Some t -> (net.label_map t).t_label *)
+(*     | None   -> pid *)
+(*   in *)
+(*   let pair_b = pairs_back mnet tid in *)
+(*   if is_subset (List.map (fun p -> fst p) pair_b) mnet.marking then *)
+(*     Tok (lbl tid, [Tok_empty], 1) *)
+(*   else *)
+(*   let pres_tid = preset_of_transition net tid in *)
+(*   let pres_m = List.concat_map (fun s ->  *)
+(*     List.map (fun x -> x.t_id) (preset_of_place net s)) pres_tid in *)
+(*   let child = List.map (fun t -> m_flat mnet t) pres_m in *)
+(*   Tok (lbl tid, child, List.length child) *)
+(**)
+(* let immediate_transitions (ln : labelled_net) : (transition_id * transition_id) list = *)
+(*   let plSet = get_place ln in *)
+(*   let trSet = get_transition ln in *)
+(*   let binProd = bin_prod trSet trSet in *)
+(*   List.filter (fun pair -> *)
+(*     (List.exists (fun x -> *)
+(*       List.mem (TP (fst pair, x)) ln.arcs && List.mem (PT (x, snd pair)) ln.arcs *)
+(*     ) plSet) *)
+(*   ) binProd *)
 
 (** Enabling and Firing a Reversing Transition.*)
 (* let is_enabled_tk (ns : net_system) (tid : transition_id) : bool = *)
