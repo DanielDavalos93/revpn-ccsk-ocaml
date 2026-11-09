@@ -86,13 +86,13 @@ let get_place (n : labelled_net) : marking =
 let tokens (mn : marked_net) (p : place_id) =
   List.filter (fun x -> p = x) mn.marking |> List.length
  
-let input_arcs n tid : marking =
+let input_arcs n tid  =
   List.filter_map (function
     | PT (pid, t) when t = tid -> Some pid
     | _ -> None
   ) n.arcs
  
-let output_arcs n tid : marking =
+let output_arcs n tid  =
   List.filter_map (function
     | TP (t, pid) when t = tid -> Some pid
     | _ -> None

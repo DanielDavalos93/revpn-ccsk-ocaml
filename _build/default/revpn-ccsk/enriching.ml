@@ -16,7 +16,7 @@ let make_net_system (net : labelled_net) (m : markingTok) : net_system = {
 }
 
 
-(* let rec m_flat (mnet : marked_net) (tid : transition_id) : Token.t = *)
+(** let rec m_flat (mnet : marked_net) (tid : transition_id) : Token.t = *)
 (*   let net = mnet.net in *)
 (*   let lbl pid = *)
 (*     match List.find_opt (fun t -> t.t_id = pid) net.transitions with *)

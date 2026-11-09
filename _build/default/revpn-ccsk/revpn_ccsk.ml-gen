@@ -6,14 +6,14 @@ module Ccsk = Revpn_ccsk__Ccsk
 (** @canonical Revpn_ccsk.Encoding *)
 module Encoding = Revpn_ccsk__Encoding
 
-(** @canonical Revpn_ccsk.Enriching *)
-module Enriching = Revpn_ccsk__Enriching
-
 (** @canonical Revpn_ccsk.Lts *)
 module Lts = Revpn_ccsk__Lts
 
 (** @canonical Revpn_ccsk.Net *)
 module Net = Revpn_ccsk__Net
+
+(** @canonical Revpn_ccsk.Token *)
+module Token = Revpn_ccsk__Token
 
 (** @canonical Revpn_ccsk.Util *)
 module Util = Revpn_ccsk__Util

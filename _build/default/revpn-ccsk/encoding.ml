@@ -114,7 +114,7 @@ let encode_simple_transitions (net : labelled_net) (d : equations) : equations
               parallel_of_list
                 (List.map
                    (fun s -> Var (var_of_place s.p_id))
-                   (output_arcs net t.t_id))
+                   (List.map (fun x -> {p_id = x}) (output_arcs net t.t_id)))
             in
             let rhs = Prefix (act_of_label (label_of_transition net t.t_id), cont) in
             subst_in_equations (var_of_trans t.t_id) rhs d
@@ -159,15 +159,16 @@ let encode_sync_transitions (net : labelled_net) (d : equations) :
               parallel_of_list
                 (List.map
                    (fun s -> Var (var_of_place s.p_id))
-                   (postset_of_transition net t.t_id))
+                   (List.map (fun x -> {p_id = x})
+                   (postset_of_transition net t.t_id)))
             in
             let rhs_open = Prefix (Input at, cont) in
             let rhs_close = Prefix (Output at, Zero) in
             let yt = var_of_trans t.t_id in
             let d =
               d
-              |> subst_var_in_one_equation yt rhs_open (var_of_place s1.p_id)
-              |> subst_var_in_one_equation yt rhs_close (var_of_place s2.p_id)
+              |> subst_var_in_one_equation yt rhs_open (var_of_place s1)
+              |> subst_var_in_one_equation yt rhs_close (var_of_place s2)
             in
             (d, at :: fresh_actions)
         | _ ->
