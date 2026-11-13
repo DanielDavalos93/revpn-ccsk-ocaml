@@ -5,12 +5,29 @@ module Token = struct
   type t =
     | Tok_empty
     | Tok of (label * t list * int)
+(**
+  Let {m N = \langle S, T, F, \lambda, \mathsf{A} \rangle} be a labelled net.
+   [token] is the type of tokens defined inductively as:
+     {math \cfrac{}{\mathsf{Tok\_empty : token}} \qquad\qquad 
+     \cfrac{a\in\mathsf{A} \qquad ls\mathsf{ : [token]} \qquad i \in \mathbb N}{\mathsf{Tok}(a, ls, i)\mathsf{ : token}}}
+
+  - [Tok_empty]: {m (\cdot, \langle\!\langle \rangle\!\rangle, \cdot)}
+  - [Tok (a, ls, i)]: if [ls] has [token] type, 
+    {m (a, \langle\!\langle w_1,\dots,w_n\rangle\!\rangle, i)} with {m a} 
+    an action, {m w_1,\dots,w_n} are tokens and {m i\in\mathbb N} an identificator number.
+  *)
 
   let rec size (tk : t) : int =
     match tk with
     | Tok_empty -> 0
     | Tok (_, ws, _) -> 
       List.fold_left (fun m w -> max m (size w)) 0 ws + 1
+    (** The {i size} of a token is defined as follows: 
+    {m \mathsf{size}((\cdot,\langle\!\langle \rangle\!\rangle,\cdot))=0} and
+    {m \mathsf{size}((a,\langle\!\langle w_1,\dots, w_n \rangle\!\rangle,j))=
+        \max\{\mathsf{size(w_i) \mid 1\le i \le n}\} + 1}.
+
+    *)
 
   let compare : t -> t -> int = Stdlib.compare
 
@@ -53,15 +70,16 @@ module Multiset = struct
     TokMap.fold (fun w n acc -> List.init n (fun _ -> w) @ acc) s []
 end
 
-(* ---------- m : S → μTok ---------- *)
-module PMap = Map.Make (String)             (* keys: place_id *)
+(* ---------- m : S -> μTok ---------- *)
+module PMap = Map.Make (Place)             (* keys: place_id *)
 
-type markingTok = Multiset.t PMap.t            (* replaces transition_id list *)
+type markingTok = Multiset.t PMap.t            
+(** replaces transition_id list *)
 
 let empty_marking : markingTok = PMap.empty
 
 (** m(p), total: absent places are mapped to ∅ *)
-let marking_of (m : markingTok) (p : place_id) : Multiset.t =
+let marking_of (m : markingTok) (p : place) : Multiset.t =
   Option.value ~default:Multiset.empty (PMap.find_opt p m)
 
 (** canonical form: never store p ↦ ∅ *)
@@ -71,11 +89,16 @@ let set_place p ms (m : markingTok) : markingTok =
 let add_token p w (m : markingTok) : markingTok =
   set_place p (Multiset.add w (marking_of m p)) m
 
+let unopt_tk (mop : markingTok option) : markingTok =
+  match mop with
+  | None -> empty_marking
+  | Some m -> m
+
 let remove_token p w (m : markingTok) : markingTok option =
   Option.map (fun ms -> set_place p ms m)
     (Multiset.remove w (marking_of m p))
 
-let make_marking (l : (place_id * Token.t list) list) : markingTok =
+let make_marking (l : (place * Token.t list) list) : markingTok =
   List.fold_left
     (fun m (p, ws) -> List.fold_left (fun m w -> add_token p w m) m ws)
     empty_marking l
@@ -100,7 +123,7 @@ let marking_compare : markingTok -> markingTok -> int  = PMap.compare Multiset.c
 (* let marking_subset (a : markingTok) (b : markingTok) : bool = *)
 (*   List.for_all (fun (p, ms) -> Multiset.subset ms (marking_of b p)) a *)
 
-(** number of tokens in a place, for the old `tokens` function *)
+(** number of tokens in a place *)
 let tokens_in (m : markingTok) p = Multiset.cardinal (marking_of m p)
 
 open Token
@@ -120,13 +143,8 @@ let toks (w : t) : t list =
   | Tok_empty -> []
   | Tok (_,w,_) -> w
 
-(* let ( -. ) (t: t) (sub_tok: t) : t = *)
-(*   match t with *)
-(*   | Tok_empty -> Tok_empty *)
-(*   | Tok (a, ts, i) -> Tok (a, remove_one_token ts sub_tok, i) *)
 
-
-let w0 = Tok_empty                        (* size w0 -> 0 *)
+let w0 = Tok_empty                 (* size w0 -> 0 *)
 
 let w1 = Tok ("a", [w0], 1)        (* size w1 -> 1 *)
 
@@ -136,12 +154,38 @@ let w3 = Tok ("a", [w0; Tok ("b", [w0], 1)], 2)  (* size w3 -> 2 *)
 
 let w4 = Tok ("tau", [w3], 3)             (* size w4 -> 2 *)
 
+  (** ---- Example ---- *)
 
-(** This is the basic step of firing, from p2 to p3. *)
+  (** {m w_0 = (\cdot, \langle\!\langle \rangle\!\rangle, \cdot)} *)
+
+  (** {m w_1 = (a, (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 1)} *)
+
+  (** {m w_2 = (b, \langle\!\langle (\cdot, \langle\!\langle \rangle\!\rangle, \cdot)\rangle\!\rangle, 1)} *)
+
+  (** {m w_3 = (a, \langle\!\langle (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 
+    (b, (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 1)\rangle\!\rangle, 2)} *)
+
+  (** {m w_4 = (\tau, \langle\!\langle(a, \langle\!\langle (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 
+    (b, \langle\!\langle(\cdot, \langle\!\langle \rangle\!\rangle, \cdot)\rangle\!\rangle, 1)\rangle\!\rangle, 2)\rangle\!\rangle, 3)} *)
+
+(* Example for use multiset for tokens *)
+let mul1 = Multiset.of_list [w0; w0]
+let mul2 = Multiset.of_list [w1]
+
+(** This is the basic step of firing, from p to q. *)
 let move p q w m =
-  Option.map (add_token q w) (remove_token p w m)
+  Option.map (add_token q w) (remove_token p w m) |> unopt_tk
 
-(** [move "p2" "p3" w1 m1]  : Some { p1 ↦ {| e,e |}, p3 ↦ {| w1 |} } 
+(** [move "p2" "p3" w1 m1]  : Some {p ↦ {|w0, w0|}, q ↦ {| w1 |} } 
 
-    [move "p2" "p3" w2 m1]  : None: w2 is not in p2 
+    [move "p2" "p3" w2 m1]  : None: w2 is not in p
 *)
+let marking_to_list (m : markingTok) =
+  PMap.bindings m
+  |> List.map (fun (p, ms) -> (p, Multiset.to_list ms))
+
+let marking_to_bindings (m : markingTok) =
+  PMap.bindings m
+  |> List.map (fun (p, ms) -> (p, TokMap.bindings ms))
+
+let show = Option.map marking_to_list
