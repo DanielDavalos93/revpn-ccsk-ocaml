@@ -1,5 +1,5 @@
-(executable
- (public_name revpn_ccsk)
- (name algorithm1)
- (libraries revpn-ccsk)
- )
+; (executable
+;  (public_name revpn_ccsk)
+;  (name algorithm1)
+;  (libraries revpn-ccsk)
+;  )

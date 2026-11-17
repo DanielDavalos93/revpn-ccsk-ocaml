@@ -71,7 +71,7 @@ module Multiset = struct
 end
 
 (* ---------- m : S -> μTok ---------- *)
-module PMap = Map.Make (Place)             (* keys: place_id *)
+module PMap = Map.Make (Place)             (* keys: place *)
 
 type markingTok = Multiset.t PMap.t            
 (** replaces transition_id list *)
@@ -79,7 +79,7 @@ type markingTok = Multiset.t PMap.t
 let empty_marking : markingTok = PMap.empty
 
 (** m(p), total: absent places are mapped to ∅ *)
-let marking_of (m : markingTok) (p : place) : Multiset.t =
+let marking_of (m : markingTok) (p : place) =
   Option.value ~default:Multiset.empty (PMap.find_opt p m)
 
 (** canonical form: never store p ↦ ∅ *)
@@ -111,20 +111,46 @@ let marking_compare : markingTok -> markingTok -> int  = PMap.compare Multiset.c
 (*   List.fold_left *)
 (*     (fun m (p, ms) -> set_place p (Multiset.union (marking_of m p) ms) m) a b *)
 
+let marking_to_list (m : markingTok) =
+  PMap.bindings m
+  |> List.map (fun (p, ms) -> (p, Multiset.to_list ms))
+
+let marking_to_bindings (m : markingTok) =
+  PMap.bindings m
+  |> List.map (fun (p, ms) -> (Place.to_string p, TokMap.bindings ms))
+
+let show = Option.map marking_to_list
+
+let marking_subset (a : markingTok) (b : markingTok) : bool =
+  List.for_all (fun (p, ms) -> 
+    Multiset.subset (Multiset.of_list ms) (marking_of b p)) (marking_to_list a)
+
 (** m1 ⊖ m2 : defined iff m2 ⊆ m1 *)
 (* let marking_diff (a : markingTok) (b : markingTok) : markingTok option = *)
-(*   List.fold_left *)
-(*     (fun acc (p, ms) -> *)
+(*   PMap.fold *)
+(*     (fun p ms acc -> *)
 (*       Option.bind acc (fun m -> *)
 (*         Option.map (fun r -> set_place p r m) *)
 (*           (Multiset.diff (marking_of m p) ms))) *)
-(*     (Some a) b *)
+(*     b (Some a) *)
+let marking_diff (a : markingTok) (b : markingTok) : markingTok option =
+  PMap.fold
+    (fun p ms acc ->
+      Option.bind acc (fun m ->
+        Option.map (fun r -> set_place p r m)
+          (Multiset.diff (marking_of m p) ms)))
+    b (Some a)
 
-(* let marking_subset (a : markingTok) (b : markingTok) : bool = *)
-(*   List.for_all (fun (p, ms) -> Multiset.subset ms (marking_of b p)) a *)
+(** places with at least one token in m *)
+let marking_places (m : markingTok) : place list =
+  List.map fst (PMap.bindings m)
+
+(** all tokens of m, flattened (with repetitions) *)
+let marking_tokens (m : markingTok) : Token.t list =
+  List.concat_map snd (marking_to_list m)
 
 (** number of tokens in a place *)
-let tokens_in (m : markingTok) p = Multiset.cardinal (marking_of m p)
+let tokens_in (m : markingTok) (p : place) = Multiset.cardinal (marking_of m p)
 
 open Token
 
@@ -180,12 +206,3 @@ let move p q w m =
 
     [move "p2" "p3" w2 m1]  : None: w2 is not in p
 *)
-let marking_to_list (m : markingTok) =
-  PMap.bindings m
-  |> List.map (fun (p, ms) -> (p, Multiset.to_list ms))
-
-let marking_to_bindings (m : markingTok) =
-  PMap.bindings m
-  |> List.map (fun (p, ms) -> (p, TokMap.bindings ms))
-
-let show = Option.map marking_to_list

@@ -3,8 +3,6 @@ open Lts
 open Util
 open Token
 
-(* open Multiset *)
-
 type net_system = {
   net : labelled_net;
   m : markingTok;
@@ -15,169 +13,171 @@ let make_net_system (net : labelled_net) (m : markingTok) : net_system = {
   m = m;
 }
 
+let immediate_transitions (ln : labelled_net) : (transition * transition) list =
+  let plSet = get_place ln in
+  let trSet = get_transition ln in
+  let binProd = bin_prod trSet trSet in
+  List.filter (fun pair ->
+    (List.exists (fun x ->
+      List.mem (TP (fst pair, x)) ln.arcs && List.mem (PT (x, snd pair)) ln.arcs
+    ) plSet)
+  ) binProd
+  (** {b Immediate dependency.} 
+      Two transitions [t_1, t_2] are in {i immediate dependency} if 
+      there is a place {m a \in P} such that 
+      {m (t_1, a) \in R \wedge (a, t_2) \in R}.
+  *)
 
-(** let rec m_flat (mnet : marked_net) (tid : transition_id) : Token.t = *)
-(*   let net = mnet.net in *)
-(*   let lbl pid = *)
-(*     match List.find_opt (fun t -> t.t_id = pid) net.transitions with *)
-(*     | Some t -> (net.label_map t).t_label *)
-(*     | None   -> pid *)
-(*   in *)
-(*   let pair_b = pairs_back mnet tid in *)
-(*   if is_subset (List.map (fun p -> fst p) pair_b) mnet.marking then *)
-(*     Tok (lbl tid, [Tok_empty], 1) *)
-(*   else *)
-(*   let pres_tid = preset_of_transition net tid in *)
-(*   let pres_m = List.concat_map (fun s ->  *)
-(*     List.map (fun x -> x.t_id) (preset_of_place net s)) pres_tid in *)
-(*   let child = List.map (fun t -> m_flat mnet t) pres_m in *)
-(*   Tok (lbl tid, child, List.length child) *)
-(**)
-(* let immediate_transitions (ln : labelled_net) : (transition_id * transition_id) list = *)
-(*   let plSet = get_place ln in *)
-(*   let trSet = get_transition ln in *)
-(*   let binProd = bin_prod trSet trSet in *)
-(*   List.filter (fun pair -> *)
-(*     (List.exists (fun x -> *)
-(*       List.mem (TP (fst pair, x)) ln.arcs && List.mem (PT (x, snd pair)) ln.arcs *)
-(*     ) plSet) *)
-(*   ) binProd *)
 
-(** Enabling and Firing a Reversing Transition.*)
-(* let is_enabled_tk (ns : net_system) (tid : transition_id) : bool = *)
-(*   let inputs = input_arcs ns.net tid in *)
-(*   let m0 = List.map ns.m inputs in *)
-(*   List.for_all (fun x -> not (x = Nil)) m0  *)
-(**)
-(* let fire_tk (tn : net_system) (tid : transition_id) : token_net option = *)
-(*   (* m - pre_t + post_t  *) *)
-(*   if not (is_enabled_tk tn tid) then None *)
-(*   else *)
-(*     let outputs = output_arcs tn.net tid in *)
-(*     let w       = tn.key in *)
-(*     let base_id = next_id w in *)
-(*     let new_token = *)
-(*       match outputs with *)
-(*       | []  -> *)
-(*           Tok_empty *)
-(*       | [q] -> *)
-(*           Tok (q, [w], base_id) *)
-(*       | qs  -> *)
-(*           let children = *)
-(*             List.mapi (fun i q -> Tok (q, [w], base_id + i)) qs *)
-(*           in *)
-(*           (* the new token is tagged with the transition id *) *)
-(*           Tok ((tn.net.label_map {t_id = tid; t_label = ""}).t_id, children, base_id) *)
-(*     in *)
-(*     Some { tn with key = new_token } *)
-(**)
-(* let unfire_tk (tn : token_net) (tid : transition_id) : token_net option = *)
-(*   match tn.key with *)
-(*   | Tok_empty -> None *)
-(*   | Tok (label, children, _) -> *)
-(*       let outputs = output_arcs tn.net tid in *)
-(*       if label <> tid && not (List.mem label outputs) then None *)
-(*       else *)
-(*         match children with *)
-(*         | [w] -> *)
-(*             Some { tn with key = w } *)
-(*         | _ -> *)
-(*            let inputs = input_arcs tn.net tid in *)
-(*             begin match List.find_opt *)
-(*               (fun w -> match w with *)
-(*                 | Tok (a,_,_) -> List.mem a inputs *)
-(*                 | Tok_empty   -> false) *)
-(*               children *)
-(*             with *)
-(*             | Some w -> Some { tn with key = w } *)
-(*             | None   -> None *)
-(*             end *)
-(**)
-(* let rec firing_sequence_tk (tn : token_net) (ts : transition_id list) : token_net option = *)
-(*   match ts with *)
-(*   | []      -> Some tn *)
-(*   | t :: ts -> *)
-(*       match fire_tk tn t with *)
-(*       | None     -> None *)
-(*       | Some tn' -> firing_sequence_tk tn' ts *)
-(**)
-(* type keyPairNet = { *)
-(*   net : labelled_net; *)
-(*   key : place_id list; *)
-(*   } *)
-(**)
-(* let is_key_net (kn : keyPairNet) : bool = *)
-(*     List.for_all (fun t -> *)
-(*       let post_t = output_arcs kn.net t in *)
-(*       List.length (intersect post_t kn.key) = 1 *)
-(*     ) (get_transition kn.net) && *)
-(*     List.for_all (fun s -> *)
-(*       let pre_s = List.map (fun x -> x.t_id) (preset_of_place kn.net s) in *)
-(*       let post_s = List.map (fun x -> x.t_id) (postset_of_place kn.net s) in *)
-(*       List.length pre_s = 1 && List.length post_s = 0 *)
-(*     ) kn.key *)
-(**)
-(* let key3 : place list = List.map (fun i ->  *)
-(*     "st" ^ string_of_int i |> make_place) (1--4) *)
-(**)
-(* let pl3 : place list = (generate_place 4) @ key3 *)
-(**)
-(* let arcs3 = [ *)
-(*   PT ("s1", "t1"); TP ("t1", "s1"); *)
-(*   TP ("t1", "st1");  *)
-(*   PT ("s1", "t2"); TP ("t2", "st2"); *)
-(*   TP ("t1", "s2"); TP ("t2", "s3"); *)
-(*   PT ("s3", "t4"); PT ("s2", "t4"); *)
-(*   PT ("s2", "t3"); TP ("t4", "st4"); *)
-(*   TP ("t4", "s1"); TP ("t3", "st3"); *)
-(*   TP ("t3", "s4"); TP ("t4", "s4") *)
-(* ] *)
-(**)
-(* let net3 = make_label_net pl3 tr arcs3 set label_trans *)
-(**)
-(* let knet3 : keyPairNet =  *)
-(*   {net = net3;  *)
-(*   key = List.map (fun x -> x.p_id) key3} *)
-(**)
-(* let keypl (kn : keyPairNet) (t : transition_id) = *)
-(*   let sk = kn.key in *)
-(*   List.filter (fun x ->  *)
-(*     (List.map (fun y -> y.t_id) (preset_of_place kn.net x)) = [t]) sk *)
-(**)
-(* type reversing_net = { *)
-(*   net : labelled_net; *)
-(*   key : place_id list; *)
-(*   rev_trans : transition list; *)
-(* } *)
-(**)
-(* let forwardTransition (rn : reversing_net) : transition list = *)
-(*   setminus rn.net.transitions rn.rev_trans *)
-(**)
-(* let forwardKeyNet (rn : reversing_net) : keyPairNet =  *)
-(*   let fwdT = forwardTransition rn in *)
-(*   let fwd_arcs = List.filter (fun x -> *)
-(*           (List.mem (pi x Fst) (List.map (fun x -> x.t_id) fwdT)) || *)
-(*           (List.mem (pi x Snd) (List.map (fun x -> x.t_id) fwdT))  *)
-(*           ) rn.net.arcs in *)
-(*   { *)
-(*     net = { *)
-(*       places = rn.net.places; *)
-(*       transitions = fwdT; *)
-(*       arcs = fwd_arcs; *)
-(*       set = rn.net.set; *)
-(*       label_map = rn.net.label_map; *)
-(*       }; *)
-(*     key = rn.key; *)
-(*     }  *)
-(**)
-(* let prop_reverse_transition (rn : reversing_net) (u : transition) =  *)
-(*   fun t ->  *)
-(*       (preset_of_transition rn.net u.t_id =  *)
-(*         postset_of_transition rn.net t.t_id) && *)
-(*       (postset_of_transition rn.net u.t_id =  *)
-(*         preset_of_transition rn.net t.t_id) && *)
-(*       ((rn.net.label_map t).t_label = (rn.net.label_map u).t_label) *)
-(**)
+(** Enabling and Firing for tokens *)
+let is_enabled_tk (ns : net_system) (tid : transition) : bool =
+  let inputs = input_arcs ns.net tid in
+  List.for_all (fun p -> tokens_in ns.m p > 0) inputs
+(** [is_enabled_tk tn tid] checks if transition [tid] is enabled
+    in the token net [tn].
+
+    A transition [tid] with input places [p1,…,pk] is enabled iff
+    the current marking token has label in {p1,…,pk}, i.e., the
+    token currently sits in one of the input places. *)
+
+let next_id (w : Token.t) : int = Token.size w + 1
+(** [next_id tk] returns a fresh [identifier = size of the token + 1]. *)
+
+let unopt_net_system (mso : net_system option) : net_system =
+  match mso with
+  | None -> 
+    let empty_label_net = make_label_net [] [] [] [] (fun x -> "") in
+    {net = empty_label_net; m = empty_marking}
+  | Some m -> m
+
+let fire_tk (ns : net_system) (m : markingTok) (tid : transition)
+  : net_system option =
+  let pre  = input_arcs  ns.net tid in            (* •t *)
+  let post = output_arcs ns.net tid in            (* t• *)
+  let mem p l = List.exists (fun q -> Place.compare p q = 0) l in
+
+  (* w_{s_i}: the token of m used in s_i ∈ •t (exactly one) *)
+  let token_in p =
+    match Multiset.to_list (marking_of m p) with
+    | [ w ] -> Some w
+    | _ -> None in
+  let used = List.map (fun p -> (p, token_in p)) pre in
+  let w_of s =                                    (* Some w_s  iff  s ∈ •t *)
+    match List.find_opt (fun (p, _) -> Place.compare p s = 0) used with
+    | Some (_, w) -> w
+    | None -> None in
+
+    (* w = (λ(t), <<w_s1,…,w_sn>>, i) *)
+    let ws = List.filter_map snd used in
+    let i  = List.fold_left (fun acc w -> max acc (next_id w)) 1 ws in
+    let w  = Token.Tok (ns.net.label_map tid, ws, i) in
+
+    (* m'(s) for the places that change: •t ∪ t• *)
+    let affected = pre @ List.filter (fun s -> not (mem s pre)) post in
+    let step acc s =
+      Option.bind acc (fun mm ->
+        let ms = marking_of ns.m s in
+        let ms' =
+          match w_of s, mem s post with
+          | Some w_s, true  ->                    (* s ∈ •t ∩ t• : m(s) − w_s + w *)
+              Option.map (Multiset.add w) (Multiset.remove w_s ms)
+          | Some w_s, false ->                    (* s ∈ •t \ t• : m(s) − w_s *)
+              Multiset.remove w_s ms
+          | None, true ->                         (* s ∈ t• \ •t : m(s) + w *)
+              Some (Multiset.add w ms)
+          | None, false ->                        (* otherwise    : m(s) *)
+              Some ms in
+        Option.map (fun r -> set_place s r mm) ms') in
+    Option.map (fun m' -> { ns with m = m' })
+      (List.fold_left step (Some ns.m) affected)
+(** [fire_tk ns m tid] fires [tid] consuming the tokens [m ⊆ ns.m].
+
+    With [w_s] the token of [m] in [s ∈ •t] and
+    {m w = (\lambda(t), \langle\!\langle w_{s_1},\dots,w_{s_n}\rangle\!\rangle, i)}:
+    {math m'(s) = \begin{cases}
+      m(s) - w_s + w & s \in {}^\bullet t \cap t^\bullet \\
+      m(s) - w_s     & s \in {}^\bullet t \setminus t^\bullet \\
+      m(s) + w       & s \in t^\bullet \setminus {}^\bullet t \\
+      m(s)           & \text{otherwise}
+    \end{cases}}
+    Returns [None] if [m] is not a valid choice of tokens for [t]. *)
+
+
+let rec firing_sequence_tk (ns : net_system) (ms : markingTok list) (ts : transition list) : net_system option =
+  match ms, ts with
+  | [], []      -> Some ns
+  | m :: ms, t :: [] -> fire_tk ns m t
+  | m :: ms, t :: ts ->
+      if List.length ms == List.length ts then
+        match fire_tk ns m t with
+        | None     -> None
+        | Some ns' -> firing_sequence_tk ns' ms ts
+      else
+        None
+  | _, _    -> None
+  (** [firing_sequence_tk tn ts] fires all transitions in [ts] in order.
+    Returns [Some tn'] if every step succeeds, [None] at first failure. *)
+
+
+type keyPairNet = {
+  net : labelled_net;
+  key : place list;
+  }
+
+let is_key_net (kn : keyPairNet) : bool =
+    List.for_all (fun t ->
+      let post_t = output_arcs kn.net t in
+      List.length (intersect post_t kn.key) = 1
+    ) (get_transition kn.net) &&
+    List.for_all (fun s ->
+      let pre_s = List.map (fun x -> x) (preset_of_place kn.net s) in
+      let post_s = List.map (fun x -> x) (postset_of_place kn.net s) in
+      List.length pre_s = 1 && List.length post_s = 0
+    ) kn.key
+(** {b Key Labelled Net.} A net {m K = (N, S_k)} is called {b key labelled net} 
+  (or key net) if for every {m t \in T}, {m |t^{\bullet} \cap S_k| = 1}, and for all 
+  {m s \in S_k}, such that {m |s^{\bullet}|=0 \wedge |{}^{\bullet} s|=1.}
+*)
+
+let keypl (kn : keyPairNet) (t : transition) : place list =
+  let sk = kn.key in
+  List.filter (fun x -> 
+    (List.map (fun y -> y) (preset_of_place kn.net x)) = [t]) sk
+
+type reversing_net = {
+  key_net : keyPairNet;
+  rev_trans : transition list;
+}
+
+let forwardTransition (rn : reversing_net) : transition list =
+  setminus rn.key_net.net.transitions rn.rev_trans
+
+let forwardKeyNet (rn : reversing_net) : keyPairNet = 
+  let fwdT = forwardTransition rn in
+  let fwd_arcs = List.filter (fun x ->
+          (List.mem (pi_t x Fst) (List.map (fun x -> x) fwdT)) ||
+          (List.mem (pi_t x Snd) (List.map (fun x -> x) fwdT)) 
+          ) rn.key_net.net.arcs in
+  {
+    net = {
+      places = rn.key_net.net.places;
+      transitions = fwdT;
+      arcs = fwd_arcs;
+      set = rn.key_net.net.set;
+      label_map = rn.key_net.net.label_map;
+      };
+    key = rn.key_net.key;
+    } 
+
+let prop_reverse_transition (rn : reversing_net) (u : transition) =
+  let lnet = rn.key_net.net in
+  fun t -> 
+      (preset_of_transition lnet u = 
+        postset_of_transition lnet t) &&
+      (postset_of_transition lnet u = 
+        preset_of_transition lnet t) &&
+      (lnet.label_map t = lnet.label_map u)
+
 (* let is_reversible_lab_net (rn : reversing_net) : bool = *)
 (*   let fwdT = forwardTransition rn in *)
 (*   is_key_net (forwardKeyNet rn) && *)

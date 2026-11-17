@@ -1,4 +1,5 @@
 let rec (--) i j = if i > j then [] else i :: i + 1 -- j
+    (** range from i to j: [i--j] generes the list [[i;i+1;..;j]] *)
 
 let (|>>) x f = 
   match x with
@@ -10,6 +11,7 @@ let rec zip ls ts =
   | [], _ -> []
   | _, [] -> []
   |x :: xs, y :: ys -> (x,y) :: (zip xs ys)
+    (** [zip [l1,l2,..] [t1,t2,..]] returns the list of pairs [[(l1,t1), (l2,t2), ..]]. *)
 
 let unzip (xs: ('a * 'b) list) : ('a list * 'b list) =
   let rec list_left xs =
@@ -32,6 +34,7 @@ let rec ( !! ) xs n =
     | _, n when (n > List.length xs) -> raise (Invalid_argument "get_nth")
     | x ::_, 0 -> x
     | _ :: xs, n -> !! xs (n-1)
+    (** Get the n-th element of a list. For a list [ls] and a positive integer*)
 
 let init : 'a list -> 'a list = fun xs -> List.rev xs |> List.tl |> List.rev
 
@@ -66,6 +69,8 @@ let rec bin_prod xs ys =
   | x :: xs -> 
       let aux_ys a bs = if bs == [] then [] else List.map (fun b -> (a, b)) bs in
       (aux_ys x ys) @ (bin_prod xs ys)
+    (** Binary product. Given two sets [A] and [B], [bin_prod A B] return the
+    list of pairs [(a, b)] where {m a \in A \wedge b \in B}. *)
 
 let max_list xs = List.fold_left (max) "" xs
 
@@ -117,9 +122,17 @@ let intersect l1 l2 =
 let is_subset l1 l2 =
   List.for_all (fun x ->
     not (List.mem x l1) || List.mem x l2) l1
+  (** This function ask if {m s_1 \subseteq s_2} with the follow statement:
+    {m \forall x, x \in s_1 \Longrightarrow x \in s_2 \equiv 
+    \forall x, \neg (x \in s_1) \vee \in s_2.}*)
+
 
 let exists_unique s f x =
   f x && List.for_all (fun y -> not (f y) || (x = y)) s
+    (** For a set {m s} and a function {m f : s \to \mathsf{Bool}}, 
+    [exists_unique s f v] is equivalent to {m \exists! x, f(x)},
+    which its definition is {m f(v) \wedge \forall y \in s, f(y) \Longrightarrow x = y}.
+    *)
 
 let rec elem a ls : bool =
   match ls with
@@ -129,3 +142,16 @@ let rec elem a ls : bool =
 let encode_string (s : string) : int =
   String.fold_left (fun x -> fun y -> (x + int_of_char y) - 96) 0 s 
 
+module Make_id () : sig
+  type t
+  val of_string : string -> t
+  val to_string : t -> string
+  val compare : t -> t -> int
+  val equal : t -> t -> bool
+end = struct
+  type t = string
+  let of_string s = s
+  let to_string s = s
+  let compare = String.compare
+  let equal = String.equal
+end

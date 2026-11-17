@@ -10,6 +10,8 @@ type transition = Transition.t
 type arc = 
   | PT of place * transition 
   | TP of transition * place
+  (** [arc] is the immediate relation between places and transitions.
+ Here the type [int] plays the rol of the number of tokens. *)
 
 type marking = place list
 
@@ -73,7 +75,6 @@ let pi_p (r : arc) (i : int_projection) =
   | PT (p,_), Fst -> p
   | _, _ -> Place.of_string "" 
 
-
 let make_marked_net net marking : marked_net =
   {net; marking}
 
@@ -104,14 +105,14 @@ let preset_of_transition net tid : place list =
 let postset_of_transition net tid : place list =
   List.filter (fun x -> (List.mem (TP (tid, x)) (net.arcs))) (get_place net)
 
-let preset_of_place net pid =
+let preset_of_place (net : labelled_net) (pid : place) =
   List.filter_map (function
     | TP (tid, p) when p = pid ->
         List.find_opt (fun t -> t = tid) net.transitions
     | _ -> None
   ) net.arcs
  
-let postset_of_place net pid =
+let postset_of_place (net : labelled_net) (pid : place) =
   List.filter_map (function
     | PT (p, tid) when p = pid ->
         List.find_opt (fun t -> t = tid) net.transitions
@@ -137,6 +138,8 @@ let fire (net : marked_net) (tid :transition) : marked_net option =
     let m2 = output_arcs net.net tid in
     let m = net.marking in
     Some { net with marking = (setminus m m1) @ m2 }
+  (** Fire a transition if it is enabled; return the net with
+    the new marking on [Some] of [None] if it isn't enabled.*)
 
 (* Auxiliar function: [a option] -> [a] *)
 let un_opt (x : marked_net option) : marked_net =
@@ -207,10 +210,15 @@ let marking_graph (mn : marked_net) : (marking * label * marking) list =
     ) enabled_tr;
   done;
   List.rev !edges
+  (** [marking_graph mn] returns all reachable edges {m (m, t, m')} from [mn.marking]
+    by BFS, visiting each marking at most once. *)
 
 let reachable_markings (mn : marked_net) : marking list =
   let init = mn.marking in
   [init] @ List.map (fun (_,_,x) -> x) (marking_graph mn)
+  (** [reachable_markings mn] returns the list of reachable markings by
+   firing.
+  *)
 
 let ccs_net (ln : labelled_net) : bool =
   List.for_all (fun x ->
@@ -218,6 +226,10 @@ let ccs_net (ln : labelled_net) : bool =
     let lam_t = ln.label_map x in
     len_pre <= 2 && ( not (len_pre = 2) || lam_t = "tau")
   ) ln.transitions
+  (** A [ccs_net] is a function that verifies a labelled net such that
+    for all {m t \in T, |\bullet t| \le 2} and if {m |\bullet t|=2} then
+    {m \lambda (t) = \tau}.
+  *)
 
 let is_safe (mn : marked_net) : bool =
   let visited = Hashtbl.create 1024 in
@@ -312,12 +324,13 @@ let arcs1 = [
 
 let set = make_label_list ["a"; "b"; "tau"]
 
-let lambda1 : transition -> label = function t ->
+let lambda1 : Transition.t -> label = function t ->
   match t with
-  | t1 -> "a"
-  | t2 -> "b"
-  | t3 -> "b"
-  | t4 -> "tau"
+  | x when Transition.equal x t1 -> "a"
+  | x when Transition.equal x t2 -> "b"
+  | x when Transition.equal x t3 -> "b"
+  | x when Transition.equal x t4 -> "tau"
+  | _ -> ""
 
 let label_trans = fun x -> lambda1 x
 
@@ -336,8 +349,9 @@ let arcs2 = [
 
 let lambda2 : transition -> label  = function t ->
   match t with
-  | t1 -> "a"
-  | t2 -> "b"
+  | x when Transition.equal x t1 -> "a"
+  | x when Transition.equal x t2 -> "b"
+  | _ -> ""
 
 let label_trans2 = fun x -> lambda2 x
 
