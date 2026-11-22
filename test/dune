@@ -1,4 +1,5 @@
-; (test
-;  (name test)
-;  (libraries revpn-ccsk)
-;  )
+(test
+ (name token_test)
+ (libraries revpn-ccsk alcotest)
+ (action (run %{test} -e))
+ )

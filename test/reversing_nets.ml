@@ -1,13 +1,16 @@
-(* open Revpn_ccsk.Enriching *)
-(* open Revpn_ccsk.Net *)
 (* open Revpn_ccsk.Token *)
+(* open Revpn_ccsk.Enriching *)
+(* open Alcotest *)
 
 (* Token and system net *)
 
 let m0 : markingTok = make_marking [(s1, [w0; w0])]
 
 let m0' : markingTok = make_marking [(s1, [w0])]
-let m1' : markingTok = make_marking [(s2, [Token.Tok (net1.label_map t1, [w0], 1)]); (s3, [Token.Tok (net1.label_map t2, [w0], 1)])]
+let m1' : markingTok = make_marking [
+  (s2, [Tok (net1.label_map t1, [w0], 1)]); 
+  (s3, [Tok (net1.label_map t2, [w0], 1)])
+  ]
 
 (* Fig. 4 *)
 let ns1 : net_system = {
@@ -69,11 +72,12 @@ let lambda_r = function t ->
   | _ -> ""
 
 let arcs_r : arc list = [
-  PT (s1, t1); TP (t1, s1);
+  PT (s1, t1); TP (t1, st1);
   PT (s1, t2); TP (t1, s2); 
-  TP (t2, s3); PT (s3, t4); 
+  TP (t2, s3); TP (t2, st2);
+  PT (s3, t4); TP (t3, st3); 
   PT (s2, t4); PT (s2, t3);
-  TP (t3, s4); TP (t4, s4);
+  TP (t3, s4); TP (t4, s4); TP (t4, st4);
   PT (st1, u1); PT (s2, u1); TP (u1, s1);
   PT (st2, u2); PT (s3, u2); TP (u2, s1); 
   PT (st3, u3); PT (s4, u3); TP (u3, s2);
@@ -92,12 +96,13 @@ let rnet1 = {
 }
 
 let () =
+  assert (is_initial ns1 m0' == true);
   assert (is_enabled_tk ns1 t1 == true);
   assert (is_enabled_tk ns1 t3 == false);
   assert (is_key_net knet1 == true);
   assert (is_key_net knet_r == false);
-
-  assert (List.length knet1.net.transitions == List.length knet1.key);
+  assert (List.length knet1.net.transitions == List.length knet1.key); (* |T| = |S_k| *)
+  assert (is_reversible_labelled_net rnet1 == true);
 
 (* let pl_ex : place list = (generate_place 4) @ key_ex *)
 (**)

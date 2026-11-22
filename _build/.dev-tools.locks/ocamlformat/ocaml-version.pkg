@@ -1,0 +1,17 @@
+(version 4.1.6)
+
+(build
+ (progn
+  (when
+   %{pkg-self:dev}
+   (run dune subst))
+  (run dune build -p %{pkg-self:name} -j %{jobs} @install)))
+
+(depends dune ocaml)
+
+(source
+ (fetch
+  (url
+   https://github.com/ocurrent/ocaml-version/releases/download/v4.1.6/ocaml-version-4.1.6.tbz)
+  (checksum
+   sha512=173b4cb9ba4ce1999c5d36e720f6df01c2eb8c3e724f4fa8536566049f447627e42a69dedb38468a2036b5e77eb98597ccfc77dc9d9077d2ed6cb58148cc3ae2)))

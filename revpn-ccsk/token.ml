@@ -24,8 +24,7 @@ module Token = struct
       List.fold_left (fun m w -> max m (size w)) 0 ws + 1
     (** The {i size} of a token is defined as follows: 
     {m \mathsf{size}((\cdot,\langle\!\langle \rangle\!\rangle,\cdot))=0} and
-    {m \mathsf{size}((a,\langle\!\langle w_1,\dots, w_n \rangle\!\rangle,j))=
-        \max\{\mathsf{size(w_i) \mid 1\le i \le n}\} + 1}.
+    {m \mathsf{size}((a,\langle\!\langle w_1,\dots, w_n \rangle\!\rangle,j))= \max\{\mathsf{size(w_i) \mid 1\le i \le n}\} + 1}.
 
     *)
 
@@ -188,11 +187,9 @@ let w4 = Tok ("tau", [w3], 3)             (* size w4 -> 2 *)
 
   (** {m w_2 = (b, \langle\!\langle (\cdot, \langle\!\langle \rangle\!\rangle, \cdot)\rangle\!\rangle, 1)} *)
 
-  (** {m w_3 = (a, \langle\!\langle (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 
-    (b, (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 1)\rangle\!\rangle, 2)} *)
+  (** {m w_3 = (a, \langle\!\langle (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), (b, (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 1)\rangle\!\rangle, 2)} *)
 
-  (** {m w_4 = (\tau, \langle\!\langle(a, \langle\!\langle (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), 
-    (b, \langle\!\langle(\cdot, \langle\!\langle \rangle\!\rangle, \cdot)\rangle\!\rangle, 1)\rangle\!\rangle, 2)\rangle\!\rangle, 3)} *)
+  (** {m w_4 = (\tau, \langle\!\langle(a, \langle\!\langle (\cdot, \langle\!\langle \rangle\!\rangle, \cdot), (b, \langle\!\langle(\cdot, \langle\!\langle \rangle\!\rangle, \cdot)\rangle\!\rangle, 1)\rangle\!\rangle, 2)\rangle\!\rangle, 3)} *)
 
 (* Example for use multiset for tokens *)
 let mul1 = Multiset.of_list [w0; w0]
@@ -202,7 +199,7 @@ let mul2 = Multiset.of_list [w1]
 let move p q w m =
   Option.map (add_token q w) (remove_token p w m) |> unopt_tk
 
-(** [move "p2" "p3" w1 m1]  : Some {p ↦ {|w0, w0|}, q ↦ {| w1 |} } 
+  (** [move "p2" "p3" w1 m1]  : [Some {p ↦ {|w0, w0|}, q ↦ {| w1 |} }]
 
-    [move "p2" "p3" w2 m1]  : None: w2 is not in p
+    [move "p2" "p3" w2 m1]  : [None] : w2 is not in p
 *)

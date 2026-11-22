@@ -7,6 +7,9 @@ type net_system = {
   net : labelled_net;
   m : markingTok;
 }
+(** A {i net system} is a pair {m (N, m)} with {m N} labelled net
+  and the marking {m m} is a mapping associating to each place a multiset 
+  of tokens, i.e. {m m : S \to \mu\textsf{Tok}}. *)
 
 let make_net_system (net : labelled_net) (m : markingTok) : net_system = {
   net = net; 
@@ -23,25 +26,25 @@ let immediate_transitions (ln : labelled_net) : (transition * transition) list =
     ) plSet)
   ) binProd
   (** {b Immediate dependency.} 
-      Two transitions [t_1, t_2] are in {i immediate dependency} if 
+      Two transitions {m t_1, t_2} are in {i immediate dependency} if 
       there is a place {m a \in P} such that 
       {m (t_1, a) \in R \wedge (a, t_2) \in R}.
   *)
 
 
-(** Enabling and Firing for tokens *)
+(* Enabling and Firing for tokens *)
 let is_enabled_tk (ns : net_system) (tid : transition) : bool =
   let inputs = input_arcs ns.net tid in
   List.for_all (fun p -> tokens_in ns.m p > 0) inputs
-(** [is_enabled_tk tn tid] checks if transition [tid] is enabled
+  (** [is_enabled_tk tn tid] checks if transition [tid] is enabled
     in the token net [tn].
 
     A transition [tid] with input places [p1,…,pk] is enabled iff
-    the current marking token has label in {p1,…,pk}, i.e., the
+    the current marking token has label in [p1,…,pk], i.e., the
     token currently sits in one of the input places. *)
 
 let next_id (w : Token.t) : int = Token.size w + 1
-(** [next_id tk] returns a fresh [identifier = size of the token + 1]. *)
+  (** [next_id tk] returns a fresh [identifier = size of the token + 1]. *)
 
 let unopt_net_system (mso : net_system option) : net_system =
   match mso with
@@ -50,12 +53,10 @@ let unopt_net_system (mso : net_system option) : net_system =
     {net = empty_label_net; m = empty_marking}
   | Some m -> m
 
-let fire_tk (ns : net_system) (m : markingTok) (tid : transition)
-  : net_system option =
+let fire_tk (ns : net_system) (m : markingTok) (tid : transition) : net_system option =
   let pre  = input_arcs  ns.net tid in            (* •t *)
   let post = output_arcs ns.net tid in            (* t• *)
   let mem p l = List.exists (fun q -> Place.compare p q = 0) l in
-
   (* w_{s_i}: the token of m used in s_i ∈ •t (exactly one) *)
   let token_in p =
     match Multiset.to_list (marking_of m p) with
@@ -66,12 +67,10 @@ let fire_tk (ns : net_system) (m : markingTok) (tid : transition)
     match List.find_opt (fun (p, _) -> Place.compare p s = 0) used with
     | Some (_, w) -> w
     | None -> None in
-
     (* w = (λ(t), <<w_s1,…,w_sn>>, i) *)
     let ws = List.filter_map snd used in
     let i  = List.fold_left (fun acc w -> max acc (next_id w)) 1 ws in
     let w  = Token.Tok (ns.net.label_map tid, ws, i) in
-
     (* m'(s) for the places that change: •t ∪ t• *)
     let affected = pre @ List.filter (fun s -> not (mem s pre)) post in
     let step acc s =
@@ -118,6 +117,11 @@ let rec firing_sequence_tk (ns : net_system) (ms : markingTok list) (ts : transi
   (** [firing_sequence_tk tn ts] fires all transitions in [ts] in order.
     Returns [Some tn'] if every step succeeds, [None] at first failure. *)
 
+let is_initial (n : net_system) (m : markingTok) : bool =
+  List.for_all (fun s -> 
+    is_subset ((marking_of m s) |> Multiset.to_list) [Tok_empty]
+    ) n.net.places
+
 
 type keyPairNet = {
   net : labelled_net;
@@ -143,11 +147,33 @@ let keypl (kn : keyPairNet) (t : transition) : place list =
   let sk = kn.key in
   List.filter (fun x -> 
     (List.map (fun y -> y) (preset_of_place kn.net x)) = [t]) sk
+(** Let [kn = (N, S_k)] be a key labelled net and let [t] be a transition.
+    Then with {m s^t} we denote the {b key place} {m s^t \in S_k} such 
+    that {m {}^{\bullet} s^t = \{t\}}. The key place associated to a 
+    transition [t] is denoted with {m \mathsf{keypl}(t)}. 
+    So, [keypl kn t] returns the key place associated to [t]. *)
 
+let is_key_initial (kn : keyPairNet) (m : markingTok) : bool =
+  let ns = make_net_system kn.net m in
+  is_initial ns m && 
+  List.for_all (fun s -> 
+    (marking_of m s) = Multiset.empty
+    ) kn.key
+    (** We say that m is initial iff (a) {m \forall s \in S, [\![ m(s) ]\!] \subseteq \{(\cdot,\langle\!\langle \rangle\!\rangle, \cdot)\}} and (b) {m \forall s \in S_k, m(s) = 0}. *)
+
+(* --- Reversing nets --- *)
 type reversing_net = {
   key_net : keyPairNet;
   rev_trans : transition list;
 }
+(** Formally a {i reversible labelled net} is a pair {m R=(N,S_k,U)}, where
+    {m \mathsf{K} = (\langle S, T, F, \lambda, \mathsf{A}\rangle, S_k)} is 
+    a key net, and {m U} is the set of reversing transitions with 
+    {m U \subseteq T}.
+    We define [reversing_net] as a pair [{key_net = kn; rev_trans = rt}] 
+    being [kn] the key net {m \mathsf{K}} and [rt] the reversing transitions
+    set {m U}.
+*)
 
 let forwardTransition (rn : reversing_net) : transition list =
   setminus rn.key_net.net.transitions rn.rev_trans
@@ -167,9 +193,14 @@ let forwardKeyNet (rn : reversing_net) : keyPairNet =
       label_map = rn.key_net.net.label_map;
       };
     key = rn.key_net.key;
-    } 
+    }
+(** [forwardKeyNet rn]: for every a reversible net [rn] equals to {m (N, S_k, U)} with 
+    {m N = \langle S, T, F, \lambda, \mathsf{A}\rangle} returns the forward key net
+    {m (\langle S, T, F_f, \lambda\rangle, S_k)} where {m F_f} suprimes all the arcs 
+    {m (s, u)} and {m (u, s)} with {m u \in U} over {m F}.
+    *)
 
-let prop_reverse_transition (rn : reversing_net) (u : transition) =
+let prop_reverse_transition (rn : reversing_net) (u : transition) : transition -> bool =
   let lnet = rn.key_net.net in
   fun t -> 
       (preset_of_transition lnet u = 
@@ -178,15 +209,15 @@ let prop_reverse_transition (rn : reversing_net) (u : transition) =
         preset_of_transition lnet t) &&
       (lnet.label_map t = lnet.label_map u)
 
-(* let is_reversible_lab_net (rn : reversing_net) : bool = *)
-(*   let fwdT = forwardTransition rn in *)
-(*   is_key_net (forwardKeyNet rn) && *)
-(*   is_subset rn.rev_trans rn.net.transitions && *)
-(*   List.for_all (fun u -> *)
-(*     List.exists (fun t -> *)
-(*     exists_unique fwdT (prop_reverse_transition rn u) t *)
-(*     ) fwdT *)
-(*   ) rn.rev_trans *)
-(**)
+let is_reversible_labelled_net (rn : reversing_net) : bool =
+  let fwdT = forwardTransition rn in
+  is_key_net (forwardKeyNet rn) &&
+  is_subset rn.rev_trans rn.key_net.net.transitions &&
+  List.for_all (fun u ->
+    List.exists (fun t ->
+    exists_unique fwdT (prop_reverse_transition rn u) t
+    ) fwdT
+  ) rn.rev_trans
+
 
 
