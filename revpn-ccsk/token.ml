@@ -158,7 +158,7 @@ let kt (w : t) : int =
   | Tok_empty -> 0
   | Tok (_,_,j) -> j
 
-let lab_tok (w : t) : label =
+let label (w : t) : label =
   match w with
   | Tok_empty -> ""
   | Tok (a,_,_) -> a

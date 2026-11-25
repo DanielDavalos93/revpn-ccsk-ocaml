@@ -10,7 +10,7 @@ open Net
 open Token
 #mod_use "revpn-ccsk/enriching.ml"
 open Enriching
-#mod_use "test/token_test.ml"
-(* open Token_test *)
+open ReversingNet
+(* #mod_use "test/token_test.ml" *)
 #mod_use "test/reversing_nets.ml"
 open Reversing_nets

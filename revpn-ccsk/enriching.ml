@@ -1,5 +1,4 @@
 open Net
-open Lts
 open Util
 open Token
 
@@ -159,13 +158,10 @@ let is_key_initial (kn : keyPairNet) (m : markingTok) : bool =
   List.for_all (fun s -> 
     (marking_of m s) = Multiset.empty
     ) kn.key
-    (** We say that m is initial iff (a) {m \forall s \in S, [\![ m(s) ]\!] \subseteq \{(\cdot,\langle\!\langle \rangle\!\rangle, \cdot)\}} and (b) {m \forall s \in S_k, m(s) = 0}. *)
+    (** We say that {m m} is {b key initial} in a key net iff (a) {m \forall s \in S, [\![ m(s) ]\!] \subseteq \{(\cdot,\langle\!\langle \rangle\!\rangle, \cdot)\}} and (b) {m \forall s \in S_k, m(s) = 0}. *)
 
 (* --- Reversing nets --- *)
-type reversing_net = {
-  key_net : keyPairNet;
-  rev_trans : transition list;
-}
+module ReversingNet = struct
 (** Formally a {i reversible labelled net} is a pair {m R=(N,S_k,U)}, where
     {m \mathsf{K} = (\langle S, T, F, \lambda, \mathsf{A}\rangle, S_k)} is 
     a key net, and {m U} is the set of reversing transitions with 
@@ -174,17 +170,26 @@ type reversing_net = {
     being [kn] the key net {m \mathsf{K}} and [rt] the reversing transitions
     set {m U}.
 *)
+  type reversing_net = {
+    key_net : keyPairNet;
+    rev_trans : transition list;
+  }
 
-let forwardTransition (rn : reversing_net) : transition list =
-  setminus rn.key_net.net.transitions rn.rev_trans
+  let forwardTransition (rn : reversing_net) : transition list =
+    setminus rn.key_net.net.transitions rn.rev_trans
 
-let forwardKeyNet (rn : reversing_net) : keyPairNet = 
-  let fwdT = forwardTransition rn in
-  let fwd_arcs = List.filter (fun x ->
+  (** [forwardKeyNet rn]: for every a reversible net [rn] equals to 
+    {m (N, S_k, U)} with {m N = \langle S, T, F, \lambda, \mathsf{A}\rangle} 
+    returns the forward key net {m (\langle S, T, F_f, \lambda\rangle, S_k)} 
+    where {m F_f} suprimes all the arcs {m (s, u)} and {m (u, s)} with 
+    {m u \in U} over {m F}. *)
+  let forwardKeyNet (rn : reversing_net) : keyPairNet = 
+    let fwdT = forwardTransition rn in
+    let fwd_arcs = List.filter (fun x ->
           (List.mem (pi_t x Fst) (List.map (fun x -> x) fwdT)) ||
           (List.mem (pi_t x Snd) (List.map (fun x -> x) fwdT)) 
           ) rn.key_net.net.arcs in
-  {
+    {
     net = {
       places = rn.key_net.net.places;
       transitions = fwdT;
@@ -192,32 +197,85 @@ let forwardKeyNet (rn : reversing_net) : keyPairNet =
       set = rn.key_net.net.set;
       label_map = rn.key_net.net.label_map;
       };
-    key = rn.key_net.key;
+      key = rn.key_net.key;
     }
-(** [forwardKeyNet rn]: for every a reversible net [rn] equals to {m (N, S_k, U)} with 
-    {m N = \langle S, T, F, \lambda, \mathsf{A}\rangle} returns the forward key net
-    {m (\langle S, T, F_f, \lambda\rangle, S_k)} where {m F_f} suprimes all the arcs 
-    {m (s, u)} and {m (u, s)} with {m u \in U} over {m F}.
-    *)
 
-let prop_reverse_transition (rn : reversing_net) (u : transition) : transition -> bool =
-  let lnet = rn.key_net.net in
-  fun t -> 
-      (preset_of_transition lnet u = 
-        postset_of_transition lnet t) &&
-      (postset_of_transition lnet u = 
-        preset_of_transition lnet t) &&
-      (lnet.label_map t = lnet.label_map u)
+  (** Let [rn] be a reversing net {m R =(\langle S, T, F, \lambda, \mathsf{A}\rangle, S_k, U)}. 
+    For each forward transition [t] in [T] and backward transition [u] in [U], 
+    [prop_reverse_transition rn u t] is [true] if 
+    {math ({}^{\bullet}u=t^{\bullet}) \wedge (u^{\bullet}={}^{\bullet}t) \wedge (\lambda (t) = \lambda (u)).} *)
+  let prop_reverse_transition (rn : reversing_net) : transition -> transition -> bool =
+    let lnet = rn.key_net.net in
+    fun u ->
+      fun t -> 
+        (preset_of_transition lnet u = postset_of_transition lnet t) &&
+        (postset_of_transition lnet u = preset_of_transition lnet t) &&
+        (lnet.label_map t = lnet.label_map u)
 
-let is_reversible_labelled_net (rn : reversing_net) : bool =
-  let fwdT = forwardTransition rn in
-  is_key_net (forwardKeyNet rn) &&
-  is_subset rn.rev_trans rn.key_net.net.transitions &&
-  List.for_all (fun u ->
-    List.exists (fun t ->
-    exists_unique fwdT (prop_reverse_transition rn u) t
-    ) fwdT
-  ) rn.rev_trans
+  (** [is_reversible_labelled_net] take a reversing net {m R =(\langle S, T, F, \lambda, \mathsf{A}\rangle, S_k, U)} as [rn] and returns true 
+      if it satisfies the following statements:
+        + [rn.key_net.net] has type [labelled_net];
+        + If we write {m (\langle S, T \setminus U, F \setminus (\{(s, u) | s \in S, u \in U \} \cup \{(u, s) | s \in S, u \in U \}), \lambda, \mathsf{A}\rangle, S_k)} as [kn'], then [is_key_net kn'] is [true]; and
+        + {m U \subseteq T} and {m \forall} [u]{m \in U, \exists!} [t]{m \in T\setminus U}, [prop_reverse_transition rn u t].
+ *)
+  let is_reversible_labelled_net (rn : reversing_net) : bool =
+    let fwdT = forwardTransition rn in
+    is_key_net (forwardKeyNet rn) &&
+    is_subset rn.rev_trans rn.key_net.net.transitions &&
+    List.for_all (fun u ->
+      List.exists (fun t ->
+      exists_unique fwdT (prop_reverse_transition rn u) t
+      ) fwdT
+    ) rn.rev_trans
 
+  (** When [rn : reversing_net] satisfies the [is_reversible_labelled_net] def.,
+      then [reverse_transition rn t] returns the transition [Some t'], such that 
+     {math ({}^{\bullet}t=t'^{\bullet}) \wedge (t^{\bullet}={}^{\bullet}t') \wedge (\lambda (t) = \lambda (t')).}
 
+     Of course, this condition is allways possible because of the third reversible 
+     condition. In otherwise, [reverse_transition rn t] returns [None].
+     In this function, don't mind if [t] is forward or backward transition.
+  *)
+  let reverse_transition (rn : reversing_net) (t : transition) =
+    let fwdT = forwardTransition rn in
+    let bwdT = rn.rev_trans in
+    if is_reversible_labelled_net rn then
+      if List.mem t (rn.rev_trans) then
+        (List.filter (fun t' -> prop_reverse_transition rn t t') fwdT)
+      else
+        (List.filter (fun t' -> prop_reverse_transition rn t t') bwdT)
+    else
+      []
+    
 
+(** Let {m R = (\langle S, T, F, \lambda, A\rangle, S_k, U)} be a reversible labelled net 
+    and let {m u \in U} be a reversing transition, and {m t \in T \setminus U} the 
+    corresponding forward transition. Then [u] is {b enabled at the marking} [m] whenever 
+    {math 
+    \begin{align}
+    &\forall s \in {}^{\bullet}u,\\
+    & \quad \exists w \in m(s), \mathsf{label}(w) = \lambda(t) \wedge \\
+    & \qquad \forall w'\in \lfloor w \rfloor,\\
+    & \qquad \qquad \exists s' \in u^{\bullet},\\
+    & \qquad \qquad \qquad \exists t' ∈ {}^{\bullet}s, 
+        w′ \in m(\mathsf{keypl}(t)) \vee w′ = (\cdot, \langle\!\langle\\rangle\!\rangle, ·). 
+    }
+*)
+  let is_enabled (rn : reversing_net) (m : markingTok) (u : transition) =
+    let rt = !! (reverse_transition rn u) 0 in
+    let net = rn.key_net.net in
+    List.mem u rn.rev_trans && 
+    List.for_all (fun s ->
+      List.exists (fun w -> label w = net.label_map rt &&
+      let ws' = List.map (fun ws -> Multiset.of_list [ws]) (toks w) in
+        List.for_all (fun w' ->
+          List.exists (fun s' ->
+            let m_keypl_t = fun t' -> List.map (fun p -> marking_of m p) (keypl rn.key_net t') in
+            List.exists (fun t' -> List.mem w' (m_keypl_t t') || w' = Multiset.of_list [Tok_empty]
+            ) (preset_of_place net s')
+          ) (preset_of_transition net u)
+        ) ws'
+      ) (marking_of m s |> Multiset.to_list)
+    ) (preset_of_transition net u)
+
+end

@@ -1,8 +1,9 @@
 (* open Revpn_ccsk.Token *)
 (* open Revpn_ccsk.Enriching *)
-(* open Alcotest *)
 
-(* Token and system net *)
+(* Token, net system and reversing nets *)
+open Token
+open ReversingNet
 
 let m0 : markingTok = make_marking [(s1, [w0; w0])]
 
@@ -95,6 +96,11 @@ let rnet1 = {
   rev_trans = [u1; u2; u3; u4]
 }
 
+let wst2 = Tok ("b", [Tok_empty], 3)
+  
+(* Ths is the initial marking from the example 6 (Fig. 7) *)
+let m' : markingTok = make_marking [(s4, [w1]); (st4, [w1]); (st1, [w1]); (st2, [wst2])]
+
 let () =
   assert (is_initial ns1 m0' == true);
   assert (is_enabled_tk ns1 t1 == true);
@@ -103,6 +109,7 @@ let () =
   assert (is_key_net knet_r == false);
   assert (List.length knet1.net.transitions == List.length knet1.key); (* |T| = |S_k| *)
   assert (is_reversible_labelled_net rnet1 == true);
+  (* assert (ReversingNet.is_enabled )  *)
 
 (* let pl_ex : place list = (generate_place 4) @ key_ex *)
 (**)
