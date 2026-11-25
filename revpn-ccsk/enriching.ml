@@ -252,13 +252,14 @@ module ReversingNet = struct
     and let {m u \in U} be a reversing transition, and {m t \in T \setminus U} the 
     corresponding forward transition. Then [u] is {b enabled at the marking} [m] whenever 
     {math 
-    \begin{align}
+    \begin{align*}
     &\forall s \in {}^{\bullet}u,\\
     & \quad \exists w \in m(s), \mathsf{label}(w) = \lambda(t) \wedge \\
     & \qquad \forall w'\in \lfloor w \rfloor,\\
-    & \qquad \qquad \exists s' \in u^{\bullet},\\
-    & \qquad \qquad \qquad \exists t' ∈ {}^{\bullet}s, 
-        w′ \in m(\mathsf{keypl}(t)) \vee w′ = (\cdot, \langle\!\langle\\rangle\!\rangle, ·). 
+    & \quad \qquad \exists s' \in u^{\bullet},\\
+    & \qquad \qquad \exists t' ∈ {}^{\bullet}s, 
+        w′ \in m(\mathsf{keypl}(t)) \vee w′ = (\cdot, \langle\!\langle \rangle\!\rangle, ·)
+    \end{align*}
     }
 *)
   let is_enabled (rn : reversing_net) (m : markingTok) (u : transition) =
